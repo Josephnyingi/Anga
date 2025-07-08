@@ -8,11 +8,67 @@ import os
 import requests
 from datetime import datetime, timedelta
 
-app = FastAPI()
+# NEW 🧠 Import for assistant
+import sys
+from pathlib import Path
+from dotenv import load_dotenv
+# Load .env from repo root (C:\Users\mrjos\Clime)
+env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
+load_dotenv(dotenv_path=env_path)
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# Dynamically find absolute path to assistant_core.py
+assistant_path = Path(__file__).resolve().parents[1] / "models" / "AI-Farming-Assistant-App"
+sys.path.append(str(assistant_path))
 
-# Load ML models
+try:
+    from assistant_core import generate_response
+except ImportError:
+    raise ImportError(f"❌ Could not import `generate_response()` from {assistant_path}/assistant_core.py")
+
+# ✅ Main ANGA app
+app = FastAPI(
+    title="ANGA Unified API",
+    description="This combines core ANGA features with the AI Farming Assistant.",
+    version="2.0.0"
+)
+
+# 🌐 Enable CORS (important for mobile/Flutter access)
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 🧠 Assistant API schema
+class Question(BaseModel):
+    query: str
+    use_case: str = "Smart Farming Advice"
+
+@app.post("/assistant/ask")
+def ask_ai_farming_assistant(data: Question):
+    answer = generate_response(data.query, data.use_case)
+    return {"answer": answer}
+
+# 🔁 Database helper
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# ✅ Supported locations
+SUPPORTED_LOCATIONS = {
+    "machakos": {"lat": -1.5167, "lon": 37.2667},
+    "vhembe": {"lat": -22.9781, "lon": 30.4516}
+}
+
+# 📦 Load ML models
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 try:
     with open(os.path.join(BASE_DIR, "model/temp_model.pkl"), "rb") as f:
         temp_model = pickle.load(f)
@@ -21,25 +77,10 @@ try:
 except FileNotFoundError:
     raise RuntimeError("Model files not found!")
 
-# Database dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-# ✅ Default supported locations
-SUPPORTED_LOCATIONS = {
-    "machakos": {"lat": -1.5167, "lon": 37.2667},
-    "vhembe": {"lat": -22.9781, "lon": 30.4516}
-}
-
-# PREDICTION ENDPOINT
+# 📍 Prediction endpoint
 class PredictionRequest(BaseModel):
-    date: str # Expected format: YYYY-MM-DD
-    location: str = "machakos"  # ✅ Default location
-
+    date: str
+    location: str = "machakos"
 
 @app.post("/predict/")
 async def predict_weather(request: PredictionRequest):
@@ -56,7 +97,6 @@ async def predict_weather(request: PredictionRequest):
     delta_days = (date - today).days
 
     if delta_days <= 16:
-        # 🔗 Use Open-Meteo forecast
         coords = SUPPORTED_LOCATIONS[location]
         url = (
             f"https://api.open-meteo.com/v1/forecast?"
@@ -79,9 +119,7 @@ async def predict_weather(request: PredictionRequest):
             }
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Open-Meteo failed: {str(e)}")
-
     else:
-        # 🤖 Use ML model for long-range prediction
         future_df = pd.DataFrame({'ds': [date]})
         temp_prediction = temp_model.predict(future_df).iloc[0]["yhat"]
         rain_prediction = rain_model.predict(future_df).iloc[0]["yhat"]
@@ -93,8 +131,7 @@ async def predict_weather(request: PredictionRequest):
             "temperature_prediction": round(temp_prediction, 2),
             "rain_prediction": round(rain_prediction, 2)
         }
-    
-# SAVE PREDICTION
+
 @app.post("/save_prediction/")
 def save_prediction(date: str, location: str, temperature: float, rain: float, db: Session = Depends(get_db)):
     new_weather = WeatherData(date=date, location=location, temperature=temperature, rain=rain)
@@ -102,7 +139,6 @@ def save_prediction(date: str, location: str, temperature: float, rain: float, d
     db.commit()
     return {"message": "Prediction saved successfully"}
 
-# USER CREATION
 class UserCreate(BaseModel):
     name: str
     phone_number: str
@@ -119,7 +155,6 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return {"message": "User created successfully", "user_id": new_user.id}
 
-# LOGIN
 class LoginRequest(BaseModel):
     phone_number: str
     password: str
@@ -131,7 +166,6 @@ def login_user(request: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid phone number or password")
     return {"message": "Login successful", "user_id": user.id}
 
-# ✅ LIVE WEATHER ENDPOINT (Machakos and Vhembe only)
 @app.get("/live_weather/")
 def get_live_weather(location: str = "machakos"):
     loc = location.lower()
@@ -159,7 +193,19 @@ def get_live_weather(location: str = "machakos"):
             "date": data["daily"]["time"][0],
             "temperature_max": data["daily"]["temperature_2m_max"][0],
             "rain_sum": data["daily"]["precipitation_sum"][0]
-
         }
     except Exception as e:
         return {"error": "Failed to fetch live weather", "details": str(e)}
+# Run the app with: import sys
+from pathlib import Path
+
+# Dynamically find absolute path to assistant_core.py
+assistant_path = Path(__file__).resolve().parents[1] / "models" / "AI-Farming-Assistant-App"
+sys.path.append(str(assistant_path))
+
+try:
+    from assistant_core import generate_response
+except ImportError:
+    raise ImportError(f"❌ Could not import `generate_response()` from {assistant_path}/assistant_core.py")
+#uvicorn backend.main_api:app --reload --host 0.0.0.0 --port 8000
+

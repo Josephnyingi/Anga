@@ -9,9 +9,9 @@ class WeatherService {
   WeatherService() {
     // Set base URL based on platform
  if (Platform.isAndroid) {
-  baseUrl = "http://10.0.2.2:8000"; // ✅ for Android emulator
+  baseUrl = "http://127.0.0.1:8001"; // ✅ for Android emulator
 } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-  baseUrl = "http://127.0.0.1:8000"; // ✅ for desktop testing
+  baseUrl = "http://127.0.0.1:8002"; // ✅ for desktop testing
 } else {
   baseUrl = "http://192.168.X.X:8000"; // ✅ real device
 }
