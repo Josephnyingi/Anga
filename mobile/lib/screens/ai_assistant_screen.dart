@@ -10,40 +10,26 @@ class AIAssistantScreen extends StatefulWidget {
 
 class _AIAssistantScreenState extends State<AIAssistantScreen> {
   final TextEditingController _controller = TextEditingController();
-  String _response = '';
-  bool _isLoading = false;
+  String? _response;
+  bool _loading = false;
 
-  Future<void> _sendQuery() async {
-    final prompt = _controller.text.trim();
-    if (prompt.isEmpty) return;
-
-    setState(() {
-      _isLoading = true;
-      _response = '';
-    });
-
+  Future<void> _ask() async {
+    setState(() => _loading = true);
     try {
-      final answer = await AIAssistantService.askAssistant(prompt: prompt);
-      setState(() {
-        _response = answer;
-      });
+      final response = await AIAssistantService.askAssistant(
+        prompt: _controller.text,
+      );
+      setState(() => _response = response);
     } catch (e) {
-      setState(() {
-        _response = '❌ Error: ${e.toString()}';
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _response = "⚠️ Error: ${e.toString()}");
     }
+    setState(() => _loading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('AI Farming Assistant 🌾'),
-      ),
+      appBar: AppBar(title: const Text("AI Assistant")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -51,30 +37,37 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
             TextField(
               controller: _controller,
               decoration: const InputDecoration(
-                hintText: 'Ask a farming or climate question...',
+                labelText: "Ask your farming question...",
                 border: OutlineInputBorder(),
               ),
-              maxLines: null,
+              minLines: 1,
+              maxLines: 4,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: _isLoading ? null : _sendQuery,
-              child: _isLoading
-                  ? const CircularProgressIndicator()
-                  : const Text('Ask AI'),
+              onPressed: _loading ? null : _ask,
+              child: _loading
+                  ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text("Ask"),
             ),
-            const SizedBox(height: 24),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Text(
-                  _response,
-                  style: const TextStyle(fontSize: 16),
+            const SizedBox(height: 20),
+            if (_response != null)
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Text(
+                    _response!,
+                    style: const TextStyle(fontSize: 16),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),
     );
   }
 }
+// This screen allows users to ask questions to the AI assistant and displays the response.

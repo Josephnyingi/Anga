@@ -196,6 +196,7 @@ def get_live_weather(location: str = "machakos"):
         }
     except Exception as e:
         return {"error": "Failed to fetch live weather", "details": str(e)}
+
 # Run the app with: import sys
 from pathlib import Path
 

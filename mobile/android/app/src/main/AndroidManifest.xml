@@ -1,4 +1,9 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.yourcompany.anga"> <!-- 🔁 Update this to your actual package if needed -->
+
+    <!-- ✅ Required to allow HTTP requests (AI assistant, weather APIs, etc.) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:label="anga"
         android:icon="@mipmap/ic_launcher">
@@ -37,3 +42,5 @@
         </intent>
     </queries>
 </manifest>
+<!-- This is the AndroidManifest.xml file for the ANGA app. It includes permissions, application metadata, and activity configurations. -->
+<!-- Make sure to update the package name and other metadata as needed. -->
