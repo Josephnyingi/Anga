@@ -162,22 +162,139 @@ class DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   // ✅ LIVE WEATHER SECTION
                   Card(
-                    elevation: 6,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     color: isDarkMode ? Colors.black87 : Colors.white,
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Live Weather in ${AppState.selectedLocation}",
-                              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: isDarkMode ? Colors.white : Colors.black87)),
-                          const SizedBox(height: 8),
-                          Text("📅 Date: ${liveWeather['date'] ?? '--'}"),
-                          Text("🌡️ Max Temp: ${liveWeather['temperature_max'] ?? '--'}",
-                              style: const TextStyle(fontSize: 16, color: Colors.redAccent)),
-                          Text("🌧️ Rainfall: ${liveWeather['rain_sum'] ?? '--'}",
-                              style: const TextStyle(fontSize: 16, color: Colors.blueAccent)),
+                          Row(
+                            children: [
+                              Icon(Icons.wb_sunny, color: Colors.orangeAccent, size: 28),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  "Live Weather in ${AppState.selectedLocation}",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDarkMode ? Colors.white : Colors.black87
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: isDarkMode ? Colors.grey[800] : Colors.red[50],
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.redAccent.withOpacity(0.3),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(Icons.thermostat, color: Colors.redAccent, size: 20),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            "Temperature",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        "${liveWeather['temperature_max'] ?? '--'}°C",
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.redAccent,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: isDarkMode ? Colors.grey[800] : Colors.blue[50],
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.blueAccent.withOpacity(0.3),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(Icons.water_drop, color: Colors.blueAccent, size: 20),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            "Rainfall",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        "${liveWeather['rain_sum'] ?? '--'}mm",
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blueAccent,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isDarkMode ? Colors.grey[900] : Colors.grey[100],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.calendar_today, color: Colors.grey[600], size: 16),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Date: ${liveWeather['date'] ?? '--'}",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -185,37 +302,148 @@ class DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 20),
 
                   // 🌡️ Temperature Forecast Chart
-                  Text("Temperature Forecast", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent)),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    height: 250,
-                    child: LineChart(
-                      LineChartData(
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: tempSpots,
-                            isCurved: true,
-                            color: Colors.redAccent,
-                            barWidth: 2.5,
-                            dotData: FlDotData(show: false),
-                          )
-                        ],
-                        titlesData: FlTitlesData(
-                          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          bottomTitles: AxisTitles(
-                            axisNameWidget: const Text("Date"),
-                            axisNameSize: 16,
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              interval: 1,
-                              getTitlesWidget: (value, _) {
-                                int index = value.toInt();
-                                if (index >= forecastDates.length) return const SizedBox.shrink();
-                                return Text(forecastDates[index], style: const TextStyle(fontSize: 10));
-                              },
+                  Card(
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    color: isDarkMode ? Colors.black87 : Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.thermostat, color: Colors.redAccent, size: 28),
+                              const SizedBox(width: 12),
+                              Text(
+                                "Temperature Forecast",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDarkMode ? Colors.white : Colors.black87
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            height: 280,
+                            child: LineChart(
+                              LineChartData(
+                                gridData: FlGridData(
+                                  show: true,
+                                  drawVerticalLine: true,
+                                  horizontalInterval: 5,
+                                  verticalInterval: 1,
+                                  getDrawingHorizontalLine: (value) {
+                                    return FlLine(
+                                      color: isDarkMode ? Colors.grey[800]! : Colors.grey[300]!,
+                                      strokeWidth: 1,
+                                    );
+                                  },
+                                  getDrawingVerticalLine: (value) {
+                                    return FlLine(
+                                      color: isDarkMode ? Colors.grey[800]! : Colors.grey[300]!,
+                                      strokeWidth: 1,
+                                    );
+                                  },
+                                ),
+                                titlesData: FlTitlesData(
+                                  show: true,
+                                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                  bottomTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      reservedSize: 30,
+                                      interval: 1,
+                                      getTitlesWidget: (value, meta) {
+                                        int index = value.toInt();
+                                        if (index >= forecastDates.length) return const SizedBox.shrink();
+                                        return Padding(
+                                          padding: const EdgeInsets.only(top: 8.0),
+                                          child: Text(
+                                            forecastDates[index],
+                                            style: TextStyle(
+                                              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  leftTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      interval: 5,
+                                      reservedSize: 50,
+                                      getTitlesWidget: (value, meta) {
+                                        return Text(
+                                          '${value.toInt()}°C',
+                                          style: TextStyle(
+                                            color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 12,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                borderData: FlBorderData(
+                                  show: true,
+                                  border: Border.all(
+                                    color: isDarkMode ? Colors.grey[700]! : Colors.grey[400]!,
+                                    width: 1,
+                                  ),
+                                ),
+                                minX: 0,
+                                maxX: (forecastDates.length - 1).toDouble(),
+                                minY: 0,
+                                maxY: tempSpots.isNotEmpty ? (tempSpots.map((e) => e.y).reduce((a, b) => a > b ? a : b) + 5) : 30,
+                                lineBarsData: [
+                                  LineChartBarData(
+                                    spots: tempSpots,
+                                    isCurved: true,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.redAccent,
+                                        Colors.orangeAccent,
+                                        Colors.yellowAccent,
+                                      ],
+                                    ),
+                                    barWidth: 4,
+                                    dotData: FlDotData(
+                                      show: true,
+                                      getDotPainter: (spot, percent, barData, index) {
+                                        return FlDotCirclePainter(
+                                          radius: 6,
+                                          color: Colors.redAccent,
+                                          strokeWidth: 3,
+                                          strokeColor: Colors.white,
+                                        );
+                                      },
+                                    ),
+                                    belowBarData: BarAreaData(
+                                      show: true,
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.redAccent.withOpacity(0.3),
+                                          Colors.orangeAccent.withOpacity(0.1),
+                                          Colors.yellowAccent.withOpacity(0.05),
+                                        ],
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ),
@@ -223,29 +451,146 @@ class DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 30),
 
                   // 🌧️ Rainfall Forecast Chart
-                  Text("Rainfall Forecast", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueAccent)),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    height: 250,
-                    child: BarChart(
-                      BarChartData(
-                        barGroups: rainBars,
-                        titlesData: FlTitlesData(
-                          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          bottomTitles: AxisTitles(
-                            axisNameWidget: const Text("Date"),
-                            axisNameSize: 16,
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              interval: 1,
-                              getTitlesWidget: (value, _) {
-                                int index = value.toInt();
-                                if (index >= forecastDates.length) return const SizedBox.shrink();
-                                return Text(forecastDates[index], style: const TextStyle(fontSize: 10));
-                              },
+                  Card(
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    color: isDarkMode ? Colors.black87 : Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.water_drop, color: Colors.blueAccent, size: 28),
+                              const SizedBox(width: 12),
+                              Text(
+                                "Rainfall Forecast",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDarkMode ? Colors.white : Colors.black87
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            height: 280,
+                            child: BarChart(
+                              BarChartData(
+                                gridData: FlGridData(
+                                  show: true,
+                                  drawVerticalLine: false,
+                                  horizontalInterval: 2,
+                                  getDrawingHorizontalLine: (value) {
+                                    return FlLine(
+                                      color: isDarkMode ? Colors.grey[800]! : Colors.grey[300]!,
+                                      strokeWidth: 1,
+                                    );
+                                  },
+                                ),
+                                alignment: BarChartAlignment.spaceAround,
+                                maxY: rainBars.isNotEmpty ? (rainBars.map((e) => e.barRods.first.toY).reduce((a, b) => a > b ? a : b) + 2) : 10,
+                                barTouchData: BarTouchData(
+                                  enabled: true,
+                                  touchTooltipData: BarTouchTooltipData(
+                                    tooltipBorder: BorderSide(
+                                      color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!,
+                                      width: 1,
+                                    ),
+                                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                      return BarTooltipItem(
+                                        '${rod.toY.toStringAsFixed(1)}mm',
+                                        TextStyle(
+                                          color: isDarkMode ? Colors.white : Colors.black87,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                titlesData: FlTitlesData(
+                                  show: true,
+                                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                  bottomTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      reservedSize: 30,
+                                      interval: 1,
+                                      getTitlesWidget: (value, meta) {
+                                        int index = value.toInt();
+                                        if (index >= forecastDates.length) return const SizedBox.shrink();
+                                        return Padding(
+                                          padding: const EdgeInsets.only(top: 8.0),
+                                          child: Text(
+                                            forecastDates[index],
+                                            style: TextStyle(
+                                              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  leftTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      interval: 2,
+                                      reservedSize: 50,
+                                      getTitlesWidget: (value, meta) {
+                                        return Text(
+                                          '${value.toInt()}mm',
+                                          style: TextStyle(
+                                            color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 12,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                borderData: FlBorderData(
+                                  show: true,
+                                  border: Border.all(
+                                    color: isDarkMode ? Colors.grey[700]! : Colors.grey[400]!,
+                                    width: 1,
+                                  ),
+                                ),
+                                barGroups: rainBars.map((barGroup) {
+                                  return BarChartGroupData(
+                                    x: barGroup.x,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: barGroup.barRods.first.toY,
+                                        width: 20,
+                                        borderRadius: BorderRadius.circular(8),
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.blue[400]!,
+                                            Colors.blue[600]!,
+                                            Colors.blue[800]!,
+                                          ],
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                        ),
+                                        backDrawRodData: BackgroundBarChartRodData(
+                                          show: true,
+                                          toY: rainBars.isNotEmpty ? (rainBars.map((e) => e.barRods.first.toY).reduce((a, b) => a > b ? a : b) + 2) : 10,
+                                          color: isDarkMode ? Colors.grey[800]! : Colors.grey[100]!,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ),

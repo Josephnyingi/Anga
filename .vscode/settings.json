@@ -2,5 +2,8 @@
     "java.configuration.updateBuildConfiguration": "automatic",
     "python.analysis.extraPaths": [
         "./models/AI-Farming-Assistant-App"
+    ],
+    "cursorpyright.analysis.extraPaths": [
+        "./models/AI-Farming-Assistant-App"
     ]
 }

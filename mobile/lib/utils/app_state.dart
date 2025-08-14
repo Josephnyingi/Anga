@@ -6,6 +6,6 @@ class AppState {
   static bool enableExtremeAlerts = true;
   static bool isDarkMode = false;
 
-  static DateTime startDate = DateTime.now().subtract(const Duration(days: 6));
-  static DateTime endDate = DateTime.now();
+  static DateTime startDate = DateTime.now();
+  static DateTime endDate = DateTime.now().add(const Duration(days: 6));
 }

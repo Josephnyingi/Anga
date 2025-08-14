@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.yourcompany.anga"> <!-- 🔁 Update this to your actual package if needed -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- ✅ Required to allow HTTP requests (AI assistant, weather APIs, etc.) -->
     <uses-permission android:name="android.permission.INTERNET" />

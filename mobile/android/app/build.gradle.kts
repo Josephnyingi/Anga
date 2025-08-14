@@ -1,32 +1,33 @@
-import org.gradle.api.tasks.compile.JavaCompile
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+// No imports needed for Groovy DSL
 
 plugins {
     id("com.android.application")
-    id("com.google.gms.google-services")
     id("kotlin-android")
     id("kotlin-kapt")
+    id("com.google.gms.google-services")
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
-    ndkVersion = "27.0.12077973"
     namespace = "com.example.anga"
-    compileSdk = 35
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-        jvmTarget = "11"  // ✅ Required for Kotlin 2.0+ compatibility with Android tools
+        jvmTarget = "17"
     }
 
     defaultConfig {
         applicationId = "com.example.anga"
         minSdk = 23
-        targetSdk = 35
+        targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
@@ -38,17 +39,9 @@ android {
     }
 }
 
-// ✅ Suppress old Java warnings
-tasks.withType<JavaCompile>().configureEach {
-    options.compilerArgs.add("-Xlint:-options")
-}
-
-// ✅ Explicitly set JVM target for all Kotlin compile tasks
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "11"
-}
-
 dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    
     implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
 
     implementation("com.google.firebase:firebase-auth")
@@ -78,4 +71,11 @@ dependencies {
 
 flutter {
     source = "../.."
+}
+
+// Explicitly set JVM target for kapt tasks
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }

@@ -5,7 +5,9 @@ import 'package:animate_do/animate_do.dart';
 import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final Function(bool)? setTheme;
+  
+  const LoginScreen({super.key, this.setTheme});
 
   @override
   LoginScreenState createState() => LoginScreenState();

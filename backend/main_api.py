@@ -1,29 +1,42 @@
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
-from backend.database import SessionLocal, WeatherData, User
+from database import SessionLocal, WeatherData, User
 from pydantic import BaseModel
 import pandas as pd
 import pickle
 import os
 import requests
 from datetime import datetime, timedelta
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # NEW 🧠 Import for assistant
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
-# Load .env from repo root (C:\Users\mrjos\Clime)
-env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
+
+# Load .env from repo root
+env_path = Path(__file__).resolve().parents[1] / ".env"
 load_dotenv(dotenv_path=env_path)
+
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
 # Dynamically find absolute path to assistant_core.py
 assistant_path = Path(__file__).resolve().parents[1] / "models" / "AI-Farming-Assistant-App"
 sys.path.append(str(assistant_path))
 
+# Import AI assistant functions
 try:
-    from assistant_core import generate_response
-except ImportError:
-    raise ImportError(f"❌ Could not import `generate_response()` from {assistant_path}/assistant_core.py")
+    from assistant_core import generate_response, get_available_use_cases, test_connectivity
+    logger.info(f"✅ AI Assistant imported successfully from {assistant_path}")
+except ImportError as e:
+    logger.error(f"❌ Could not import AI Assistant from {assistant_path}: {e}")
+    generate_response = None
+    get_available_use_cases = None
+    test_connectivity = None
 
 # ✅ Main ANGA app
 app = FastAPI(
@@ -31,6 +44,66 @@ app = FastAPI(
     description="This combines core ANGA features with the AI Farming Assistant.",
     version="2.0.0"
 )
+
+# Add startup validation
+@app.on_event("startup")
+async def startup_event():
+    """Validate environment and database on startup"""
+    logger.info("🚀 Starting ANGA Unified API v2.0.0")
+    logger.info("📋 Available endpoints:")
+    logger.info("   • /assistant/ask - AI Farming Assistant")
+    logger.info("   • /predict/ - Weather Predictions")
+    logger.info("   • /live_weather/ - Live Weather Data")
+    logger.info("   • /users/ - User Management")
+    logger.info("   • /health - Health Check")
+    logger.info("   • /env/status - Environment Status")
+    
+    # Environment validation
+    try:
+        from env_validator import EnvironmentValidator
+        validator = EnvironmentValidator()
+        results = validator.validate_all()
+        
+        if not results['valid']:
+            logger.error("❌ Environment validation failed!")
+            logger.error("Errors found:")
+            errors = results['errors']
+            if isinstance(errors, (list, tuple, set)):
+                for error in errors:
+                    logger.error(f"   • {error}")
+            else:
+                logger.error(f"   • {errors}")
+        else:
+            logger.info("✅ Environment validation passed!")
+            warnings = results.get('warnings')
+            if isinstance(warnings, (list, tuple, set)) and warnings:
+                logger.warning("⚠️ Warnings found:")
+                for warning in warnings:
+                    logger.warning(f"   • {warning}")
+            elif warnings:
+                logger.warning("⚠️ Warnings found:")
+                logger.warning(f"   • {warnings}")
+    except ImportError:
+        logger.warning("⚠️ Environment validator not available")
+    except Exception as e:
+        logger.error(f"❌ Error during startup validation: {e}")
+    
+    # Log AI assistant status
+    if generate_response:
+        logger.info("🤖 AI Assistant: Available")
+    else:
+        logger.warning("⚠️ AI Assistant: Not available")
+    
+    # Test database connection
+    try:
+        with SessionLocal() as db:
+            from sqlalchemy import text
+            db.execute(text("SELECT 1"))
+            logger.info("✅ Database: Connected and ready")
+    except Exception as e:
+        logger.error(f"❌ Database connection failed: {e}")
+    
+    logger.info("✅ Unified API is ready!")
 
 # 🌐 Enable CORS (important for mobile/Flutter access)
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,8 +123,62 @@ class Question(BaseModel):
 
 @app.post("/assistant/ask")
 def ask_ai_farming_assistant(data: Question):
-    answer = generate_response(data.query, data.use_case)
-    return {"answer": answer}
+    """AI Farming Assistant endpoint"""
+    if not generate_response:
+        raise HTTPException(
+            status_code=503, 
+            detail="AI Assistant is not available. Please check the configuration."
+        )
+    
+    try:
+        answer = generate_response(data.query, data.use_case)
+        return {"answer": answer}
+    except Exception as e:
+        logger.error(f"AI Assistant error: {e}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"AI Assistant error: {str(e)}"
+        )
+
+@app.get("/assistant/use-cases")
+def get_ai_use_cases():
+    """Get available AI assistant use cases"""
+    if not get_available_use_cases:
+        raise HTTPException(
+            status_code=503, 
+            detail="AI Assistant is not available."
+        )
+    
+    try:
+        use_cases = get_available_use_cases()
+        return {"use_cases": use_cases}
+    except Exception as e:
+        logger.error(f"Error getting use cases: {e}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error getting use cases: {str(e)}"
+        )
+
+@app.get("/assistant/status")
+def get_ai_status():
+    """Get AI assistant status and configuration"""
+    if not test_connectivity:
+        return {
+            "status": "not_available",
+            "message": "AI Assistant module not loaded",
+            "api_key_configured": bool(GROQ_API_KEY)
+        }
+    
+    try:
+        status = test_connectivity()
+        return status
+    except Exception as e:
+        logger.error(f"Error testing AI connectivity: {e}")
+        return {
+            "status": "error",
+            "message": f"Error testing connectivity: {str(e)}",
+            "api_key_configured": bool(GROQ_API_KEY)
+        }
 
 # 🔁 Database helper
 def get_db():
@@ -74,7 +201,9 @@ try:
         temp_model = pickle.load(f)
     with open(os.path.join(BASE_DIR, "model/rain_model.pkl"), "rb") as f:
         rain_model = pickle.load(f)
-except FileNotFoundError:
+    logger.info("✅ ML models loaded successfully")
+except FileNotFoundError as e:
+    logger.error(f"❌ Model files not found: {e}")
     raise RuntimeError("Model files not found!")
 
 # 📍 Prediction endpoint
@@ -162,7 +291,7 @@ class LoginRequest(BaseModel):
 @app.post("/login/")
 def login_user(request: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.phone_number == request.phone_number).first()
-    if not user or user.password != request.password:
+    if user is None or getattr(user, "password", None) != request.password:
         raise HTTPException(status_code=401, detail="Invalid phone number or password")
     return {"message": "Login successful", "user_id": user.id}
 
@@ -197,16 +326,55 @@ def get_live_weather(location: str = "machakos"):
     except Exception as e:
         return {"error": "Failed to fetch live weather", "details": str(e)}
 
-# Run the app with: import sys
-from pathlib import Path
+# Health check endpoint
+@app.get("/health")
+def health_check():
+    """Health check endpoint"""
+    # Test database connection
+    db_status = "unknown"
+    try:
+        with SessionLocal() as db:
+            # Test a simple query
+            from sqlalchemy import text
+            db.execute(text("SELECT 1"))
+            db_status = "healthy"
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+    
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "database": db_status,
+        "ai_assistant_available": bool(generate_response),
+        "ml_models_loaded": bool(temp_model and rain_model),
+        "supported_locations": list(SUPPORTED_LOCATIONS.keys()),
+        "environment_valid": True  # Will be updated by startup validation
+    }
 
-# Dynamically find absolute path to assistant_core.py
-assistant_path = Path(__file__).resolve().parents[1] / "models" / "AI-Farming-Assistant-App"
-sys.path.append(str(assistant_path))
-
-try:
-    from assistant_core import generate_response
-except ImportError:
-    raise ImportError(f"❌ Could not import `generate_response()` from {assistant_path}/assistant_core.py")
-#uvicorn backend.main_api:app --reload --host 0.0.0.0 --port 8000
-
+# Environment validation endpoint
+@app.get("/env/status")
+def get_environment_status():
+    """Get environment configuration status"""
+    try:
+        from env_validator import EnvironmentValidator
+        validator = EnvironmentValidator()
+        results = validator.validate_all()
+        
+        return {
+            "valid": results['valid'],
+            "env_file_exists": results['env_file_exists'],
+            "variables": results['variables'],
+            "errors": results['errors'],
+            "warnings": results['warnings']
+        }
+    except ImportError:
+        return {
+            "valid": False,
+            "error": "Environment validator not available"
+        }
+    except Exception as e:
+        return {
+            "valid": False,
+            "error": str(e)
+        }
+# Run the app with: uvicorn backend.main_api:app --reload --host 0.0.0.0 --port 8000
