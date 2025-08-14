@@ -1,6 +1,13 @@
-# 🌤️ Anga Weather App
+# 🌤️ ANGA Weather App
 
-A comprehensive weather forecasting application with AI-powered farming assistance, built with Flutter and Python.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Flutter 3.7+](https://img.shields.io/badge/Flutter-3.7+-blue.svg)](https://flutter.dev/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com/)
+[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Linting: Flake8](https://img.shields.io/badge/linting-flake8-yellowgreen.svg)](https://flake8.pycqa.org/)
+
+A comprehensive weather forecasting application with AI-powered farming assistance, built with Flutter and Python. ANGA provides real-time weather data, intelligent agricultural recommendations, and USSD integration for areas with limited internet access.
 
 ## 🚀 Features
 
@@ -10,36 +17,73 @@ A comprehensive weather forecasting application with AI-powered farming assistan
 - **Cross-platform**: Flutter mobile app for iOS and Android
 - **Backend API**: FastAPI-powered backend with machine learning models
 - **Database**: PostgreSQL with Redis caching
+- **Security**: JWT authentication, CORS protection, and input validation
+
+## 🏗️ Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Flutter App   │    │   FastAPI       │    │   PostgreSQL    │
+│   (Mobile/Web)  │◄──►│   Backend       │◄──►│   + Redis       │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   USSD Service  │    │   AI/ML Models  │    │   External APIs │
+│   (Offline)     │    │   (Groq/Prophet)│    │   (Open-Meteo)  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
 ## 📁 Project Structure
 
 ```
 Anga/
-├── mobile/                 # Flutter mobile application
-├── backend/               # Python FastAPI backend
-├── models/                # ML models and AI assistant
-├── Dataset/               # Weather datasets
-└── docker-compose.yml     # Docker configuration
+├── 📱 mobile/                 # Flutter mobile application
+│   ├── lib/                   # Dart source code
+│   ├── assets/                # Images and resources
+│   └── pubspec.yaml          # Flutter dependencies
+├── 🐍 backend/               # Python FastAPI backend
+│   ├── main_api.py           # Main API endpoints
+│   ├── models/               # Data models
+│   └── services/             # Business logic
+├── 🤖 models/                # ML models and AI assistant
+├── 📊 Dataset/               # Weather datasets
+├── 📚 docs/                  # Project documentation
+├── 🔧 scripts/               # Development scripts
+├── 🐳 docker-compose.yml     # Docker configuration
+├── 📋 requirements.txt       # Python dependencies
+├── ⚙️ pyproject.toml         # Project configuration
+└── 📖 README.md              # This file
 ```
 
-## 🚀 API Architecture
-
-**ANGA uses a Unified API approach:**
-- ✅ **main_api.py** - Production API with ALL features
-- ⚠️ **assistant_api.py** - Legacy (deprecated)
-
-**See [API_ARCHITECTURE.md](API_ARCHITECTURE.md) for detailed documentation.**
-
-## 🛠️ Setup Instructions
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- **Flutter SDK** (3.7.0 or higher)
 - **Python 3.8+**
-- **Android Studio** (for Android development)
+- **Flutter SDK 3.7.0+**
 - **Git**
+- **Docker** (optional, for containerized deployment)
 
-### Backend Setup
+### Automated Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/anga-weather/anga-weather-app.git
+   cd anga-weather-app
+   ```
+
+2. **Run the setup script:**
+   ```bash
+   python scripts/setup_dev.py
+   ```
+
+3. **Follow the on-screen instructions**
+
+### Manual Setup
+
+#### Backend Setup
 
 1. **Navigate to backend directory:**
    ```bash
@@ -67,10 +111,10 @@ Anga/
 
 5. **Start the backend server:**
    ```bash
-   uvicorn assistant_api:app --reload --host 0.0.0.0 --port 8000
+   uvicorn main_api:app --reload --host 0.0.0.0 --port 8000
    ```
 
-### Flutter App Setup
+#### Flutter App Setup
 
 1. **Navigate to mobile directory:**
    ```bash
@@ -107,27 +151,18 @@ API_PORT=8000
 API_DEBUG=true
 
 # === Database ===
-# For Docker Compose, use the postgres service name as host
-DATABASE_URL=postgresql://anga_user:anga_password@postgres:5432/anga_weather
+DATABASE_URL=postgresql://anga_user:anga_password@localhost:5432/anga_weather
 
 # === Security ===
 SECRET_KEY=your_super_secret_key_here
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 # === AI Assistant ===
-GROQ_API_KEY=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
+GROQ_API_KEY=your_groq_api_key_here
 
 # === Weather API ===
 WEATHER_API_KEY=dev_key
 OPEN_METEO_BASE_URL=https://api.open-meteo.com/v1/forecast
-
-# === Mobile App ===
-MOBILE_APP_VERSION=1.0.0
-MOBILE_APP_NAME=ANGA Weather
-
-# === Logging & Debug ===
-DEBUG_MODE=true
-LOG_LEVEL=INFO
 ```
 
 ### API Configuration
@@ -138,161 +173,139 @@ The app automatically detects the environment and configures API endpoints:
 - **Staging**: `https://staging-api.anga.com`
 - **Production**: `https://api.anga.com`
 
-## 🚨 Troubleshooting
-
-### Common Issues
-
-#### 1. Emulator Connection Problems
-
-If the app doesn't appear on the emulator:
-
-```bash
-# Check if emulator is detected
-flutter devices
-
-# Restart ADB
-adb kill-server
-adb start-server
-
-# Restart emulator
-flutter emulators --launch Pixel_8a
-```
-
-#### 2. Backend Connection Issues
-
-If the app can't connect to the backend:
-
-```bash
-# Check if backend is running
-curl http://localhost:8000/health
-
-# Check firewall settings
-# Ensure port 8000 is open
-```
-
-#### 3. Dependency Issues
-
-```bash
-# Clean and rebuild Flutter
-flutter clean
-flutter pub get
-flutter run
-
-# For Python backend
-pip install --upgrade pip
-pip install -r requirements.txt --force-reinstall
-```
-
-### Debug Mode
-
-Enable debug mode for detailed logging:
-
-```dart
-// In mobile/lib/utils/environment_config.dart
-EnvironmentConfig.setEnvironment(Environment.development);
-```
-
-## 📱 Running the App
-
-### Android Emulator
-
-1. Start Android Studio
-2. Open AVD Manager
-3. Launch Pixel 8a emulator
-4. Run: `flutter run`
-
-### Real Device
-
-1. Enable Developer Options on your device
-2. Enable USB Debugging
-3. Connect device via USB
-4. Run: `flutter run`
-
-### Web
-
-```bash
-flutter run -d chrome
-```
-
-## 🔒 Security Features
-
-- **CORS Protection**: Restricted origins for production
-- **Input Validation**: Comprehensive request validation
-- **Error Handling**: Secure error responses
-- **API Key Management**: Environment-based configuration
-- **Rate Limiting**: Built-in request throttling
-
 ## 🧪 Testing
 
 ### Backend Tests
 
 ```bash
-cd backend
-python -m pytest tests/
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=backend --cov-report=html
+
+# Run specific test categories
+pytest -m unit          # Unit tests
+pytest -m integration   # Integration tests
+pytest -m performance   # Performance tests
 ```
 
 ### Flutter Tests
 
 ```bash
 cd mobile
+
+# Run all tests
 flutter test
+
+# Run with coverage
+flutter test --coverage
 ```
 
-## 📊 API Endpoints
+### Code Quality
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check |
-| `/ask` | POST | AI assistant questions |
-| `/live_weather/` | GET | Live weather data |
-| `/predict/` | GET | Weather predictions |
-| `/forecast/` | GET | Weather forecasts |
+```bash
+# Format code
+black .
+isort .
+
+# Lint code
+flake8
+mypy .
+
+# Security scan
+bandit -r backend/
+safety check
+```
+
+## 🚀 Deployment
+
+### Docker Deployment
+
+```bash
+# Build and start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### Production Deployment
+
+See [Production Deployment Guide](docs/deployment/production.md) for detailed instructions.
+
+## 📚 Documentation
+
+- **[Installation Guide](docs/installation.md)** - Detailed setup instructions
+- **[API Documentation](docs/api/README.md)** - Complete API reference
+- **[Development Guide](docs/development.md)** - Development workflow
+- **[Architecture Guide](docs/architecture/README.md)** - System design
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute
 
 ## 🤝 Contributing
 
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+### Development Workflow
+
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Add tests
-5. Submit a pull request
+4. Run tests and quality checks
+5. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+### Code Standards
+
+- **Python**: Follow PEP 8, use type hints, write docstrings
+- **Dart/Flutter**: Follow Dart style guide, use meaningful names
+- **Commits**: Use [Conventional Commits](https://www.conventionalcommits.org/)
+- **Tests**: Maintain 80%+ code coverage
+
+## 🔒 Security
+
+We take security seriously. Please report vulnerabilities to [security@anga-weather.com](mailto:security@anga-weather.com).
+
+See [Security Policy](SECURITY.md) for details.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-For support and questions:
+### Getting Help
 
-1. Check the troubleshooting section above
-2. Review the debug logs
-3. Create an issue on GitHub
-4. Contact the development team
+1. **Documentation**: Check our [documentation](docs/README.md)
+2. **Issues**: Search [existing issues](https://github.com/anga-weather/anga-weather-app/issues)
+3. **Discussions**: Use [GitHub Discussions](https://github.com/anga-weather/anga-weather-app/discussions)
+4. **Contact**: Email [support@anga-weather.com](mailto:support@anga-weather.com)
 
-## 🔄 Recent Updates
+### Common Issues
 
-### Critical Improvements Made
+See [Troubleshooting Guide](docs/troubleshooting.md) for solutions to common problems.
 
-1. **Security Enhancements**
-   - Removed wildcard CORS for production
-   - Added input validation
-   - Implemented proper error handling
+## 🌟 Acknowledgments
 
-2. **Code Organization**
-   - Separated MainScreen from main.dart
-   - Added environment configuration
-   - Improved error handling in services
+- **Open-Meteo** for weather data API
+- **Groq** for AI/ML capabilities
+- **Flutter** team for the amazing framework
+- **FastAPI** team for the high-performance backend framework
+- **Contributors** who help make this project better
 
-3. **User Experience**
-   - Added loading states
-   - Improved error messages
-   - Better retry mechanisms
+## 📊 Project Status
 
-4. **Performance**
-   - Concurrent API calls
-   - Retry logic with exponential backoff
-   - Environment-based timeouts
+- **Version**: 1.0.0
+- **Status**: Production Ready
+- **Last Updated**: January 2025
+- **Maintainers**: ANGA Development Team
 
 ---
 
-**Happy Coding! 🌟**
+**Made with ❤️ by the ANGA Development Team**
+
+*Empowering farmers with intelligent weather insights and AI-powered recommendations.*
