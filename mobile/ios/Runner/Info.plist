@@ -45,5 +45,45 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	
+	<!-- Privacy Permissions -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs location access to provide accurate weather forecasts for your area.</string>
+	
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs location access to provide accurate weather forecasts and farming recommendations for your area.</string>
+	
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs location access to provide accurate weather forecasts and farming recommendations for your area.</string>
+	
+	<!-- Network Security -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	
+	<!-- Notification Permissions -->
+	<key>NSUserNotificationUsageDescription</key>
+	<string>This app uses notifications to alert you about weather changes and farming recommendations.</string>
+	
+	<!-- Camera and Photo Library (if needed for future features) -->
+	<key>NSCameraUsageDescription</key>
+	<string>This app may need camera access for future farming-related features.</string>
+	
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app may need photo library access for future farming-related features.</string>
+	
+	<!-- Microphone (if needed for future voice features) -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app may need microphone access for future voice-activated features.</string>
 </dict>
 </plist>
