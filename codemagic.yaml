@@ -15,6 +15,15 @@ workflows:
           app-store-connect fetch-signing-files "com.example.anga" --type IOS_APP_STORE --create
           keychain add-certificates
           xcode-project use-profiles
+      - name: Update iOS deployment target
+        script: |
+          cd mobile/ios
+          # Update deployment target to 15.0 for Firebase compatibility
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' Runner.xcodeproj/project.pbxproj
+          # Also update any Podfile if it exists
+          if [ -f "Podfile" ]; then
+            sed -i '' 's/platform :ios, .*/platform :ios, "15.0"/g' Podfile
+          fi
       - name: Build iOS app
         script: |
           cd mobile
