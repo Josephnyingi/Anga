@@ -1,0 +1,80 @@
+workflows:
+  ios-workflow:
+    name: iOS Workflow
+    environment:
+      xcode: latest
+      cocoapods: default
+      vars:
+        XCODE_PROJECT: "mobile/ios/Runner.xcworkspace"
+        XCODE_SCHEME: "Runner"
+        BUNDLE_ID: "com.example.anga"
+    scripts:
+      - name: Set up code signing
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "com.example.anga" --type IOS_APP_STORE --create
+          keychain add-certificates
+          xcode-project use-profiles
+      - name: Build iOS app
+        script: |
+          cd mobile
+          flutter build ios --release --no-codesign
+          xcode-project build-ipa --project "ios/Runner.xcworkspace" --scheme "Runner"
+    artifacts:
+      - mobile/build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - mobile/flutter_drive.log
+
+  android-workflow:
+    name: Android Workflow
+    environment:
+      android_signing:
+        - keystore_reference
+      vars:
+        PACKAGE_NAME: "com.example.anga"
+    scripts:
+      - name: Set up code signing
+        script: |
+          echo $CM_KEYSTORE_PATH
+          echo $CM_KEY_ALIAS
+          echo $CM_KEY_PASSWORD
+          echo $CM_STORE_PASSWORD
+          keytool -list -v -keystore $CM_KEYSTORE_PATH -alias $CM_KEY_ALIAS -storepass $CM_STORE_PASSWORD -keypass $CM_KEY_PASSWORD
+      - name: Get Flutter packages
+        script: |
+          cd mobile
+          flutter packages pub get
+      - name: Build APK
+        script: |
+          cd mobile
+          flutter build apk --release
+      - name: Build App Bundle
+        script: |
+          cd mobile
+          flutter build appbundle --release
+    artifacts:
+      - mobile/build/app/outputs/flutter-apk/*.apk
+      - mobile/build/app/outputs/bundle/release/*.aab
+      - mobile/build/app/outputs/mapping/release/mapping.txt
+      - mobile/flutter_drive.log
+
+  flutter-test-workflow:
+    name: Flutter Test Workflow
+    environment:
+      flutter: stable
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          cd mobile
+          flutter packages pub get
+      - name: Run Flutter tests
+        script: |
+          cd mobile
+          flutter test
+      - name: Run Flutter analyze
+        script: |
+          cd mobile
+          flutter analyze
+    artifacts:
+      - mobile/test-results/**/test-results.xml
+      - mobile/coverage/lcov.info
