@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
-from database import SessionLocal, WeatherData, User
+from .core.database import SessionLocal, WeatherData, User
 from pydantic import BaseModel
 import pandas as pd
 import pickle
@@ -195,11 +195,11 @@ SUPPORTED_LOCATIONS = {
 }
 
 # 📦 Load ML models
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR = "/app/ml/models/weather/model"
 try:
-    with open(os.path.join(BASE_DIR, "model/temp_model.pkl"), "rb") as f:
+    with open(os.path.join(MODEL_DIR, "temp_model.pkl"), "rb") as f:
         temp_model = pickle.load(f)
-    with open(os.path.join(BASE_DIR, "model/rain_model.pkl"), "rb") as f:
+    with open(os.path.join(MODEL_DIR, "rain_model.pkl"), "rb") as f:
         rain_model = pickle.load(f)
     logger.info("✅ ML models loaded successfully")
 except FileNotFoundError as e:

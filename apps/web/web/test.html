@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ANGA Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .loading { background-color: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>ANGA Web App Test</h1>
+    
+    <div id="status" class="status loading">Testing...</div>
+    
+    <h2>Test Results:</h2>
+    <div id="results"></div>
+    
+    <script>
+        const status = document.getElementById('status');
+        const results = document.getElementById('results');
+        
+        function addResult(test, success, message) {
+            const div = document.createElement('div');
+            div.className = `status ${success ? 'success' : 'error'}`;
+            div.innerHTML = `<strong>${test}:</strong> ${message}`;
+            results.appendChild(div);
+        }
+        
+        async function runTests() {
+            // Test 1: Check if Flutter files exist
+            try {
+                const response = await fetch('/flutter.js');
+                if (response.ok) {
+                    addResult('Flutter.js', true, 'File exists');
+                } else {
+                    addResult('Flutter.js', false, 'File not found');
+                }
+            } catch (e) {
+                addResult('Flutter.js', false, `Error: ${e.message}`);
+            }
+            
+            // Test 2: Check main.dart.js
+            try {
+                const response = await fetch('/main.dart.js');
+                if (response.ok) {
+                    addResult('main.dart.js', true, 'File exists');
+                } else {
+                    addResult('main.dart.js', false, 'File not found');
+                }
+            } catch (e) {
+                addResult('main.dart.js', false, `Error: ${e.message}`);
+            }
+            
+            // Test 3: Check API connectivity
+            try {
+                const response = await fetch('/api/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('API Health', true, `Backend is healthy: ${data.status}`);
+                } else {
+                    addResult('API Health', false, `HTTP ${response.status}`);
+                }
+            } catch (e) {
+                addResult('API Health', false, `Error: ${e.message}`);
+            }
+            
+            // Test 4: Check if _flutter object exists
+            if (typeof _flutter !== 'undefined') {
+                addResult('Flutter Loader', true, '_flutter object exists');
+            } else {
+                addResult('Flutter Loader', false, '_flutter object not found');
+            }
+            
+            status.className = 'status success';
+            status.textContent = 'All tests completed';
+        }
+        
+        // Run tests when page loads
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

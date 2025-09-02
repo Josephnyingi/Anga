@@ -1,0 +1,38 @@
+# ANGA Unified API - Consolidated Requirements
+# This file consolidates all dependencies from:
+# - backend/requirements.txt (current)
+# - backend/anga-ussd/requirements.txt
+# - models/AI-Farming-Assistant-App/requirements.txt
+# - root requirements.txt (for ML models)
+
+# Core Web Framework
+fastapi==0.115.8
+uvicorn==0.34.0
+Flask==3.1.0
+gunicorn==21.2.0
+
+# API and Data Validation
+pydantic==2.10.6
+requests==2.32.3
+python-dotenv==1.0.1
+
+# AI and ML Dependencies
+groq
+pandas==2.2.3
+scikit-learn
+prophet==1.1.6
+numpy==2.2.2
+matplotlib==3.10.0
+plotly==6.0.0
+
+# Database
+sqlalchemy==2.0.37
+
+# Additional Dependencies from root requirements.txt
+altair==5.5.0
+cmdstanpy==1.2.5
+holidays==0.66
+pyarrow==18.1.0
+streamlit==1.41.1
+tornado==6.4.2
+tqdm==4.67.1 
