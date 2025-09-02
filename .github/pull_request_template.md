@@ -1,63 +1,149 @@
-# Pull Request
+# 🚀 Pull Request
 
-## 📝 Description
+## 📋 Description
 
-Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context.
+<!-- Provide a clear and concise description of what this PR does -->
 
-**Fixes:** #[issue number]
+## 🔗 Related Issues
 
-## 🔄 Type of Change
+<!-- Link to related issues using "Fixes #123" or "Closes #123" -->
 
-Please delete options that are not relevant.
+- Fixes #
+- Related to #
+
+## 🎯 Type of Change
+
+<!-- Mark the relevant option with an "x" -->
 
 - [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
 - [ ] ✨ New feature (non-breaking change which adds functionality)
 - [ ] 💥 Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] 📚 Documentation update
-- [ ] 🎨 Style update (formatting, missing semi colons, etc; no logic change)
-- [ ] ♻️ Refactor (no functional changes, code improvements)
-- [ ] ⚡ Performance improvements
-- [ ] ✅ Test additions or updates
-- [ ] 🔧 Configuration changes
-- [ ] 🚀 CI/CD improvements
+- [ ] 🎨 Code style/formatting changes
+- [ ] ♻️ Code refactoring
+- [ ] ⚡ Performance improvement
+- [ ] 🧪 Test coverage improvement
+- [ ] 🔧 Build/CI changes
+- [ ] 🚀 Release preparation
 
-## 🧪 How Has This Been Tested?
+## 🧪 Testing
 
-Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration.
+<!-- Describe the tests you ran to verify your changes -->
 
+### Test Coverage
 - [ ] Unit tests pass
 - [ ] Integration tests pass
+- [ ] End-to-end tests pass
 - [ ] Manual testing completed
-- [ ] Cross-platform testing (if applicable)
-- [ ] Performance testing (if applicable)
 
-**Test Environment:**
-- OS: [e.g. Windows 11, macOS 14, Ubuntu 22.04]
-- Python Version: [e.g. 3.8, 3.9, 3.10, 3.11, 3.12]
-- Flutter Version: [e.g. 3.7.0, 3.10.0, 3.16.0]
-- Device/Emulator: [e.g. Pixel 8a, iPhone 15, Chrome Browser]
+### Test Results
+```
+<!-- Paste test results here -->
+```
 
-## 📱 Platform Testing
+## 📱 Screenshots/Videos
 
-**Mobile App:**
-- [ ] Android (API level 21+)
-- [ ] iOS (iOS 12.0+)
-- [ ] Web (Chrome, Safari, Firefox, Edge)
+<!-- If applicable, add screenshots or videos to help explain your changes -->
 
-**Backend:**
-- [ ] Local development environment
-- [ ] Docker environment
-- [ ] Production-like environment
+## 🔍 Code Review Checklist
 
-## 📸 Screenshots
+### Code Quality
+- [ ] Code follows project style guidelines
+- [ ] Self-review of code completed
+- [ ] Code is well-documented with comments
+- [ ] No hardcoded values or magic numbers
+- [ ] Error handling is implemented
+- [ ] Input validation is in place
+- [ ] Security considerations addressed
 
-If applicable, add screenshots to help explain your changes.
+### Performance
+- [ ] No performance regressions
+- [ ] Database queries are optimized
+- [ ] API responses are efficient
+- [ ] Memory usage is reasonable
 
-**Before:**
-![Before screenshot](url)
+### Testing
+- [ ] New tests added for new functionality
+- [ ] Existing tests updated if needed
+- [ ] Edge cases covered
+- [ ] Error scenarios tested
 
-**After:**
-![After screenshot](url)
+### Documentation
+- [ ] README updated if necessary
+- [ ] API documentation updated
+- [ ] Code comments added for complex logic
+- [ ] Changelog updated
+
+## 🚀 Deployment Considerations
+
+### Backend Changes
+- [ ] Database migrations included (if needed)
+- [ ] Environment variables documented
+- [ ] API breaking changes documented
+- [ ] Performance impact assessed
+- [ ] Backward compatibility maintained
+
+### Mobile App Changes
+- [ ] App version updated (if necessary)
+- [ ] Platform-specific considerations addressed
+- [ ] Backward compatibility maintained
+- [ ] App store requirements met
+- [ ] Firebase configuration updated (if needed)
+
+### Infrastructure Changes
+- [ ] Docker images updated
+- [ ] Environment configurations updated
+- [ ] Monitoring/alerting updated
+- [ ] Backup procedures updated
+
+## 📊 Performance Impact
+
+<!-- If this change affects performance, please describe -->
+
+**Performance Impact:**
+- [ ] No performance impact
+- [ ] Performance improvement: [Description]
+- [ ] Performance regression: [Description]
+
+**Benchmark Results:**
+```
+<!-- Include benchmark results if applicable -->
+```
+
+## 🔒 Security Considerations
+
+<!-- If this change affects security, please describe -->
+
+**Security Impact:**
+- [ ] No security impact
+- [ ] Security improvements: [Description]
+- [ ] Potential security implications: [Description]
+
+**Security Checklist:**
+- [ ] Input validation implemented
+- [ ] Authentication/authorization checked
+- [ ] Sensitive data handling reviewed
+- [ ] SQL injection prevention verified
+- [ ] XSS prevention verified
+- [ ] CSRF protection verified
+
+## 🌍 Environment Impact
+
+<!-- Describe any environment-specific considerations -->
+
+- [ ] Development environment tested
+- [ ] Staging environment tested
+- [ ] Production environment considerations documented
+- [ ] Environment variables updated
+- [ ] Configuration files updated
+
+## 📝 Additional Notes
+
+<!-- Any additional information that reviewers should know -->
+
+## 🔄 Migration Guide
+
+<!-- If this is a breaking change, provide migration instructions -->
 
 ## 📋 Checklist
 
@@ -72,89 +158,27 @@ If applicable, add screenshots to help explain your changes.
 - [ ] I have updated the version numbers if applicable
 - [ ] I have added appropriate labels to this PR
 
-## 🔍 Code Review Checklist
+## 🏷️ Labels
 
-**Code Quality:**
-- [ ] Code is readable and well-documented
-- [ ] Functions and methods are appropriately sized
-- [ ] Error handling is implemented where necessary
-- [ ] Input validation is in place
-- [ ] Security considerations have been addressed
-
-**Testing:**
-- [ ] Test coverage is adequate
-- [ ] Edge cases are handled
-- [ ] Error scenarios are tested
-- [ ] Performance impact is minimal
-
-**Documentation:**
-- [ ] README files are updated if necessary
-- [ ] API documentation is updated if applicable
-- [ ] Code comments are clear and helpful
-- [ ] Changelog is updated
-
-## 🚀 Deployment Considerations
-
-**Backend Changes:**
-- [ ] Database migrations are included if needed
-- [ ] Environment variables are documented
-- [ ] API breaking changes are documented
-- [ ] Performance impact is assessed
-
-**Mobile App Changes:**
-- [ ] App version is updated if necessary
-- [ ] Platform-specific considerations are addressed
-- [ ] Backward compatibility is maintained
-- [ ] App store requirements are met
-
-## 📊 Performance Impact
-
-**If this change affects performance, please describe:**
-- Performance improvement: [Description]
-- Performance regression: [Description]
-- Benchmark results: [Include if applicable]
-
-## 🔒 Security Considerations
-
-**If this change affects security, please describe:**
-- Security improvements: [Description]
-- Potential security implications: [Description]
-- Security testing performed: [Description]
-
-## 🌍 Accessibility
-
-**If this change affects accessibility, please describe:**
-- Accessibility improvements: [Description]
-- Screen reader compatibility: [Description]
-- Keyboard navigation: [Description]
-- Color contrast: [Description]
-
-## 📚 Related Documentation
-
-- [ ] README.md updated
-- [ ] API documentation updated
-- [ ] Code comments added/updated
-- [ ] Changelog updated
-- [ ] Migration guide (if applicable)
-
-## 🔗 Related Issues
-
-- Closes #[issue number]
-- Relates to #[issue number]
-- Depends on #[PR number]
-
-## 📞 Additional Notes
-
-Add any other context about the pull request here.
+<!-- Add relevant labels -->
+- [ ] `bug` - Bug fix
+- [ ] `feature` - New feature
+- [ ] `breaking` - Breaking change
+- [ ] `documentation` - Documentation update
+- [ ] `performance` - Performance improvement
+- [ ] `security` - Security related
+- [ ] `backend` - Backend changes
+- [ ] `mobile` - Mobile app changes
+- [ ] `infrastructure` - Infrastructure changes
+- [ ] `ready-for-review` - Ready for code review
+- [ ] `ready-for-merge` - Ready to merge
 
 ---
 
-## 🙏 Thank You
-
-Thank you for contributing to ANGA Weather App! Your contributions help make this project better for everyone.
-
-**Reviewers:** Please ensure all checklist items are completed before approving this PR.
-
----
-
-*This PR template is designed to ensure comprehensive review and maintain code quality standards.*
+**Reviewer Guidelines:**
+- Please review the code thoroughly
+- Test the changes if possible
+- Check for security implications
+- Verify performance impact
+- Ensure documentation is updated
+- Approve only if all criteria are met

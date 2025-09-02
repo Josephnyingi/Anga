@@ -6,11 +6,13 @@ labels: ['bug', 'needs-triage']
 assignees: ''
 ---
 
-## 🐛 Bug Description
+# 🐛 Bug Report
 
-A clear and concise description of what the bug is.
+## 📋 Description
+<!-- A clear and concise description of what the bug is -->
 
 ## 🔄 Steps to Reproduce
+<!-- Steps to reproduce the behavior -->
 
 1. Go to '...'
 2. Click on '....'
@@ -18,97 +20,56 @@ A clear and concise description of what the bug is.
 4. See error
 
 ## ✅ Expected Behavior
-
-A clear and concise description of what you expected to happen.
+<!-- A clear and concise description of what you expected to happen -->
 
 ## ❌ Actual Behavior
+<!-- A clear and concise description of what actually happened -->
 
-A clear and concise description of what actually happened.
+## 📱 Screenshots/Videos
+<!-- If applicable, add screenshots or videos to help explain your problem -->
 
-## 📱 Environment
+## 🌍 Environment
+<!-- Please complete the following information -->
 
-**Device:**
-- OS: [e.g. iOS 17.0, Android 14, Windows 11]
-- Browser: [e.g. Chrome 120, Safari 17, Edge 120]
-- Version: [e.g. 1.0.0]
+**Desktop:**
+- OS: [e.g. Windows 10, macOS 12.0, Ubuntu 20.04]
+- Browser: [e.g. Chrome 91, Firefox 89, Safari 14]
+- Version: [e.g. 22]
 
-**App Version:**
-- Mobile App: [e.g. 1.0.0+1]
-- Backend API: [e.g. 1.0.0]
+**Mobile:**
+- Device: [e.g. iPhone 12, Samsung Galaxy S21]
+- OS: [e.g. iOS 15.0, Android 11]
+- App Version: [e.g. 1.2.0]
 
-## 📸 Screenshots
+**Backend:**
+- Python Version: [e.g. 3.9.7]
+- FastAPI Version: [e.g. 0.68.0]
+- Database: [e.g. PostgreSQL 13.4]
 
-If applicable, add screenshots to help explain your problem.
+## 📊 Additional Context
+<!-- Add any other context about the problem here -->
 
-## 📋 Additional Context
+## 🔍 Error Logs
+<!-- If applicable, paste error logs here -->
 
-Add any other context about the problem here.
-
-## 🔍 Debug Information
-
-**Console Logs:**
 ```
-Paste any relevant console logs here
-```
-
-**Network Requests:**
-```
-Paste any relevant network request/response logs here
-```
-
-**Error Messages:**
-```
-Paste any error messages here
+Paste error logs here
 ```
 
-## 📝 Reproduction Code
+## 🎯 Priority
+<!-- Mark the relevant option with an "x" -->
 
-If applicable, provide minimal code to reproduce the issue:
-
-```dart
-// For Flutter/Dart issues
-class ExampleWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // Your code here
-  }
-}
-```
-
-```python
-# For Python/Backend issues
-def example_function():
-    # Your code here
-    pass
-```
+- [ ] 🔴 Critical - System is down or data loss
+- [ ] 🟠 High - Major functionality broken
+- [ ] 🟡 Medium - Minor functionality affected
+- [ ] 🟢 Low - Cosmetic issue or enhancement
 
 ## 🏷️ Labels
-
-Please add appropriate labels to help categorize this issue:
-- [ ] `bug`
-- [ ] `mobile` (if mobile app related)
-- [ ] `backend` (if backend related)
-- [ ] `api` (if API related)
-- [ ] `ui/ux` (if UI/UX related)
-- [ ] `performance` (if performance related)
-- [ ] `security` (if security related)
-
-## 📞 Contact Information
-
-- **Your Name:** [Optional]
-- **Email:** [Optional]
-- **GitHub Username:** [Optional]
-
----
-
-## Checklist
-
-- [ ] I have searched existing issues to avoid duplicates
-- [ ] I have provided all the requested information
-- [ ] I have tested this on the latest version
-- [ ] I have included relevant logs and screenshots
-- [ ] I have provided minimal reproduction code if applicable
-
----
-
-**Thank you for helping us improve ANGA Weather App! 🌟**
+<!-- Add relevant labels -->
+- [ ] `backend` - Backend related
+- [ ] `mobile` - Mobile app related
+- [ ] `api` - API related
+- [ ] `database` - Database related
+- [ ] `ui/ux` - User interface related
+- [ ] `performance` - Performance related
+- [ ] `security` - Security related

@@ -1,123 +1,62 @@
 ---
-name: 💡 Feature Request
+name: ✨ Feature Request
 about: Suggest an idea for this project
 title: '[FEATURE] '
 labels: ['enhancement', 'needs-triage']
 assignees: ''
 ---
 
-## 💡 Feature Description
+# ✨ Feature Request
 
-A clear and concise description of the feature you'd like to see implemented.
+## 📋 Description
+<!-- A clear and concise description of what you want to happen -->
 
 ## 🎯 Problem Statement
+<!-- Is your feature request related to a problem? Please describe. A clear and concise description of what the problem is -->
 
-A clear and concise description of what problem this feature would solve. For example:
-- "I'm always frustrated when [...]"
-- "It's difficult to [...]"
-- "I need a way to [...]"
-
-## 💭 Proposed Solution
-
-A clear and concise description of what you want to happen.
+## 💡 Proposed Solution
+<!-- Describe the solution you'd like. A clear and concise description of what you want to happen -->
 
 ## 🔄 Alternative Solutions
+<!-- Describe any alternative solutions or features you've considered -->
 
-A clear and concise description of any alternative solutions or features you've considered.
+## 📱 User Story
+<!-- As a [user type], I want [goal] so that [benefit] -->
 
-## 📱 Platform Considerations
+**As a** [user type]  
+**I want** [goal]  
+**So that** [benefit]
 
-**Which platforms should this feature support?**
-- [ ] Android
-- [ ] iOS
-- [ ] Web
-- [ ] Backend API
-- [ ] USSD
-
-**User Impact:**
-- [ ] High - Core functionality for many users
-- [ ] Medium - Useful enhancement for some users
-- [ ] Low - Nice-to-have feature
-
-## 🎨 UI/UX Considerations
-
-If this feature involves UI changes, please describe:
-- Where should this feature be located in the app?
-- What should it look like?
-- Any specific design requirements?
+## 🎨 Mockups/Designs
+<!-- If applicable, add mockups, designs, or wireframes -->
 
 ## 🔧 Technical Considerations
+<!-- Any technical considerations or constraints -->
 
-**Complexity Level:**
-- [ ] Low - Simple implementation
-- [ ] Medium - Moderate complexity
-- [ ] High - Complex implementation requiring significant changes
+## 📊 Acceptance Criteria
+<!-- Define what "done" looks like -->
 
-**Dependencies:**
-- Does this feature require new external APIs?
-- Does it need new database tables/models?
-- Any performance considerations?
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] Criterion 3
 
-## 📊 Use Cases
+## 🎯 Priority
+<!-- Mark the relevant option with an "x" -->
 
-Describe specific scenarios where this feature would be valuable:
-
-1. **Use Case 1:** [Description]
-2. **Use Case 2:** [Description]
-3. **Use Case 3:** [Description]
-
-## 🎯 Success Criteria
-
-How would you measure the success of this feature?
-- [ ] User engagement metrics
-- [ ] Performance improvements
-- [ ] User feedback/satisfaction
-- [ ] Other: [Specify]
-
-## 📸 Mockups/Examples
-
-If you have mockups, wireframes, or examples of similar features in other apps, please share them here.
-
-## 🔗 Related Issues
-
-Link any related issues or discussions:
-- Related issue: #[issue number]
-- Related discussion: #[discussion number]
+- [ ] 🔴 Critical - Essential for core functionality
+- [ ] 🟠 High - Important for user experience
+- [ ] 🟡 Medium - Nice to have
+- [ ] 🟢 Low - Future consideration
 
 ## 🏷️ Labels
+<!-- Add relevant labels -->
+- [ ] `backend` - Backend related
+- [ ] `mobile` - Mobile app related
+- [ ] `api` - API related
+- [ ] `ui/ux` - User interface related
+- [ ] `ai/ml` - AI/ML related
+- [ ] `performance` - Performance related
+- [ ] `security` - Security related
 
-Please add appropriate labels to help categorize this request:
-- [ ] `enhancement`
-- [ ] `mobile` (if mobile app related)
-- [ ] `backend` (if backend related)
-- [ ] `api` (if API related)
-- [ ] `ui/ux` (if UI/UX related)
-- [ ] `performance` (if performance related)
-- [ ] `accessibility` (if accessibility related)
-
-## 📞 Contact Information
-
-- **Your Name:** [Optional]
-- **Email:** [Optional]
-- **GitHub Username:** [Optional]
-
----
-
-## Checklist
-
-- [ ] I have searched existing issues to avoid duplicates
-- [ ] I have provided a clear problem statement
-- [ ] I have described the proposed solution
-- [ ] I have considered alternative solutions
-- [ ] I have provided use cases and success criteria
-- [ ] I have included any relevant mockups or examples
-
----
-
-## 💡 Additional Context
-
-Add any other context, screenshots, or information about the feature request here.
-
----
-
-**Thank you for helping us improve ANGA Weather App! 🌟**
+## 📚 Additional Context
+<!-- Add any other context or screenshots about the feature request here -->
