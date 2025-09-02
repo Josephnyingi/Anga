@@ -1,0 +1,305 @@
+name: 🔥 Hotfix Pipeline
+
+on:
+  push:
+    branches: [ 'hotfix/*' ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PYTHON_VERSION: '3.11'
+  FLUTTER_VERSION: '3.16.0'
+
+jobs:
+  # 🔍 Critical Code Quality Check
+  critical-quality-check:
+    name: 🔍 Critical Quality Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install dependencies
+        run: |
+          cd apps/backend
+          pip install -r requirements/base.txt
+          pip install -r requirements/dev.txt
+
+      - name: 🎨 Code formatting (Black)
+        run: |
+          cd apps/backend
+          black --check --diff .
+
+      - name: 📋 Import sorting (isort)
+        run: |
+          cd apps/backend
+          isort --check-only --diff .
+
+      - name: 🔍 Linting (Flake8)
+        run: |
+          cd apps/backend
+          flake8 .
+
+      - name: 🔒 Critical security scan
+        run: |
+          cd apps/backend
+          bandit -r . -f json -o bandit-report.json
+          safety check --json --output safety-report.json
+
+      - name: 📊 Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: hotfix-security-reports
+          path: |
+            apps/backend/bandit-report.json
+            apps/backend/safety-report.json
+
+  # 🧪 Critical Backend Tests
+  critical-backend-tests:
+    name: 🧪 Critical Backend Tests
+    runs-on: ubuntu-latest
+    needs: critical-quality-check
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: anga_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install dependencies
+        run: |
+          cd apps/backend
+          pip install -r requirements/base.txt
+          pip install -r requirements/test.txt
+
+      - name: 🗄️ Set up test database
+        run: |
+          cd apps/backend
+          python -c "
+          import os
+          os.environ['DATABASE_URL'] = 'postgresql://postgres:postgres@localhost:5432/anga_test'
+          from app.core.database import engine
+          from app.models import Base
+          Base.metadata.create_all(bind=engine)
+          "
+
+      - name: 🧪 Run critical tests
+        run: |
+          cd apps/backend
+          pytest tests/unit/ -v --cov=app --cov-report=xml
+          pytest tests/integration/ -v
+          pytest tests/security/ -v
+
+      - name: 📊 Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: apps/backend/coverage.xml
+          flags: hotfix
+          name: hotfix-coverage
+
+  # 📱 Critical Mobile Tests
+  critical-mobile-tests:
+    name: 📱 Critical Mobile Tests
+    runs-on: ubuntu-latest
+    needs: critical-quality-check
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐧 Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: 📦 Install Flutter dependencies
+        run: |
+          cd apps/mobile
+          flutter pub get
+
+      - name: 🔍 Analyze Flutter code
+        run: |
+          cd apps/mobile
+          flutter analyze
+
+      - name: 🧪 Run Flutter tests
+        run: |
+          cd apps/mobile
+          flutter test --coverage
+
+      - name: 📊 Upload Flutter coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: apps/mobile/coverage/lcov.info
+          flags: hotfix-mobile
+          name: hotfix-mobile-coverage
+
+  # 🚀 Emergency Deploy to Production
+  emergency-deploy:
+    name: 🚀 Emergency Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [critical-backend-tests, critical-mobile-tests]
+    if: github.event_name == 'push'
+    environment: production
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install deployment tools
+        run: |
+          pip install awscli docker-compose
+
+      - name: 🚀 Emergency deploy to production
+        run: |
+          echo "🚨 EMERGENCY DEPLOYMENT TO PRODUCTION"
+          echo "Hotfix branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Deploying critical fix..."
+          # Add your emergency deployment commands here
+          # Example: docker-compose -f docker-compose.prod.yml up -d
+
+      - name: 🧪 Run production health checks
+        run: |
+          echo "🧪 Running critical health checks..."
+          # Add health checks here
+
+      - name: 📢 Notify team
+        run: |
+          echo "📢 Notifying team of emergency deployment..."
+          # Add notification logic here (Slack, email, etc.)
+
+  # 🔒 Security Audit
+  security-audit:
+    name: 🔒 Security Audit
+    runs-on: ubuntu-latest
+    needs: critical-quality-check
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install security tools
+        run: |
+          pip install bandit safety semgrep
+
+      - name: 🔍 Run comprehensive security scan
+        run: |
+          cd apps/backend
+          semgrep --config=auto --json --output=semgrep-report.json .
+          bandit -r . -f json -o bandit-report.json
+          safety check --json --output safety-report.json
+
+      - name: 🛡️ Run OWASP ZAP scan
+        uses: zaproxy/action-full-scan@v0.4.0
+        with:
+          target: 'http://localhost:8000'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+      - name: 📊 Upload security audit results
+        uses: actions/upload-artifact@v3
+        with:
+          name: hotfix-security-audit
+          path: |
+            apps/backend/semgrep-report.json
+            apps/backend/bandit-report.json
+            apps/backend/safety-report.json
+            zap-report.html
+
+  # 📊 Performance Impact Assessment
+  performance-impact:
+    name: 📊 Performance Impact Assessment
+    runs-on: ubuntu-latest
+    needs: [critical-backend-tests, critical-mobile-tests]
+    if: github.event_name == 'push'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install performance tools
+        run: |
+          pip install locust pytest-benchmark
+
+      - name: 🚀 Start backend
+        run: |
+          cd apps/backend
+          python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          sleep 10
+
+      - name: 📊 Run performance impact tests
+        run: |
+          cd apps/backend
+          pytest tests/performance/ -v --benchmark-only
+
+      - name: 📈 Upload performance impact results
+        uses: actions/upload-artifact@v3
+        with:
+          name: hotfix-performance-impact
+          path: apps/backend/.benchmarks/
+
+  # 🔄 Merge to Develop
+  merge-to-develop:
+    name: 🔄 Merge to Develop
+    runs-on: ubuntu-latest
+    needs: [emergency-deploy, security-audit, performance-impact]
+    if: github.event_name == 'push'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔄 Merge hotfix to develop
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git checkout develop
+          git pull origin develop
+          git merge ${{ github.ref_name }}
+          git push origin develop
+
+      - name: 📢 Notify team of merge
+        run: |
+          echo "📢 Hotfix merged to develop branch"
+          # Add notification logic here
