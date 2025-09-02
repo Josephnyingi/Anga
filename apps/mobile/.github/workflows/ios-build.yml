@@ -1,0 +1,58 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
+        channel: 'stable'
+        
+    - name: Install dependencies
+      run: |
+        cd mobile
+        flutter pub get
+        
+    - name: Build iOS app
+      run: |
+        cd mobile
+        flutter build ios --release --no-codesign
+        
+    - name: Create IPA
+      run: |
+        cd mobile/ios
+        mkdir -p Payload
+        cp -r build/ios/iphoneos/Runner.app Payload/
+        zip -r ../build/ios/ipa/Runner.ipa Payload
+        rm -rf Payload
+        
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-app
+        path: mobile/build/ios/ipa/*.ipa
+        retention-days: 30
+        
+    - name: Upload build logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs
+        path: mobile/build/ios/ipa/
+        retention-days: 30
+
+
+
+

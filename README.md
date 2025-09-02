@@ -39,22 +39,47 @@ A comprehensive weather forecasting application with AI-powered farming assistan
 
 ```
 Anga/
-├── 📱 mobile/                 # Flutter mobile application
-│   ├── lib/                   # Dart source code
-│   ├── assets/                # Images and resources
-│   └── pubspec.yaml          # Flutter dependencies
-├── 🐍 backend/               # Python FastAPI backend
-│   ├── main_api.py           # Main API endpoints
-│   ├── models/               # Data models
-│   └── services/             # Business logic
-├── 🤖 models/                # ML models and AI assistant
-├── 📊 Dataset/               # Weather datasets
-├── 📚 docs/                  # Project documentation
-├── 🔧 scripts/               # Development scripts
-├── 🐳 docker-compose.yml     # Docker configuration
-├── 📋 requirements.txt       # Python dependencies
-├── ⚙️ pyproject.toml         # Project configuration
-└── 📖 README.md              # This file
+├── 📱 apps/                          # All applications
+│   ├── mobile/                       # Flutter mobile app
+│   │   ├── lib/                      # Dart source code
+│   │   ├── assets/                   # Images, fonts, etc.
+│   │   ├── android/                  # Android-specific files
+│   │   ├── ios/                      # iOS-specific files
+│   │   ├── web/                      # Web-specific files
+│   │   ├── test/                     # Flutter tests
+│   │   ├── pubspec.yaml              # Flutter dependencies
+│   │   └── README.md                 # Mobile app documentation
+│   │
+│   └── backend/                      # Python FastAPI backend
+│       ├── app/                      # Main application code
+│       │   ├── api/                  # API routes
+│       │   ├── core/                 # Core functionality
+│       │   ├── models/               # SQLAlchemy models
+│       │   ├── schemas/              # Pydantic schemas
+│       │   ├── services/             # Business logic
+│       │   └── utils/                # Utility functions
+│       ├── tests/                    # Backend tests
+│       ├── migrations/               # Database migrations
+│       ├── requirements/             # Dependency management
+│       ├── Dockerfile
+│       └── README.md
+│
+├── 🤖 ml/                            # Machine Learning components
+│   ├── models/                       # Trained models
+│   ├── notebooks/                    # Jupyter notebooks
+│   ├── training/                     # Model training scripts
+│   └── data/                         # Training datasets
+│
+├── 🌐 services/                      # External services
+│   ├── ussd/                         # USSD service
+│   └── nginx/                        # Nginx configuration
+│
+├── 📚 docs/                          # Documentation
+├── 🔧 scripts/                       # Development scripts
+├── 🐳 infrastructure/                # Infrastructure as Code
+├── 🧪 tests/                         # Integration tests
+├── 📋 .github/                       # GitHub workflows
+└── 📖 README.md                      # This file
 ```
 
 ## 🚀 Quick Start
@@ -65,6 +90,60 @@ Anga/
 - **Flutter SDK 3.7.0+**
 - **Git**
 - **Docker** (optional, for containerized deployment)
+
+### Backend Setup
+
+1. **Navigate to backend:**
+   ```bash
+   cd apps/backend
+   ```
+
+2. **Create virtual environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements/dev.txt
+   ```
+
+4. **Set up environment:**
+   ```bash
+   cp env.example .env
+   # Edit .env with your configuration
+   ```
+
+5. **Run the backend:**
+   ```bash
+   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+### Mobile App Setup
+
+1. **Navigate to mobile app:**
+   ```bash
+   cd apps/mobile
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   flutter pub get
+   ```
+
+3. **Run the mobile app:**
+   ```bash
+   flutter run
+   ```
+
+### Docker Setup (Alternative)
+
+1. **Run with Docker Compose:**
+   ```bash
+   cd infrastructure/docker
+   docker-compose up -d
+   ```
 
 ### Automated Setup
 
