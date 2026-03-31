@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter config:*)",
+      "Bash(yes)",
+      "Bash(flutter doctor:*)",
+      "Bash(du -sh ~/.gradle/caches/*)"
+    ]
+  }
+}
