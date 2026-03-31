@@ -1,0 +1,50 @@
+redirectsOrigin = "config"
+plugins = []
+headers = []
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "/Users/joseph/Documents/Anga-main/apps/web/build/web"
+publishOrigin = "config"
+base = "/Users/joseph/Documents/Anga-main/apps/web"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[[redirects]]
+from = "/api/*"
+to = "http://anga-weather.japaneast.azurecontainer.io:8000/:splat"
+status = 200.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]

@@ -6,7 +6,7 @@ enum Environment {
 }
 
 class EnvironmentConfig {
-  static Environment _environment = Environment.development;
+  static Environment _environment = Environment.production;
   
   static Environment get environment => _environment;
   
@@ -22,7 +22,7 @@ class EnvironmentConfig {
       case Environment.staging:
         return 'https://anga-weather-api.onrender.com';
       case Environment.production:
-        return 'https://anga-weather-api.onrender.com'; // Render backend
+        return 'http://anga-weather.japaneast.azurecontainer.io:8000';
     }
   }
   
