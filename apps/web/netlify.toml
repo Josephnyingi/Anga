@@ -1,6 +1,14 @@
 [build]
   publish = "build/web"
 
+# Proxy /api/* → Azure backend (must come BEFORE the catch-all below)
+[[redirects]]
+  from   = "/api/*"
+  to     = "http://anga-weather.japaneast.azurecontainer.io:8000/:splat"
+  status = 200
+  force  = true
+
+# Flutter SPA — all other routes → index.html
 [[redirects]]
   from   = "/*"
   to     = "/index.html"
