@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . .
 RUN flutter config --enable-web \
     && flutter pub get \
-    && flutter build web --release
+    && flutter build web --release --web-renderer html
 
 # Runtime stage: nginx serving static site and proxying /api to localhost:8000 (ACI)
 FROM nginx:1.25-alpine

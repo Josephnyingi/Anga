@@ -28294,7 +28294,7 @@ r.m(0,"User-Agent","ANGA-Weather-Web/1.0.0")
 if(A.a8S().length!==0)r.m(0,"X-API-Key",A.a8S())
 return r},
 aAz(){return A.aRF()},
-aRD(){switch(2){case 2:return"http://anga-weather.japaneast.azurecontainer.io:8000"}},
+aRD(){switch(2){case 2:return"/api"}},
 a8S(){switch(2){case 2:return"prod_key"}},
 pK(){switch(2){case 2:return!1}},
 pL(){switch(2){case 2:return!1}},

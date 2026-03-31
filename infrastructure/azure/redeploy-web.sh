@@ -4,7 +4,7 @@
 set -e
 
 RESOURCE_GROUP="anga-rg"
-ACR_NAME="angaregistry"
+ACR_NAME="angaweatheracr"
 CONTAINER_GROUP="anga-cg"
 ACR_LOGIN_SERVER="${ACR_NAME}.azurecr.io"
 
@@ -14,6 +14,7 @@ az acr login --name "$ACR_NAME"
 echo "🏗️  Building web image (Flutter + nginx)..."
 docker build \
   --platform linux/amd64 \
+  -f apps/web/Dockerfile.prebuilt \
   -t "${ACR_LOGIN_SERVER}/anga-web:latest" \
   apps/web/
 

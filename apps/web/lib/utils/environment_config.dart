@@ -22,7 +22,7 @@ class EnvironmentConfig {
       case Environment.staging:
         return 'https://anga-weather-api.onrender.com';
       case Environment.production:
-        return 'http://anga-weather.japaneast.azurecontainer.io:8000';
+        return '/api';
     }
   }
   
