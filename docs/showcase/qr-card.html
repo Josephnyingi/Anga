@@ -6,73 +6,68 @@
   <title>ANGA — Demo QR Card</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
-    /* ── UPDATE THIS URL once Netlify is live ───────────────────── */
-    /* See the JS section below — change ANGA_URL                   */
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f0f4f8;
+      background: linear-gradient(135deg, #e8f4fd 0%, #f0faf4 100%);
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       min-height: 100vh;
-      padding: 20px;
+      padding: 32px 20px;
     }
 
     .page {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 340px 1fr;
       gap: 24px;
-      max-width: 900px;
+      max-width: 960px;
       width: 100%;
     }
 
-    /* ── Main QR Card ───────────────────────────────────────────── */
+    /* ── Main QR Card ── */
     .card-main {
-      background: linear-gradient(145deg, #0D1B2A 0%, #0175C2 100%);
-      border-radius: 20px;
-      padding: 40px 32px;
+      background: linear-gradient(160deg, #0D1B2A 0%, #0175C2 60%, #00A86B 100%);
+      border-radius: 24px;
+      padding: 36px 28px 32px;
       color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
-      box-shadow: 0 20px 60px rgba(1, 117, 194, 0.4);
+      gap: 18px;
+      box-shadow: 0 24px 64px rgba(1, 117, 194, 0.45);
     }
 
     .logo-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .logo-icon {
-      font-size: 48px;
-      line-height: 1;
-    }
+    .logo-icon { font-size: 44px; line-height: 1; }
 
     .logo-text {
-      font-size: 52px;
+      font-size: 54px;
       font-weight: 900;
-      letter-spacing: 4px;
+      letter-spacing: 6px;
       text-transform: uppercase;
     }
 
     .tagline {
-      font-size: 14px;
+      font-size: 13px;
       letter-spacing: 2px;
       text-transform: uppercase;
-      opacity: 0.8;
+      opacity: 0.85;
       text-align: center;
+      line-height: 1.6;
     }
 
     .qr-wrapper {
       background: white;
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 10px 32px rgba(0,0,0,0.35);
     }
 
     #qrcode canvas, #qrcode img {
@@ -81,115 +76,186 @@
     }
 
     .scan-label {
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 15px;
+      font-weight: 700;
       text-align: center;
-      opacity: 0.95;
     }
 
     .url-pill {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
       border-radius: 50px;
-      padding: 8px 20px;
-      font-size: 13px;
-      letter-spacing: 0.5px;
+      padding: 8px 18px;
+      font-size: 12px;
+      letter-spacing: 0.3px;
       word-break: break-all;
       text-align: center;
     }
 
-    .pwa-note {
-      font-size: 12px;
-      opacity: 0.7;
-      text-align: center;
-      line-height: 1.5;
+    .badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
-    /* ── Side cards ─────────────────────────────────────────────── */
-    .side-cards {
+    .badge {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 50px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .pwa-note {
+      font-size: 11.5px;
+      opacity: 0.72;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ── Right column ── */
+    .right-col {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
+    }
+
+    /* ── Section header ── */
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #64748B;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    /* ── Feature grid ── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
 
     .feature-card {
       background: white;
-      border-radius: 16px;
-      padding: 20px;
+      border-radius: 14px;
+      padding: 16px 14px;
       display: flex;
-      align-items: flex-start;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+      border-top: 3px solid transparent;
+    }
+
+    .feature-card.blue   { border-top-color: #0175C2; }
+    .feature-card.green  { border-top-color: #00A86B; }
+    .feature-card.gold   { border-top-color: #F59E0B; }
+    .feature-card.teal   { border-top-color: #0891B2; }
+    .feature-card.purple { border-top-color: #7C3AED; }
+    .feature-card.red    { border-top-color: #DC2626; }
+
+    .feat-icon  { font-size: 26px; line-height: 1; }
+    .feat-title { font-size: 13px; font-weight: 700; color: #1A1A2E; }
+    .feat-desc  { font-size: 11.5px; color: #64748B; line-height: 1.4; }
+
+    /* ── Target regions ── */
+    .region-card {
+      background: white;
+      border-radius: 14px;
+      padding: 16px 18px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+      display: flex;
+      align-items: center;
       gap: 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      border-left: 4px solid transparent;
     }
 
-    .feature-card.blue  { border-left-color: #0175C2; }
-    .feature-card.green { border-left-color: #2C7A4B; }
-    .feature-card.gold  { border-left-color: #F5A623; }
-    .feature-card.teal  { border-left-color: #028090; }
+    .region-map { font-size: 36px; }
 
-    .feat-icon {
-      font-size: 32px;
-      line-height: 1;
-      flex-shrink: 0;
-    }
+    .region-info { flex: 1; }
 
-    .feat-title {
-      font-size: 15px;
+    .region-title {
+      font-size: 14px;
       font-weight: 700;
       color: #1A1A2E;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
-    .feat-desc {
-      font-size: 13px;
+    .region-sub {
+      font-size: 12px;
       color: #64748B;
       line-height: 1.4;
     }
 
-    /* ── API card ───────────────────────────────────────────────── */
-    .api-card {
-      background: #1A1A2E;
-      border-radius: 16px;
-      padding: 20px;
-      color: white;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    .region-flags { font-size: 22px; letter-spacing: 4px; }
+
+    /* ── Tech stack & API card ── */
+    .tech-api-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
     }
 
-    .api-card h3 {
-      font-size: 13px;
+    .tech-card, .api-card {
+      background: #1A1A2E;
+      border-radius: 14px;
+      padding: 16px;
+      color: white;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+    }
+
+    .tech-card h3, .api-card h3 {
+      font-size: 10px;
       letter-spacing: 2px;
       text-transform: uppercase;
-      opacity: 0.6;
+      opacity: 0.55;
       margin-bottom: 10px;
+    }
+
+    .tech-pill {
+      display: inline-block;
+      background: rgba(1,117,194,0.25);
+      border: 1px solid rgba(1,117,194,0.4);
+      border-radius: 6px;
+      padding: 4px 9px;
+      font-size: 11px;
+      color: #7DD3FC;
+      margin: 3px 3px 0 0;
     }
 
     .api-link {
       display: block;
       background: rgba(1,117,194,0.2);
-      border: 1px solid rgba(1,117,194,0.4);
+      border: 1px solid rgba(1,117,194,0.35);
       border-radius: 8px;
-      padding: 8px 14px;
-      font-size: 12px;
+      padding: 8px 12px;
+      font-size: 11px;
       color: #7DD3FC;
       text-decoration: none;
-      margin-bottom: 8px;
+      margin-bottom: 7px;
       word-break: break-all;
+      transition: background 0.2s;
     }
 
+    .api-link:hover { background: rgba(1,117,194,0.35); }
+
     .api-link span {
-      color: rgba(255,255,255,0.4);
-      font-size: 11px;
       display: block;
+      color: rgba(255,255,255,0.4);
+      font-size: 10px;
       margin-bottom: 2px;
     }
 
-    /* ── Print styles ───────────────────────────────────────────── */
+    /* ── Print ── */
     @media print {
       body { background: white; padding: 0; }
-      .page { gap: 16px; }
-      .card-main { box-shadow: none; }
-      .feature-card, .api-card { box-shadow: none; border: 1px solid #e2e8f0; }
+      .card-main, .feature-card, .tech-card, .api-card, .region-card {
+        box-shadow: none;
+        border: 1px solid #e2e8f0;
+      }
     }
   </style>
 </head>
@@ -197,73 +263,128 @@
 
 <div class="page">
 
-  <!-- ── Main QR card ── -->
+  <!-- ═══════════════ LEFT: Main QR card ═══════════════ -->
   <div class="card-main">
+
     <div class="logo-row">
       <span class="logo-icon">🌤️</span>
       <span class="logo-text">ANGA</span>
     </div>
 
-    <p class="tagline">AI-Powered Weather & Farming Intelligence</p>
+    <p class="tagline">AI-Powered Weather &amp;<br>Farming Intelligence</p>
 
     <div class="qr-wrapper">
       <div id="qrcode"></div>
     </div>
 
-    <p class="scan-label">📱 Scan to try ANGA on your phone</p>
-    <div class="url-pill" id="url-display">anga-weather.japaneast.azurecontainer.io</div>
+    <p class="scan-label">📱 Scan to try ANGA live</p>
+
+    <div class="url-pill" id="url-display">anga-weather-8498e751.netlify.app</div>
+
+    <div class="badges">
+      <span class="badge">🆓 FREE</span>
+      <span class="badge">📱 PWA</span>
+      <span class="badge">🌐 OFFLINE-READY</span>
+    </div>
 
     <p class="pwa-note">
-      Works on any phone · No app install needed<br>
-      Tap <strong>"Add to Home Screen"</strong> for native experience
+      Works on any smartphone · No app install needed<br>
+      Tap <strong>"Add to Home Screen"</strong> for native experience<br>
+      Also available as Android &amp; iOS mobile app
     </p>
+
   </div>
 
-  <!-- ── Side cards ── -->
-  <div class="side-cards">
+  <!-- ═══════════════ RIGHT: Feature cards ═══════════════ -->
+  <div class="right-col">
 
-    <div class="feature-card blue">
-      <span class="feat-icon">🌡️</span>
-      <div>
-        <div class="feat-title">Real-Time Weather</div>
-        <div class="feat-desc">Live forecasts for Machakos & Vhembe powered by Open-Meteo API</div>
+    <p class="section-label">Core Features</p>
+
+    <div class="feature-grid">
+
+      <div class="feature-card blue">
+        <span class="feat-icon">📊</span>
+        <div class="feat-title">Live Dashboard</div>
+        <div class="feat-desc">Real-time temp, humidity, wind &amp; 7-day forecast charts powered by Open-Meteo</div>
       </div>
-    </div>
 
-    <div class="feature-card green">
-      <span class="feat-icon">🤖</span>
-      <div>
+      <div class="feature-card teal">
+        <span class="feat-icon">🌦️</span>
+        <div class="feat-title">Live Weather Feed</div>
+        <div class="feat-desc">Minute-by-minute conditions — rain, UV index, soil moisture, feels-like temp</div>
+      </div>
+
+      <div class="feature-card green">
+        <span class="feat-icon">🤖</span>
         <div class="feat-title">AI Farming Assistant</div>
-        <div class="feat-desc">Groq LLM gives actionable advice — crop selection, irrigation, pest control</div>
+        <div class="feat-desc">Groq LLaMA-3 gives crop advice, irrigation schedules &amp; pest alerts in plain language</div>
       </div>
-    </div>
 
-    <div class="feature-card gold">
-      <span class="feat-icon">🌍</span>
-      <div>
+      <div class="feature-card gold">
+        <span class="feat-icon">🌍</span>
         <div class="feat-title">NVIDIA Earth-2</div>
-        <div class="feat-desc">World's first open AI weather model family — higher accuracy forecasts</div>
+        <div class="feat-desc">FourCastNet AI model — km-scale weather prediction, 10× more accurate long-range</div>
       </div>
-    </div>
 
-    <div class="feature-card teal">
-      <span class="feat-icon">📟</span>
-      <div>
+      <div class="feature-card purple">
+        <span class="feat-icon">🔔</span>
+        <div class="feat-title">Weather Alerts</div>
+        <div class="feat-desc">Push notifications for frost, drought, heavy rain &amp; extreme heat affecting your farm</div>
+      </div>
+
+      <div class="feature-card red">
+        <span class="feat-icon">📟</span>
         <div class="feat-title">USSD Access</div>
-        <div class="feat-desc">Works on basic phones — no internet needed for offline farming communities</div>
+        <div class="feat-desc">Works on basic phones with no internet — *dial a code* for weather in any language</div>
       </div>
+
     </div>
 
-    <div class="api-card">
-      <h3>🔗 Live Endpoints</h3>
-      <a class="api-link" id="api-link" href="#">
-        <span>Backend API + Docs</span>
-        anga-weather.japaneast.azurecontainer.io:8000/docs
-      </a>
-      <a class="api-link" href="https://github.com/Josephnyingi/Anga">
-        <span>Source Code</span>
-        github.com/Josephnyingi/Anga
-      </a>
+    <!-- ── Target regions ── -->
+    <div class="region-card">
+      <span class="region-map">🗺️</span>
+      <div class="region-info">
+        <div class="region-title">Target Farming Regions</div>
+        <div class="region-sub">
+          <strong>Machakos County, Kenya</strong> — semi-arid smallholder farms<br>
+          <strong>Vhembe District, South Africa</strong> — subtropical mixed agriculture
+        </div>
+      </div>
+      <div class="region-flags">🇰🇪 🇿🇦</div>
+    </div>
+
+    <!-- ── Tech stack + API endpoints ── -->
+    <div class="tech-api-row">
+
+      <div class="tech-card">
+        <h3>⚙️ Tech Stack</h3>
+        <span class="tech-pill">Flutter</span>
+        <span class="tech-pill">FastAPI</span>
+        <span class="tech-pill">NVIDIA Earth-2</span>
+        <span class="tech-pill">Groq LLaMA-3</span>
+        <span class="tech-pill">Firebase</span>
+        <span class="tech-pill">Open-Meteo</span>
+        <span class="tech-pill">Prophet ML</span>
+        <span class="tech-pill">Docker</span>
+        <span class="tech-pill">Azure ACI</span>
+      </div>
+
+      <div class="api-card">
+        <h3>🔗 Live Endpoints</h3>
+        <a class="api-link" id="api-docs-link" href="#">
+          <span>Interactive API Docs</span>
+          /api/docs
+        </a>
+        <a class="api-link" id="predict-link" href="#">
+          <span>Weather Prediction</span>
+          /predict/
+        </a>
+        <a class="api-link" href="https://github.com/Josephnyingi/Anga">
+          <span>Open Source Code</span>
+          github.com/Josephnyingi/Anga
+        </a>
+      </div>
+
     </div>
 
   </div>
@@ -271,29 +392,29 @@
 
 <script>
   // ╔══════════════════════════════════════════════════════════════╗
-  // ║  UPDATE THESE TWO URLs after deploying to Netlify / Render  ║
+  // ║  UPDATE these URLs once Azure deployment is confirmed live  ║
   // ╚══════════════════════════════════════════════════════════════╝
-  const ANGA_URL    = "http://anga-weather.japaneast.azurecontainer.io";
+  const ANGA_URL    = "https://anga-weather-8498e751.netlify.app";
   const BACKEND_URL = "http://anga-weather.japaneast.azurecontainer.io:8000/docs";
+  const PREDICT_URL = "http://anga-weather.japaneast.azurecontainer.io:8000/predict/";
 
-  // Generate QR code
+  // Generate QR code (points to the web app)
   new QRCode(document.getElementById("qrcode"), {
-    text:           ANGA_URL,
-    width:          220,
-    height:         220,
-    colorDark:      "#0D1B2A",
-    colorLight:     "#FFFFFF",
-    correctLevel:   QRCode.CorrectLevel.H
+    text:         ANGA_URL,
+    width:        200,
+    height:       200,
+    colorDark:    "#0D1B2A",
+    colorLight:   "#FFFFFF",
+    correctLevel: QRCode.CorrectLevel.H
   });
 
-  // Update displayed URLs
+  // Update URL display
   document.getElementById("url-display").textContent =
-    ANGA_URL.replace("https://", "");
-  const apiLink = document.getElementById("api-link");
-  apiLink.href = BACKEND_URL;
-  apiLink.querySelector("span").nextSibling
-    ? null
-    : apiLink.appendChild(document.createTextNode(BACKEND_URL.replace("https://", "")));
+    ANGA_URL.replace("http://", "").replace("https://", "");
+
+  // Wire up API links
+  document.getElementById("api-docs-link").href = BACKEND_URL;
+  document.getElementById("predict-link").href  = PREDICT_URL;
 </script>
 
 </body>
