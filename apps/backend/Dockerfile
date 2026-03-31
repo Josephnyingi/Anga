@@ -53,5 +53,5 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 # ❌ weather_api.py (Weather only)
 # ===========================================
 
-# Run the full ANGA unified API
+# Run the ANGA API with real Groq AI assistant
 CMD ["uvicorn", "simple_main:app", "--host", "0.0.0.0", "--port", "8000"]
