@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 
+from app.services.ai_service import generate_response
+
 # Create FastAPI app
 app = FastAPI(
     title="ANGA Simple API",
@@ -74,9 +76,11 @@ def create_user(user: UserCreate):
 @app.post("/assistant/ask")
 def ask_ai_assistant(data: dict):
     query = data.get("query", "")
-    return {
-        "answer": f"AI Response: You asked '{query}'. This is a simple response from the ANGA API."
-    }
+    use_case = data.get("use_case", "Smart Farming Advice")
+    if not query.strip():
+        raise HTTPException(status_code=400, detail="Query cannot be empty")
+    answer = generate_response(query, use_case)
+    return {"answer": answer, "query": query, "use_case": use_case}
 
 # Weather prediction endpoint
 @app.post("/predict/")
