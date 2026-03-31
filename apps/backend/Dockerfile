@@ -54,4 +54,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 # ===========================================
 
 # Run the full ANGA unified API
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "simple_main:app", "--host", "0.0.0.0", "--port", "8000"]
