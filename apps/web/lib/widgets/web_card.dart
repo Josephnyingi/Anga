@@ -206,9 +206,9 @@ class MetricCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  trend,
+                  trend!,
                   style: TextStyle(
-                    color: trendColor ?? (trend.startsWith('+') ? Colors.green : Colors.red),
+                    color: trendColor ?? (trend!.startsWith('+') ? Colors.green : Colors.red),
                     fontWeight: FontWeight.w500,
                   ),
                 ),

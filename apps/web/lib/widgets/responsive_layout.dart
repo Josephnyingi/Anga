@@ -100,3 +100,32 @@ class ResponsiveUtils {
     }
   }
 }
+
+/// Responsive grid that adapts column count to screen width
+class ResponsiveGrid extends StatelessWidget {
+  final List<Widget> children;
+  final double spacing;
+
+  const ResponsiveGrid({
+    super.key,
+    required this.children,
+    this.spacing = 16,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final columns = ResponsiveUtils.getResponsiveColumns(context);
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: columns,
+        crossAxisSpacing: spacing,
+        mainAxisSpacing: spacing,
+        childAspectRatio: 1.8,
+      ),
+      itemCount: children.length,
+      itemBuilder: (context, index) => children[index],
+    );
+  }
+}

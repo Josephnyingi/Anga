@@ -1,55 +1,74 @@
-/// 🔔 **Notification Service for Web**
-/// 
-/// This service handles notifications for the web application.
-/// Uses browser notifications for web platform.
+// ignore_for_file: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
+
+/// 🔔 Notification Service for Web
+///
+/// Uses the browser Notifications API to show real push notifications.
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  /// Initialize the notification service
+  bool _permissionGranted = false;
+
   Future<void> initialize() async {
-    print("🔔 Notification service initialized for web");
-    // Request notification permission for web
-    await _requestPermission();
+    await requestPermissions();
   }
 
-  /// Request notification permission
-  Future<void> _requestPermission() async {
-    // For web, request browser notification permission
-    print("🔔 Requesting notification permission for web");
+  Future<bool> requestPermissions() async {
+    try {
+      if (html.Notification.supported) {
+        final permission = await html.Notification.requestPermission();
+        _permissionGranted = permission == 'granted';
+      }
+    } catch (_) {}
+    return _permissionGranted;
   }
 
-  /// Show notification
+  Future<bool> areNotificationsEnabled() async => _permissionGranted;
+
+  Future<void> showWeatherAlert({
+    required String title,
+    required String body,
+    String? payload,
+  }) async => _show(title, body);
+
+  Future<void> showDailyForecast({
+    required String location,
+    required String temperature,
+    required String rainfall,
+  }) async => _show('Daily Forecast — $location', '$temperature  ·  $rainfall rain');
+
+  Future<void> showExtremeWeatherWarning({
+    required String location,
+    required String condition,
+    required String severity,
+  }) async => _show('⚠️ Extreme Weather — $location', '$condition ($severity)');
+
   Future<void> showNotification({
     required String title,
     required String body,
     String? payload,
-  }) async {
-    print("🔔 Showing notification: $title - $body");
-    // In a real implementation, you'd use browser notifications
-  }
+  }) async => _show(title, body);
 
-  /// Schedule notification
   Future<void> scheduleNotification({
     required String title,
     required String body,
     required DateTime scheduledTime,
     String? payload,
   }) async {
-    print("🔔 Scheduling notification: $title - $body for $scheduledTime");
-    // In a real implementation, you'd use browser notifications
+    final delay = scheduledTime.difference(DateTime.now());
+    if (delay.isNegative) return;
+    Future.delayed(delay, () => _show(title, body));
   }
 
-  /// Cancel notification
-  Future<void> cancelNotification(int id) async {
-    print("🔔 Cancelling notification: $id");
-    // In a real implementation, you'd cancel browser notifications
-  }
+  Future<void> cancelNotification(int id) async {}
+  Future<void> cancelAllNotifications() async {}
 
-  /// Cancel all notifications
-  Future<void> cancelAllNotifications() async {
-    print("🔔 Cancelling all notifications");
-    // In a real implementation, you'd cancel all browser notifications
+  void _show(String title, String body) {
+    if (!_permissionGranted || !html.Notification.supported) return;
+    try {
+      html.Notification(title, body: body);
+    } catch (_) {}
   }
 }

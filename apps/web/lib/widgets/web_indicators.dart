@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'web_animations.dart';
 
 /// 📊 **Web Indicators and Status Components**
@@ -73,7 +74,7 @@ class WebIndicators {
             widthFactor: progress.clamp(0.0, 1.0),
             child: Container(
               decoration: BoxDecoration(
-                color: color ?? Theme.of(context).primaryColor,
+                color: color ?? Colors.blue,
                 borderRadius: BorderRadius.circular(height / 2),
               ),
             ),
@@ -102,7 +103,7 @@ class WebIndicators {
               CircularProgressIndicator(
                 value: progress.clamp(0.0, 1.0),
                 strokeWidth: strokeWidth,
-                color: color ?? Theme.of(context).primaryColor,
+                color: color ?? Colors.blue,
                 backgroundColor: Colors.grey.withOpacity(0.2),
               ),
               Center(
@@ -111,7 +112,7 @@ class WebIndicators {
                   style: TextStyle(
                     fontSize: size * 0.2,
                     fontWeight: FontWeight.bold,
-                    color: color ?? Theme.of(context).primaryColor,
+                    color: color ?? Colors.blue,
                   ),
                 ),
               ),
@@ -144,7 +145,7 @@ class WebIndicators {
     return Container(
       padding: padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color ?? Theme.of(context).primaryColor,
+        color: color ?? Colors.blue,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
@@ -170,7 +171,7 @@ class WebIndicators {
       height: size,
       decoration: BoxDecoration(
         color: isActive
-            ? (activeColor ?? Theme.of(context).primaryColor)
+            ? (activeColor ?? Colors.blue)
             : (inactiveColor ?? Colors.grey.withOpacity(0.3)),
         shape: BoxShape.circle,
       ),

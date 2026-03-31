@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dashboard_screen.dart';
+import 'enhanced_dashboard_screen.dart';
 import 'alerts_screen.dart';
 import 'settings_screen.dart';
 import 'ai_assistant_screen.dart';
@@ -18,7 +18,6 @@ class MainScreen extends StatefulWidget {
 
 class MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  final GlobalKey<DashboardScreenState> _dashboardKey = GlobalKey();
 
   late final List<Widget> _screens;
 
@@ -26,7 +25,7 @@ class MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _screens = [
-      DashboardScreen(key: _dashboardKey),
+      const EnhancedDashboardScreen(),
       const AlertsScreen(),
       const AIAssistantScreen(),
       SettingsScreen(setTheme: widget.setTheme),
