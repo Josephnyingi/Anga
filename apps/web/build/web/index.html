@@ -140,34 +140,27 @@
     <p class="splash-poweredby">Powered by NVIDIA Earth-2 &nbsp;·&nbsp; Groq AI &nbsp;·&nbsp; Flutter</p>
   </div>
 
-  <!-- Flutter initialisation -->
+  <!-- Flutter initialisation (Flutter 3.22+ loader API) -->
   <script src="flutter.js" defer></script>
-  <script>
+  <script defer>
+    function removeSplash() {
+      var splash = document.getElementById('anga-splash');
+      if (splash) {
+        splash.classList.add('hidden');
+        setTimeout(function() { splash.remove(); }, 700);
+      }
+    }
     window.addEventListener('load', function() {
-      // Remove splash once Flutter signals it is ready
-      window._flutter = window._flutter || {};
-      var orig = window._flutter.onEntrypointLoaded;
-      window._flutter.onEntrypointLoaded = function(engineInitializer) {
-        if (orig) orig(engineInitializer);
-        engineInitializer.initializeEngine().then(function(appRunner) {
-          appRunner.runApp().then(function() {
-            var splash = document.getElementById('anga-splash');
-            if (splash) {
-              splash.classList.add('hidden');
-              setTimeout(function() { splash.remove(); }, 700);
-            }
-          });
-        });
-      };
-
-      // Fallback: hide splash after 8 seconds no matter what
-      setTimeout(function() {
-        var splash = document.getElementById('anga-splash');
-        if (splash) {
-          splash.classList.add('hidden');
-          setTimeout(function() { splash.remove(); }, 700);
+      if (!window._flutter) window._flutter = {};
+      _flutter.buildConfig = {"engineRevision":"425cfb54d01a9472b3e81d9e76fd63a4a44cfbcb","builds":[{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"},{}]};
+      _flutter.loader.load({
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            return appRunner.runApp();
+          }).then(removeSplash);
         }
-      }, 8000);
+      });
+      setTimeout(removeSplash, 10000);
     });
   </script>
 </body>

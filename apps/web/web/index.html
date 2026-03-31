@@ -140,35 +140,50 @@
     <p class="splash-poweredby">Powered by NVIDIA Earth-2 &nbsp;·&nbsp; Groq AI &nbsp;·&nbsp; Flutter</p>
   </div>
 
-  <!-- Flutter initialisation -->
+  <!-- Flutter initialisation (Flutter 3.22+ loader API) -->
   <script src="flutter.js" defer></script>
-  <script>
-    window.addEventListener('load', function() {
-      // Remove splash once Flutter signals it is ready
-      window._flutter = window._flutter || {};
-      var orig = window._flutter.onEntrypointLoaded;
-      window._flutter.onEntrypointLoaded = function(engineInitializer) {
-        if (orig) orig(engineInitializer);
-        engineInitializer.initializeEngine().then(function(appRunner) {
-          appRunner.runApp().then(function() {
-            var splash = document.getElementById('anga-splash');
-            if (splash) {
-              splash.classList.add('hidden');
-              setTimeout(function() { splash.remove(); }, 700);
-            }
-          });
-        });
-      };
+  <script defer>
+    function removeSplash() {
+      var splash = document.getElementById('anga-splash');
+      if (splash) {
+        splash.classList.add('hidden');
+        setTimeout(function() { splash.remove(); }, 700);
+      }
+    }
 
-      // Fallback: hide splash after 8 seconds no matter what
-      setTimeout(function() {
-        var splash = document.getElementById('anga-splash');
-        if (splash) {
-          splash.classList.add('hidden');
-          setTimeout(function() { splash.remove(); }, 700);
-        }
-      }, 8000);
+    window.addEventListener('load', function() {
+      // flutter_bootstrap.js (generated at build time) sets _flutter.buildConfig
+      // and calls _flutter.loader.load(). We intercept here to add splash removal.
+      window._flutter = window._flutter || {};
+      var _origInstall = Object.getOwnPropertyDescriptor(window._flutter, 'loader');
+      function hookLoader(loader) {
+        var origLoad = loader.load.bind(loader);
+        loader.load = function(opts) {
+          opts = opts || {};
+          if (!opts.onEntrypointLoaded) {
+            opts.onEntrypointLoaded = function(engineInitializer) {
+              engineInitializer.initializeEngine().then(function(appRunner) {
+                return appRunner.runApp();
+              }).then(removeSplash);
+            };
+          }
+          return origLoad(opts);
+        };
+      }
+      // Hook if loader already present, otherwise watch for it
+      if (window._flutter.loader) {
+        hookLoader(window._flutter.loader);
+      } else {
+        Object.defineProperty(window._flutter, 'loader', {
+          set: function(l) { hookLoader(l); Object.defineProperty(window._flutter, 'loader', {value: l, writable: true, configurable: true}); },
+          configurable: true
+        });
+      }
+
+      // Fallback: hide splash after 10 seconds no matter what
+      setTimeout(removeSplash, 10000);
     });
   </script>
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
