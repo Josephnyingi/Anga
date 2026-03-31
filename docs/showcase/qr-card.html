@@ -211,7 +211,7 @@
     </div>
 
     <p class="scan-label">📱 Scan to try ANGA on your phone</p>
-    <div class="url-pill" id="url-display">anga-weather.netlify.app</div>
+    <div class="url-pill" id="url-display">anga-weather.japaneast.azurecontainer.io</div>
 
     <p class="pwa-note">
       Works on any phone · No app install needed<br>
@@ -258,7 +258,7 @@
       <h3>🔗 Live Endpoints</h3>
       <a class="api-link" id="api-link" href="#">
         <span>Backend API + Docs</span>
-        anga-weather-api.onrender.com/docs
+        anga-weather.japaneast.azurecontainer.io:8000/docs
       </a>
       <a class="api-link" href="https://github.com/Josephnyingi/Anga">
         <span>Source Code</span>
@@ -273,8 +273,8 @@
   // ╔══════════════════════════════════════════════════════════════╗
   // ║  UPDATE THESE TWO URLs after deploying to Netlify / Render  ║
   // ╚══════════════════════════════════════════════════════════════╝
-  const ANGA_URL    = "https://anga-weather.netlify.app";
-  const BACKEND_URL = "https://anga-weather-api.onrender.com/docs";
+  const ANGA_URL    = "http://anga-weather.japaneast.azurecontainer.io";
+  const BACKEND_URL = "http://anga-weather.japaneast.azurecontainer.io:8000/docs";
 
   // Generate QR code
   new QRCode(document.getElementById("qrcode"), {
