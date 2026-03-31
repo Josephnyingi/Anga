@@ -1,0 +1,22 @@
+services:
+  # ANGA FastAPI Backend — deployed on Render (free tier)
+  # Docs: https://render.com/docs/render-yaml
+  - type: web
+    name: anga-weather-api
+    runtime: python
+    rootDir: apps/backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHONPATH
+        value: .
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: GROQ_API_KEY
+        sync: false       # Set this in Render dashboard → Environment
+      - key: HF_TOKEN
+        sync: false       # Set this in Render dashboard → Environment
+      - key: SECRET_KEY
+        generateValue: true
+    healthCheckPath: /health
+    autoDeploy: true      # Auto-redeploy on every GitHub push

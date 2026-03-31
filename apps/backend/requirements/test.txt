@@ -1,0 +1,9 @@
+# Testing dependencies
+-r base.txt
+
+# Testing frameworks
+pytest==7.4.0
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+httpx==0.24.1
+factory-boy==3.3.0

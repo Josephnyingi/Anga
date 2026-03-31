@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ANGA — Demo QR Card</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    /* ── UPDATE THIS URL once Netlify is live ───────────────────── */
+    /* See the JS section below — change ANGA_URL                   */
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .page {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    /* ── Main QR Card ───────────────────────────────────────────── */
+    .card-main {
+      background: linear-gradient(145deg, #0D1B2A 0%, #0175C2 100%);
+      border-radius: 20px;
+      padding: 40px 32px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 20px 60px rgba(1, 117, 194, 0.4);
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      font-size: 48px;
+      line-height: 1;
+    }
+
+    .logo-text {
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    .tagline {
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.8;
+      text-align: center;
+    }
+
+    .qr-wrapper {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    #qrcode canvas, #qrcode img {
+      display: block;
+      border-radius: 8px;
+    }
+
+    .scan-label {
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      opacity: 0.95;
+    }
+
+    .url-pill {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 50px;
+      padding: 8px 20px;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      word-break: break-all;
+      text-align: center;
+    }
+
+    .pwa-note {
+      font-size: 12px;
+      opacity: 0.7;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* ── Side cards ─────────────────────────────────────────────── */
+    .side-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      border-left: 4px solid transparent;
+    }
+
+    .feature-card.blue  { border-left-color: #0175C2; }
+    .feature-card.green { border-left-color: #2C7A4B; }
+    .feature-card.gold  { border-left-color: #F5A623; }
+    .feature-card.teal  { border-left-color: #028090; }
+
+    .feat-icon {
+      font-size: 32px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .feat-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1A1A2E;
+      margin-bottom: 4px;
+    }
+
+    .feat-desc {
+      font-size: 13px;
+      color: #64748B;
+      line-height: 1.4;
+    }
+
+    /* ── API card ───────────────────────────────────────────────── */
+    .api-card {
+      background: #1A1A2E;
+      border-radius: 16px;
+      padding: 20px;
+      color: white;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .api-card h3 {
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.6;
+      margin-bottom: 10px;
+    }
+
+    .api-link {
+      display: block;
+      background: rgba(1,117,194,0.2);
+      border: 1px solid rgba(1,117,194,0.4);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #7DD3FC;
+      text-decoration: none;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+
+    .api-link span {
+      color: rgba(255,255,255,0.4);
+      font-size: 11px;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* ── Print styles ───────────────────────────────────────────── */
+    @media print {
+      body { background: white; padding: 0; }
+      .page { gap: 16px; }
+      .card-main { box-shadow: none; }
+      .feature-card, .api-card { box-shadow: none; border: 1px solid #e2e8f0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ── Main QR card ── -->
+  <div class="card-main">
+    <div class="logo-row">
+      <span class="logo-icon">🌤️</span>
+      <span class="logo-text">ANGA</span>
+    </div>
+
+    <p class="tagline">AI-Powered Weather & Farming Intelligence</p>
+
+    <div class="qr-wrapper">
+      <div id="qrcode"></div>
+    </div>
+
+    <p class="scan-label">📱 Scan to try ANGA on your phone</p>
+    <div class="url-pill" id="url-display">anga-weather.netlify.app</div>
+
+    <p class="pwa-note">
+      Works on any phone · No app install needed<br>
+      Tap <strong>"Add to Home Screen"</strong> for native experience
+    </p>
+  </div>
+
+  <!-- ── Side cards ── -->
+  <div class="side-cards">
+
+    <div class="feature-card blue">
+      <span class="feat-icon">🌡️</span>
+      <div>
+        <div class="feat-title">Real-Time Weather</div>
+        <div class="feat-desc">Live forecasts for Machakos & Vhembe powered by Open-Meteo API</div>
+      </div>
+    </div>
+
+    <div class="feature-card green">
+      <span class="feat-icon">🤖</span>
+      <div>
+        <div class="feat-title">AI Farming Assistant</div>
+        <div class="feat-desc">Groq LLM gives actionable advice — crop selection, irrigation, pest control</div>
+      </div>
+    </div>
+
+    <div class="feature-card gold">
+      <span class="feat-icon">🌍</span>
+      <div>
+        <div class="feat-title">NVIDIA Earth-2</div>
+        <div class="feat-desc">World's first open AI weather model family — higher accuracy forecasts</div>
+      </div>
+    </div>
+
+    <div class="feature-card teal">
+      <span class="feat-icon">📟</span>
+      <div>
+        <div class="feat-title">USSD Access</div>
+        <div class="feat-desc">Works on basic phones — no internet needed for offline farming communities</div>
+      </div>
+    </div>
+
+    <div class="api-card">
+      <h3>🔗 Live Endpoints</h3>
+      <a class="api-link" id="api-link" href="#">
+        <span>Backend API + Docs</span>
+        anga-weather-api.onrender.com/docs
+      </a>
+      <a class="api-link" href="https://github.com/Josephnyingi/Anga">
+        <span>Source Code</span>
+        github.com/Josephnyingi/Anga
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ╔══════════════════════════════════════════════════════════════╗
+  // ║  UPDATE THESE TWO URLs after deploying to Netlify / Render  ║
+  // ╚══════════════════════════════════════════════════════════════╝
+  const ANGA_URL    = "https://anga-weather.netlify.app";
+  const BACKEND_URL = "https://anga-weather-api.onrender.com/docs";
+
+  // Generate QR code
+  new QRCode(document.getElementById("qrcode"), {
+    text:           ANGA_URL,
+    width:          220,
+    height:         220,
+    colorDark:      "#0D1B2A",
+    colorLight:     "#FFFFFF",
+    correctLevel:   QRCode.CorrectLevel.H
+  });
+
+  // Update displayed URLs
+  document.getElementById("url-display").textContent =
+    ANGA_URL.replace("https://", "");
+  const apiLink = document.getElementById("api-link");
+  apiLink.href = BACKEND_URL;
+  apiLink.querySelector("span").nextSibling
+    ? null
+    : apiLink.appendChild(document.createTextNode(BACKEND_URL.replace("https://", "")));
+</script>
+
+</body>
+</html>

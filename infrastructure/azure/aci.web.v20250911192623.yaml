@@ -1,0 +1,43 @@
+apiVersion: 2021-10-01
+location: japaneast
+name: anga-cg
+properties:
+  containers:
+    - name: web
+      properties:
+        image: <ACR_LOGIN_SERVER>/anga-web:latest
+        ports:
+          - port: 80
+        resources:
+          requests:
+            cpu: 1
+            memoryInGb: 1.5
+        environmentVariables:
+          - name: NODE_ENV
+            value: production
+    - name: backend
+      properties:
+        image: <ACR_LOGIN_SERVER>/anga-backend:latest
+        ports:
+          - port: 8000
+        resources:
+          requests:
+            cpu: 1
+            memoryInGb: 1
+        environmentVariables:
+          - name: API_HOST
+            value: 0.0.0.0
+          - name: API_PORT
+            value: "8000"
+  osType: Linux
+  ipAddress:
+    type: Public
+    dnsNameLabel: <DNS_LABEL>
+    ports:
+      - protocol: TCP
+        port: 80
+  imageRegistryCredentials:
+    - server: <ACR_LOGIN_SERVER>
+      username: <ACR_USERNAME>
+      password: <ACR_PASSWORD>
+type: Microsoft.ContainerInstance/containerGroups

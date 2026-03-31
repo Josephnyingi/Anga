@@ -1,0 +1,28 @@
+# ANGA Web App — Netlify Deployment Configuration
+# Docs: https://docs.netlify.com/configure-builds/file-based-configuration/
+#
+# IMPORTANT — before deploying:
+# 1. Run locally: cd apps/web && flutter build web --release
+# 2. Commit the build output (apps/web/build/web/) to the repo
+# 3. Deploy to Netlify — it will serve the static files below
+# 4. Set ANGA_API_URL in Netlify dashboard → Environment Variables
+#    to your Render backend URL e.g. https://anga-weather-api.onrender.com
+
+[build]
+  base    = "apps/web"
+  publish = "build/web"
+  # No build command here — Flutter must be built locally first (see above)
+
+# Proxy /api/* → Render backend so the Flutter web app can call the API
+# without any CORS issues (same-origin requests)
+[[redirects]]
+  from   = "/api/*"
+  to     = "https://anga-weather-api.onrender.com/:splat"
+  status = 200
+  force  = true
+
+# Flutter web — send all routes to index.html (single-page app routing)
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200

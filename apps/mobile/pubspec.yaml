@@ -1,0 +1,65 @@
+name: anga
+description: "ANGA Weather App - AI-powered weather forecasting and farming assistance application"
+# Prevents accidental publishing to pub.dev
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  # Flutter SDK
+  flutter:
+    sdk: flutter
+  
+  # Firebase Services
+  firebase_core: ^4.0.0
+  firebase_auth: ^6.0.1
+
+  # UI Components
+  cupertino_icons: ^1.0.8
+
+  # Networking and HTTP
+  http: ^1.3.0
+
+  # Data Visualization
+  fl_chart: ^1.0.0
+
+  # Animations and Transitions
+  animate_do: ^4.2.0
+  page_transition: ^2.2.1
+
+  # Utilities
+  intl: ^0.20.2 
+  flutter_typeahead: ^5.2.0
+  shared_preferences: ^2.4.10
+
+  # State Management
+  provider: ^6.1.2
+
+  # Caching and Storage
+  cached_network_image: ^3.3.1
+
+  # System Services
+  connectivity_plus: ^6.0.5
+  flutter_local_notifications: ^19.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Code Quality
+  flutter_lints: ^6.0.0
+
+flutter:
+  # ✅ Ensure Material icons are enabled
+  uses-material-design: true
+
+  # ✅ Declare assets (images, icons, fonts)
+  assets:
+    - assets/images/farming.jpg
+    
+
+
+

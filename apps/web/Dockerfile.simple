@@ -1,0 +1,14 @@
+# Simple nginx server for pre-built Flutter web app
+FROM nginx:alpine
+
+# Copy the pre-built web files
+COPY build/web /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.web.conf /etc/nginx/nginx.conf
+
+# Expose port
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
