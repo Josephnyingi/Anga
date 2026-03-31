@@ -17,7 +17,7 @@
 # without any CORS issues (same-origin requests)
 [[redirects]]
   from   = "/api/*"
-  to     = "https://anga-weather-api.onrender.com/:splat"
+  to     = "http://anga-weather.japaneast.azurecontainer.io:8000/:splat"
   status = 200
   force  = true
 
