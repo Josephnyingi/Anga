@@ -129,20 +129,13 @@ def generate_response(prompt: str, use_case: str = "Smart Farming Advice") -> st
         answer = response.choices[0].message.content if response.choices and response.choices[0].message else None
         if answer is None:
             return "❌ No response generated from AI model."
-        
-        # Check if the answer contains an API key (security check)
-        if answer and (answer.startswith("gsk_") or "gsk_" in answer):
-            logger.warning("⚠️ API key detected in response - using fallback")
-            return _get_fallback_response(prompt, use_case)
-        
+
         logger.info("✅ Response generated successfully")
         return answer
-        
+
     except Exception as e:
-        error_msg = f"❌ Error generating response: {str(e)}"
-        logger.error(error_msg)
-        # Return fallback response on error
-        return _get_fallback_response(prompt, use_case)
+        logger.error(f"❌ Groq API error: {type(e).__name__}: {str(e)}")
+        return f"❌ AI error: {type(e).__name__}: {str(e)}"
 
 def _get_fallback_response(prompt: str, use_case: str) -> str:
     """
