@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-DEFAULT_MODEL = "llama3-70b-8192"
+DEFAULT_MODEL = "llama-3.3-70b-versatile"
 
 # Initialize Groq client
 client = None
