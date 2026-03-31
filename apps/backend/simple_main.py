@@ -106,5 +106,22 @@ def get_live_weather(location: str = "machakos"):
         "rain_sum": 0.2
     }
 
+@app.get("/test-ai")
+def test_ai():
+    import os
+    key = os.getenv("GROQ_API_KEY", "NOT_SET")
+    from app.services.ai_service import client, GROQ_API_KEY
+    try:
+        result = generate_response("Hello, say hi back in one sentence.", "Smart Farming Advice")
+        return {
+            "env_key_set": key != "NOT_SET",
+            "key_prefix": key[:10] if key != "NOT_SET" else "NOT_SET",
+            "module_key_set": bool(GROQ_API_KEY),
+            "client_set": bool(client),
+            "response": result
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
