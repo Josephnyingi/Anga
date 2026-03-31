@@ -379,6 +379,10 @@
           <span>Weather Prediction</span>
           /predict/
         </a>
+        <a class="api-link" id="apk-link" href="#">
+          <span>Android APK Download</span>
+          v1.0.0 (56 MB)
+        </a>
         <a class="api-link" href="https://github.com/Josephnyingi/Anga">
           <span>Open Source Code</span>
           github.com/Josephnyingi/Anga
@@ -394,9 +398,10 @@
   // ╔══════════════════════════════════════════════════════════════╗
   // ║  UPDATE these URLs once Azure deployment is confirmed live  ║
   // ╚══════════════════════════════════════════════════════════════╝
-  const ANGA_URL    = "https://anga-weather-8498e751.netlify.app";
+  const ANGA_URL    = "https://anga-weather-101.netlify.app";
   const BACKEND_URL = "http://anga-weather.japaneast.azurecontainer.io:8000/docs";
   const PREDICT_URL = "http://anga-weather.japaneast.azurecontainer.io:8000/predict/";
+  const APK_URL     = "https://github.com/Josephnyingi/Anga/releases/download/v1.0.0/Anga-v1.0.0.apk";
 
   // Generate QR code (points to the web app)
   new QRCode(document.getElementById("qrcode"), {
@@ -415,6 +420,7 @@
   // Wire up API links
   document.getElementById("api-docs-link").href = BACKEND_URL;
   document.getElementById("predict-link").href  = PREDICT_URL;
+  document.getElementById("apk-link").href       = APK_URL;
 </script>
 
 </body>
