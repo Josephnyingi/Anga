@@ -204,8 +204,8 @@ Anga/
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/anga-weather/anga-weather-app.git
-   cd anga-weather-app
+   git clone https://github.com/Josephnyingi/Anga.git
+   cd Anga
    ```
 
 2. **Run the setup script:**
@@ -405,21 +405,16 @@ The web app is automatically built and served via Docker with nginx. The web con
 - Includes CORS headers and security configurations
 - Supports both development and production builds
 
-### Production Deployment
-
-See [Production Deployment Guide](docs/deployment/production.md) for detailed instructions.
-
 ## 📚 Documentation
 
-- **[Installation Guide](docs/installation.md)** - Detailed setup instructions
-- **[API Documentation](docs/api/README.md)** - Complete API reference
-- **[Development Guide](docs/development.md)** - Development workflow
-- **[Architecture Guide](docs/architecture/README.md)** - System design
-- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute
+- **[Documentation Index](docs/README.md)** - Full documentation overview
+- **[API Architecture](docs/API_ARCHITECTURE.md)** - Complete API reference and system design
+- **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute
+- **[Changelog](docs/CHANGELOG.md)** - Notable changes to the project
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guidelines](docs/CONTRIBUTING.md) for details.
 
 ### Development Workflow
 
@@ -442,24 +437,23 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 We take security seriously. Please report vulnerabilities to [security@anga-weather.com](mailto:security@anga-weather.com).
 
-See [Security Policy](SECURITY.md) for details.
+See [Security Policy](docs/SECURITY.md) for details.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](docs/LICENSE) file for details.
 
 ## 🆘 Support
 
 ### Getting Help
 
 1. **Documentation**: Check our [documentation](docs/README.md)
-2. **Issues**: Search [existing issues](https://github.com/anga-weather/anga-weather-app/issues)
-3. **Discussions**: Use [GitHub Discussions](https://github.com/anga-weather/anga-weather-app/discussions)
-4. **Contact**: Email [support@anga-weather.com](mailto:support@anga-weather.com)
+2. **Issues**: Search [existing issues](https://github.com/Josephnyingi/Anga/issues)
+3. **Contact**: Email [support@anga-weather.com](mailto:support@anga-weather.com)
 
 ### Common Issues
 
-See [Troubleshooting Guide](docs/troubleshooting.md) for solutions to common problems.
+See the fix notes in [docs/](docs/) - e.g. [Port Configuration Fix](docs/PORT_CONFIGURATION_FIX.md), [Mobile App Issues Fix](docs/MOBILE_APP_ISSUES_FIX.md), and [Weather Service Fix](docs/WEATHER_SERVICE_FIX.md) - for solutions to common problems.
 
 ## 🌟 Acknowledgments
 

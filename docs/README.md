@@ -5,30 +5,26 @@ Welcome to the ANGA Weather App documentation. This comprehensive guide covers a
 ## 📚 Table of Contents
 
 ### Getting Started
-- [Installation Guide](installation.md)
-- [Quick Start](quick-start.md)
-- [Configuration](configuration.md)
-
-### Development
-- [Development Setup](development.md)
-- [Code Style Guide](code-style.md)
-- [Testing Guide](testing.md)
-- [API Documentation](api/README.md)
+- [Quick Start](../README.md#-quick-start) - Backend, mobile, web, and Docker setup
+- [Configuration](../README.md#-configuration) - Environment variables and API endpoints
 
 ### Architecture
-- [System Architecture](architecture/README.md)
-- [Database Schema](architecture/database.md)
-- [API Design](architecture/api-design.md)
-
-### Deployment
-- [Production Deployment](deployment/production.md)
-- [Docker Configuration](deployment/docker.md)
-- [Environment Management](deployment/environment.md)
+- [API Architecture](API_ARCHITECTURE.md) - System design and API reference
 
 ### Contributing
-- [Contributing Guidelines](contributing.md)
-- [Code Review Process](code-review.md)
-- [Release Process](release-process.md)
+- [Contributing Guidelines](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Changelog](CHANGELOG.md)
+
+### Security
+- [Security Policy](SECURITY.md)
+
+### Fix Notes & Troubleshooting
+- [Port Configuration Fix](PORT_CONFIGURATION_FIX.md)
+- [Mobile App Issues Fix](MOBILE_APP_ISSUES_FIX.md)
+- [AI Assistant Integration Fix](AI_ASSISTANT_FIX.md)
+- [Weather Service Implementation Fix](WEATHER_SERVICE_FIX.md)
+- [Requirements Consolidation](REQUIREMENTS_CONSOLIDATION.md)
 
 ## 🚀 Quick Overview
 
@@ -50,14 +46,14 @@ ANGA is a comprehensive weather forecasting application with AI-powered farming 
 
 ## 📖 How to Use This Documentation
 
-1. **New to the project?** Start with the [Installation Guide](installation.md)
-2. **Setting up development?** Check [Development Setup](development.md)
-3. **Looking for API details?** Visit [API Documentation](api/README.md)
-4. **Deploying to production?** See [Production Deployment](deployment/production.md)
+1. **New to the project?** Start with the [Quick Start](../README.md#-quick-start) guide
+2. **Setting up development?** Check [Configuration](../README.md#-configuration)
+3. **Looking for API details?** Visit [API Architecture](API_ARCHITECTURE.md)
+4. **Deploying to production?** See the [Docker Setup](../README.md#docker-setup-recommended) instructions
 
 ## 🤝 Contributing to Documentation
 
-We welcome contributions to improve this documentation! Please see our [Contributing Guidelines](contributing.md) for details on how to submit changes.
+We welcome contributions to improve this documentation! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to submit changes.
 
 ## 📞 Support
 
