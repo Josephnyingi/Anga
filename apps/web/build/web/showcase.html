@@ -682,7 +682,7 @@
           </div>
         </div>
         <div class="ussd-panel">
-          <p class="ussd-hint">This is the exact menu tree the live USSD service runs — no internet, no app, no smartphone. Sample data only below; live version calls the real backend.</p>
+          <p class="ussd-hint">The exact menu tree the live USSD service runs — no internet, no app, no smartphone. Built for farmers who grow crops, keep livestock, or both. Sample data only below; live version calls the real backend.</p>
           <div id="ussdOptions" class="ussd-options"></div>
         </div>
       </div>
@@ -822,9 +822,10 @@
   }
 
   function showWelcome() {
-    render("CON Welcome to ANGA Weather 🌦️\n1. Get Forecast\n2. My Livestock", [
+    render("CON Welcome to ANGA Weather 🌦️\n1. Get Forecast\n2. My Livestock\n3. Weather Alerts", [
       optBtn("1. Get Forecast", showForecastLocation),
       optBtn("2. My Livestock", showLivestockLocation),
+      optBtn("3. Weather Alerts", showAlertsLocation),
     ]);
   }
 
@@ -912,6 +913,46 @@
 
   function showRegisterResult(loc, animal, count) {
     render(`END ✅ Saved: ${count} ${animal} registered for ${loc}.`, [restartBtn()]);
+  }
+
+  // Same alert types, icons, and action tips as the live USSD service -
+  // one alert here is crop-relevant, the other livestock-relevant, so
+  // the flow itself demonstrates ANGA works whether a farmer grows
+  // crops, keeps livestock, or both.
+  const ALERT_META = {
+    drought:               { icon: "☀️", title: "Drought Risk",           tip: "Prioritise water for livestock; delay non-essential irrigation." },
+    frost:                 { icon: "❄️", title: "Frost Warning",          tip: "Cover sensitive crops tonight; delay any new planting." },
+    heat:                   { icon: "🔥", title: "Extreme Heat Warning",   tip: "Give animals shade & extra water; avoid grazing 11am-4pm." },
+    livestock_heat_stress: { icon: "🐄", title: "Livestock Heat Stress",  tip: "Move animals to shade now & check water troughs." },
+  };
+  const SAMPLE_ALERTS = {
+    Machakos: [
+      { type: "drought", message: "Drought risk: 5 consecutive dry days forecast." },
+      { type: "livestock_heat_stress", message: "Heat stress risk for your registered cattle." },
+    ],
+    Vhembe: [
+      { type: "frost", message: "Frost risk overnight - protect young crops." },
+      { type: "livestock_heat_stress", message: "Heat stress risk for your registered goats." },
+    ],
+  };
+
+  function showAlertsLocation() {
+    render("CON Choose location:\n1. Machakos\n2. Vhembe", LOCATIONS.map((loc, i) =>
+      optBtn(`${i + 1}. ${loc}`, () => showAlertsList(loc))
+    ));
+  }
+
+  function showAlertsList(loc) {
+    const alerts = SAMPLE_ALERTS[loc];
+    const menu = alerts.map((a, i) => `${i + 1}. ${ALERT_META[a.type].icon} ${ALERT_META[a.type].title}`).join("\n");
+    render(`CON ${alerts.length} alerts for ${loc}:\n${menu}`, alerts.map((a, i) =>
+      optBtn(`${i + 1}. ${ALERT_META[a.type].icon} ${ALERT_META[a.type].title}`, () => showAlertDetail(alerts[i]))
+    ));
+  }
+
+  function showAlertDetail(alert) {
+    const meta = ALERT_META[alert.type];
+    render(`END ${meta.icon} ${meta.title}\n${alert.message}\n👉 ${meta.tip}`, [restartBtn()]);
   }
 
   showDial();
