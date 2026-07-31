@@ -11,7 +11,7 @@
 
 ANGA turns real-time weather data into early-warning alerts (heat, frost, flood, drought, and livestock heat stress) for smallholder farmers across East and Southern Africa — delivered over USSD so reaching a community never depends on owning a smartphone or having data. That combination is the theme in practice: **smarter early warning** (threshold-based alerts computed from live weather data, not generic forecasts) reaching **stronger communities** (farmers, cooperatives, and extension services who are otherwise the least connected and most exposed).
 
-A comprehensive weather forecasting application with AI-powered farming assistance, built with Flutter and Python. ANGA provides real-time weather data, intelligent agricultural recommendations, and USSD integration for areas with limited internet access. Available as web, Android, and USSD, with a containerized (Docker) backend.
+A comprehensive weather forecasting application with AI-powered farming assistance, built with Flutter and Python. ANGA provides real-time weather data, intelligent agricultural recommendations, and USSD integration for areas with limited internet access. Available as web and Android now, with a containerized (Docker) backend; USSD is complete and tested but not yet deployed to a live shortcode (see Project Status below).
 
 ## 🎤 Investor / Judge Showcase
 
@@ -39,12 +39,16 @@ The APK is a sideloaded release build, not signed with a Play Store key — Andr
 - Closed real feature gaps between the web and mobile apps: mobile's dashboard now uses the same forecast/alerts/notification pipeline as web (was still on a legacy per-day ML endpoint); both apps' Settings screens now share units, forecast-period, reset-to-defaults, and debug-access options; both apps' Alerts screens now have a working severity filter, share, and notifications toggle (mobile's versions of these were `Coming soon...` stubs — implemented for real rather than copied across)
 - Added a pre-filled demo login (see above) so reviewers can log in with one tap, no registration needed
 - Added location search on both apps: any location in an IGAD member state now works (Djibouti, Eritrea, Ethiopia, Kenya, Somalia, South Sudan, Sudan, Uganda), via a new `/geocode/` endpoint — not just the original Machakos/Vhembe, which still work exactly as before for USSD
+- Fixed `/alerts/` returning 500 for every request since the location-search refactor - caught by CI's flake8 check, not manual testing; alerts had been silently absent from every dashboard for a while with no visible error
+- Added a "Weather Alerts" menu to USSD - it previously only exposed raw forecast numbers and livestock registration, never the actual early-warning alerts, which is backwards for the one channel that reaches farmers without smartphones. Each alert now comes with a concrete action, not just a warning
+- Fixed a real bug in mobile's `WeatherProvider.clearError()`, which never actually cleared anything (caught by the test suite once CI could run it)
+- Made GitHub Actions pass for the first time all session - 3 of 4 workflows had been failing on every push (pre-restructure paths, a fictional test/integration/performance pipeline that never matched reality, a dead Azure deploy job, a misplaced Codemagic config, a Flutter version mismatch)
 
 ## 🚀 Features
 
 - **Real-time Weather Data**: Live weather information from Open-Meteo API
 - **AI Farming Assistant**: Intelligent recommendations for agricultural activities
-- **USSD Integration**: Weather forecasts via USSD for areas with limited internet
+- **USSD Integration**: Forecasts, livestock registration, and weather alerts via USSD for areas with limited internet - code complete and tested, not yet deployed to a live shortcode
 - **Cross-platform**: Flutter mobile app for iOS and Android
 - **Web Application**: Flutter web app with responsive design and full feature parity
 - **Backend API**: FastAPI-powered backend with machine learning models
@@ -383,7 +387,7 @@ The ANGA web application provides full feature parity with the mobile app:
 
 - **Version**: 1.0.0
 - **Status**: Hackathon MVP, actively developed - not yet hardened for production scale (no token auth, no automated backend test suite, manual web deploys)
-- **Platforms**: Web (all browsers) + Android (sideloaded APK, no Play Store listing) + USSD
+- **Platforms**: Web (all browsers) + Android (sideloaded APK, no Play Store listing). USSD is code-complete and tested but not yet deployed to a live shortcode/Africa's Talking account
 - **Last Updated**: July 2026
 - **Maintainer**: Joseph Nyingi
 
