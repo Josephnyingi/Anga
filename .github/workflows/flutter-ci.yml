@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  mobile:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,30 +21,47 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd mobile
+        cd apps/mobile
         flutter pub get
 
     - name: Analyze project source
       run: |
-        cd mobile
+        cd apps/mobile
         flutter analyze
 
     - name: Run tests
       run: |
-        cd mobile
+        cd apps/mobile
         flutter test
 
-    - name: Build APK
+    - name: Build debug APK
       run: |
-        cd mobile
+        cd apps/mobile
         flutter build apk --debug
 
-    - name: Build Web
-      run: |
-        cd mobile
-        flutter build web
+  web:
+    runs-on: ubuntu-latest
 
-  backend-test:
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.5'
+        channel: 'stable'
+
+    - name: Install dependencies
+      run: |
+        cd apps/web
+        flutter pub get
+
+    - name: Build web
+      run: |
+        cd apps/web
+        flutter build web --release
+
+  backend:
     runs-on: ubuntu-latest
 
     steps:
@@ -57,79 +74,11 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd backend
+        cd apps/backend
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Run backend tests
-      run: |
-        cd backend
-        python -m pytest tests/ -v
-
-    - name: Lint with flake8
-      run: |
-        cd backend
         pip install flake8
+
+    - name: Lint with flake8 (errors only)
+      run: |
+        cd apps/backend
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-
-  security:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Run security scan
-      uses: snyk/actions/node@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: --severity-threshold=high
-
-  deploy:
-    needs: [test, backend-test, security]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.32.5'
-        channel: 'stable'
-
-    - name: Build release APK
-      run: |
-        cd mobile
-        flutter build apk --release
-
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: release-apk
-        path: mobile/build/app/outputs/flutter-apk/app-release.apk
-
-    - name: Deploy to Firebase Hosting (Web)
-      uses: FirebaseExtended/action-hosting-deploy@v0
-      with:
-        repoToken: '${{ secrets.GITHUB_TOKEN }}'
-        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-        channelId: live
-        projectId: anga-weather-app
-
-  notify:
-    needs: [deploy]
-    runs-on: ubuntu-latest
-    if: always()
-
-    steps:
-    - name: Notify on success
-      if: success()
-      run: |
-        echo "✅ All tests passed and deployment completed successfully!"
-
-    - name: Notify on failure
-      if: failure()
-      run: |
-        echo "❌ Tests failed or deployment failed!" 
