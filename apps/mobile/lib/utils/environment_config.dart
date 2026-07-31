@@ -22,7 +22,7 @@ class EnvironmentConfig {
       case Environment.staging:
         return 'https://staging-api.anga.com'; // Replace with your staging URL
       case Environment.production:
-        return 'https://api.anga.com'; // Replace with your production URL
+        return 'https://anga-weather-api.onrender.com';
     }
   }
   

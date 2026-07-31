@@ -17,13 +17,15 @@ class ApiConfig {
 
   /// Get the base URL based on the current environment
   static String get baseUrl {
-    // For web platform, go through same-origin nginx proxy
+    // Netlify's redirect-proxy can't forward the SNI/Host Render's routing
+    // needs (it hangs rather than erroring), so web calls Render directly.
+    // Backend CORS is allow_origins=["*"], so this works cross-origin.
     if (kIsWeb) {
-      const url = '/api';
-      debugPrint("🌐 Web platform detected - using same-origin proxy URL: $url");
+      const url = 'https://anga-weather-api.onrender.com';
+      debugPrint("🌐 Web platform detected - calling backend directly: $url");
       return url;
     }
-    
+
     // For other platforms, use environment configuration
     final url = EnvironmentConfig.baseUrl;
     debugPrint("🌐 Platform detected - using URL: $url");

@@ -28044,8 +28044,8 @@ s=1
 break
 case 1:return A.P(q,r)}})
 return A.Q($async$a2l,r)},
-ht(){if(A.py()&&A.pz())A.cp("\ud83d\udd27 [Web API Config] \ud83c\udf10 Web platform detected - using same-origin proxy URL: /api")
-return"/api"},
+ht(){if(A.py()&&A.pz())A.cp("\ud83d\udd27 [Web API Config] \ud83c\udf10 Web platform detected - calling backend directly: https://anga-weather-api.onrender.com")
+return"https://anga-weather-api.onrender.com"},
 tp(){var s="application/json",r=t.N
 r=A.w(r,r)
 r.m(0,"Content-Type",s)
@@ -28054,7 +28054,8 @@ r.m(0,"User-Agent","ANGA-Weather-Web/1.0.0")
 if(A.a6H().length!==0)r.m(0,"X-API-Key",A.a6H())
 return r},
 tq(){return A.aQ6()},
-aQ3(){switch(2){case 2:return"/api"}},
+aQ3(){var s="https://anga-weather-api.onrender.com"
+switch(2){case 2:return s}},
 a6H(){switch(2){case 2:return"prod_key"}},
 aQ4(){switch(2){case 2:return!0}},
 py(){switch(2){case 2:return!1}},

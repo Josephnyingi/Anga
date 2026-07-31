@@ -22,7 +22,7 @@ class EnvironmentConfig {
       case Environment.staging:
         return 'https://anga-weather-api.onrender.com';
       case Environment.production:
-        return '/api';
+        return 'https://anga-weather-api.onrender.com';
     }
   }
   
