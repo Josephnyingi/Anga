@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';   // For colors and alert types
 import '../utils/app_state.dart';   // ✅ In-memory state
+import '../services/alerts_service.dart';
+import '../services/notification_service.dart';
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
@@ -10,39 +12,73 @@ class AlertsScreen extends StatefulWidget {
 }
 
 class AlertsScreenState extends State<AlertsScreen> {
-  /// Sample alerts (🔔 replace with API fetch logic later)
-  final List<Map<String, dynamic>> alerts = [
-    {
-      "type": "Heatwave",
-      "location": "Nairobi",
-      "severity": "Extreme Heat",
-      "date": "2025-03-15",
-      "time": "14:30",
-      "description": "Temperatures expected to reach 35°C with high humidity",
-      "icon": Icons.thermostat,
-      "priority": "high"
-    },
-    {
-      "type": "Heavy Rainfall",
-      "location": "Machakos",
-      "severity": "Flood Risk",
-      "date": "2025-03-16",
-      "time": "09:15",
-      "description": "Heavy rainfall expected with potential flooding in low-lying areas",
-      "icon": Icons.water_drop,
-      "priority": "medium"
-    },
-    {
-      "type": "Storm Warning",
-      "location": "Mombasa",
-      "severity": "Strong Winds",
-      "date": "2025-03-17",
-      "time": "16:45",
-      "description": "Strong winds up to 60 km/h with possible thunderstorms",
-      "icon": Icons.thunderstorm,
-      "priority": "high"
-    },
-  ];
+  List<Map<String, dynamic>> alerts = [];
+  bool _isLoading = true;
+
+  // Alert ids already surfaced as a notification this session, so refreshing
+  // doesn't re-fire the same warning repeatedly.
+  final Set<String> _notifiedAlertIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAlerts();
+  }
+
+  Future<void> _loadAlerts() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final location = AppState.selectedLocation.toLowerCase();
+      final raw = await AlertsService.getAlerts(location);
+
+      if (mounted) {
+        setState(() {
+          alerts = raw.map(_mapAlert).toList();
+        });
+      }
+
+      for (final alert in raw) {
+        if (_notifiedAlertIds.contains(alert.id)) continue;
+        _notifiedAlertIds.add(alert.id);
+        await NotificationService().showWeatherAlert(
+          title: '⚠️ Weather Alert — ${alert.location}',
+          body: alert.message,
+        );
+      }
+    } catch (e) {
+      print("❌ Alerts fetch error: $e");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Map<String, dynamic> _mapAlert(WeatherAlert a) {
+    const typeMeta = {
+      'heat': {'title': 'Extreme Heat', 'severity': 'Extreme Heat', 'icon': Icons.thermostat},
+      'frost': {'title': 'Frost Risk', 'severity': 'Frost Risk', 'icon': Icons.ac_unit},
+      'flood': {'title': 'Heavy Rainfall', 'severity': 'Flood Risk', 'icon': Icons.water_drop},
+      'drought': {'title': 'Drought Risk', 'severity': 'Drought Risk', 'icon': Icons.grain},
+      'livestock_heat_stress': {
+        'title': 'Livestock Heat Stress',
+        'severity': 'Livestock Heat Stress',
+        'icon': Icons.pets,
+      },
+    };
+    final meta = typeMeta[a.type] ??
+        {'title': 'Weather Alert', 'severity': a.type, 'icon': Icons.warning};
+
+    return {
+      "type": meta['title'],
+      "location": a.location,
+      "severity": meta['severity'],
+      "date": a.date,
+      "time": "",
+      "description": a.message,
+      "icon": meta['icon'],
+      "priority": a.severity == 'high' ? 'high' : 'medium',
+    };
+  }
 
   /// Get color based on alert severity
   Color _getAlertColor(String severity, String priority) {
@@ -54,6 +90,10 @@ class AlertsScreenState extends State<AlertsScreen> {
           return Colors.orange.shade700;
         case "Strong Winds":
           return Colors.purple.shade700;
+        case "Frost Risk":
+          return Colors.lightBlue.shade700;
+        case "Livestock Heat Stress":
+          return Colors.deepOrange.shade700;
         default:
           return Colors.red.shade600;
       }
@@ -65,6 +105,12 @@ class AlertsScreenState extends State<AlertsScreen> {
           return Colors.blue.shade600;
         case "Strong Winds":
           return Colors.indigo.shade600;
+        case "Frost Risk":
+          return Colors.lightBlue.shade400;
+        case "Drought Risk":
+          return Colors.brown.shade400;
+        case "Livestock Heat Stress":
+          return Colors.deepOrange.shade400;
         default:
           return Colors.grey.shade600;
       }
@@ -116,7 +162,7 @@ class AlertsScreenState extends State<AlertsScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              // TODO: Implement refresh alerts functionality
+              _loadAlerts();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Refreshing alerts...'),
@@ -186,16 +232,18 @@ class AlertsScreenState extends State<AlertsScreen> {
           
           // Alerts list
           Expanded(
-            child: alerts.isNotEmpty
-                ? ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: alerts.length,
-                    itemBuilder: (context, index) {
-                      final alert = alerts[index];
-                      return _buildAlertCard(alert, isDarkMode);
-                    },
-                  )
-                : _buildEmptyState(isDarkMode),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : alerts.isNotEmpty
+                    ? ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: alerts.length,
+                        itemBuilder: (context, index) {
+                          final alert = alerts[index];
+                          return _buildAlertCard(alert, isDarkMode);
+                        },
+                      )
+                    : _buildEmptyState(isDarkMode),
           ),
         ],
       ),
@@ -411,9 +459,7 @@ class AlertsScreenState extends State<AlertsScreen> {
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () {
-              // TODO: Implement refresh
-            },
+            onPressed: _loadAlerts,
             icon: const Icon(Icons.refresh),
             label: const Text('Refresh Alerts'),
             style: ElevatedButton.styleFrom(

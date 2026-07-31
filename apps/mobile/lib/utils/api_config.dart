@@ -164,6 +164,9 @@ class ApiConfig {
   
   /// AI Assistant endpoint
   static String get aiAssistantUrl => "$baseUrl/assistant/ask"; // Matches backend POST /assistant/ask
+
+  /// Early-warning alerts endpoint
+  static String get alertsUrl => "$baseUrl/alerts/";
   
   /// Health check endpoint
   static String get healthCheckUrl => "$baseUrl/health";
