@@ -1,13 +1,22 @@
+import os
+
 from flask import Flask, request, Response
 from datetime import datetime, timedelta
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
 # Supported locations
 ALLOWED_LOCATIONS = ["machakos", "vhembe"]
-FASTAPI_PREDICT_URL = "http://localhost:8000/predict/"
-FASTAPI_LIVE_URL = "http://localhost:8000/live_weather/"
+
+# Defaults to the deployed backend so this works when reached by Africa's
+# Talking's servers, not just against a locally-running FastAPI instance.
+ANGA_API_BASE = os.getenv("ANGA_API_BASE", "http://anga-weather.japaneast.azurecontainer.io:8000")
+FASTAPI_PREDICT_URL = f"{ANGA_API_BASE}/predict/"
+FASTAPI_LIVE_URL = f"{ANGA_API_BASE}/live_weather/"
 
 @app.route("/ussd", methods=["POST"])
 def ussd_callback():
