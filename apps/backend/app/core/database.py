@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date
+from sqlalchemy import Column, Integer, String, Float, Date, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -33,6 +33,23 @@ class WeatherData(Base):
     location = Column(String, index=True)
     temperature = Column(Float)
     rain = Column(Float)
+
+# Livestock a farmer keeps, one row per (phone_number, animal_type).
+# Keyed by phone_number rather than a User FK: USSD callers have a phone
+# number but never "log in", so this needs to work without a User row.
+class Livestock(Base):
+    __tablename__ = "livestock"
+
+    id = Column(Integer, primary_key=True, index=True)
+    phone_number = Column(String, index=True)
+    location = Column(String, index=True)
+    animal_type = Column(String)  # e.g. "cattle", "goat", "poultry", "sheep"
+    count = Column(Integer)
+    updated_at = Column(Date)
+
+    __table_args__ = (
+        UniqueConstraint("phone_number", "animal_type", name="uq_livestock_phone_type"),
+    )
 
 # Create all tables in the database if they don't already exist
 Base.metadata.create_all(bind=engine)

@@ -40,12 +40,23 @@ from services.earth2_service import get_earth2_forecast, get_earth2_status
 # ⚠️ Import early-warning alerts service
 from services.alerts_service import get_weather_alerts
 
+# 🐄 Import livestock tracking service
+from services import livestock_service
+
 # ✅ Main ANGA app
 app = FastAPI(
     title="ANGA Unified API",
     description="This combines core ANGA features with the AI Farming Assistant.",
     version="2.0.0"
 )
+
+# 🔁 Database helper
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 # Add startup validation
 @app.on_event("startup")
@@ -57,6 +68,8 @@ async def startup_event():
     logger.info("   • /predict/ - Weather Predictions (open-meteo | ml | earth2)")
     logger.info("   • /live_weather/ - Live Weather Data")
     logger.info("   • /users/ - User Management")
+    logger.info("   • /alerts/ - Early-Warning Alerts")
+    logger.info("   • /livestock/ - Livestock Tracking")
     logger.info("   • /health - Health Check")
     logger.info("   • /env/status - Environment Status")
     logger.info("   • /earth2/status - NVIDIA Earth-2 Service Status")
@@ -103,23 +116,31 @@ app.add_middleware(
 class Question(BaseModel):
     query: str
     use_case: str = "Smart Farming Advice"
+    phone_number: Optional[str] = None  # if set, personalizes with the farmer's registered livestock
 
 @app.post("/assistant/ask")
-def ask_ai_farming_assistant(data: Question):
+def ask_ai_farming_assistant(data: Question, db: Session = Depends(get_db)):
     """AI Farming Assistant endpoint"""
     if not generate_response:
         raise HTTPException(
-            status_code=503, 
+            status_code=503,
             detail="AI Assistant is not available. Please check the configuration."
         )
-    
+
+    prompt = data.query
+    if data.phone_number:
+        records = livestock_service.get_livestock(db, data.phone_number)
+        summary = livestock_service.livestock_summary_text(records)
+        if summary:
+            prompt = f"Context: this farmer keeps {summary}.\n\n{data.query}"
+
     try:
-        answer = generate_response(data.query, data.use_case)
+        answer = generate_response(prompt, data.use_case)
         return {"answer": answer}
     except Exception as e:
         logger.error(f"AI Assistant error: {e}")
         raise HTTPException(
-            status_code=500, 
+            status_code=500,
             detail=f"AI Assistant error: {str(e)}"
         )
 
@@ -162,14 +183,6 @@ def get_ai_status():
             "message": f"Error testing connectivity: {str(e)}",
             "api_key_configured": bool(GROQ_API_KEY)
         }
-
-# 🔁 Database helper
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # ✅ Supported locations
 SUPPORTED_LOCATIONS = {
@@ -442,15 +455,90 @@ def get_earth2_service_status():
 
 # ⚠️ Early-warning alerts endpoint
 @app.get("/alerts/")
-def get_alerts(location: str = "machakos"):
-    """Threshold-based early warnings (heat, frost, flood, drought) over a 7-day forecast."""
+def get_alerts(location: str = "machakos", phone_number: Optional[str] = None, db: Session = Depends(get_db)):
+    """Threshold-based early warnings (heat, frost, flood, drought) over a 7-day forecast.
+
+    If phone_number is given and the farmer has registered livestock, the
+    livestock_heat_stress alert message is personalized with their actual
+    animals instead of generic wording.
+    """
     loc = location.lower()
     if loc not in SUPPORTED_LOCATIONS:
         return {"error": "Only 'machakos' and 'vhembe' are supported."}
 
     coords = SUPPORTED_LOCATIONS[loc]
     alerts = get_weather_alerts(coords["lat"], coords["lon"], loc.title())
+
+    if phone_number:
+        records = livestock_service.get_livestock(db, phone_number)
+        summary = livestock_service.livestock_summary_text(records)
+        if summary:
+            for alert in alerts:
+                if alert["type"] == "livestock_heat_stress":
+                    alert["message"] = alert["message"].replace(
+                        "cattle and dairy animals", summary
+                    )
+                    if summary not in alert["message"]:
+                        alert["message"] += f" You have {summary} registered."
+
     return {"location": loc.title(), "alerts": alerts}
+
+
+# ---------------------------------------------------------------------------
+# 🐄 Livestock tracking
+# ---------------------------------------------------------------------------
+
+class LivestockUpsertRequest(BaseModel):
+    phone_number: str
+    location: str = "machakos"
+    animal_type: str
+    count: int
+
+
+@app.post("/livestock/")
+def upsert_livestock(data: LivestockUpsertRequest, db: Session = Depends(get_db)):
+    """Register or update how many of one animal type a farmer keeps."""
+    try:
+        record = livestock_service.upsert_livestock(
+            db, data.phone_number, data.location, data.animal_type, data.count
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {
+        "id": record.id,
+        "phone_number": record.phone_number,
+        "location": record.location,
+        "animal_type": record.animal_type,
+        "count": record.count,
+    }
+
+
+@app.get("/livestock/")
+def list_livestock(phone_number: str, db: Session = Depends(get_db)):
+    """List everything a farmer has registered."""
+    records = livestock_service.get_livestock(db, phone_number)
+    return {
+        "phone_number": phone_number,
+        "livestock": [
+            {
+                "id": r.id,
+                "location": r.location,
+                "animal_type": r.animal_type,
+                "count": r.count,
+            }
+            for r in records
+        ],
+    }
+
+
+@app.delete("/livestock/{livestock_id}")
+def remove_livestock(livestock_id: int, phone_number: str, db: Session = Depends(get_db)):
+    """Remove one livestock record. phone_number must match the record's owner."""
+    deleted = livestock_service.delete_livestock(db, phone_number, livestock_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Livestock record not found")
+    return {"message": "Deleted"}
 
 
 # Health check endpoint
