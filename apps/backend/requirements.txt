@@ -28,6 +28,7 @@ plotly==6.0.0
 
 # Database
 sqlalchemy==2.0.37
+psycopg2-binary==2.9.10  # Postgres driver (Neon/Supabase) when DATABASE_URL is set
 
 # Additional Dependencies from root requirements.txt
 altair==5.5.0

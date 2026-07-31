@@ -1,3 +1,5 @@
+import os
+
 from sqlalchemy import Column, Integer, String, Float, Date, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -6,11 +8,14 @@ from sqlalchemy import create_engine
 # Define the base class for our ORM models
 Base = declarative_base()
 
-# SQLite Database URL - this will create a 'weather.db' file in your project folder
-DATABASE_URL = "sqlite:///./weather.db"
+# DATABASE_URL env var (e.g. a Neon/Supabase Postgres URL) takes priority;
+# falls back to a local SQLite file for development when unset.
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./weather.db")
 
-# Create the SQLite engine
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+# SQLite needs check_same_thread=False for use across FastAPI's threadpool;
+# Postgres doesn't use or accept that argument.
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
 
 # Create a session maker for interacting with the database
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

@@ -31,6 +31,10 @@ RUN adduser --disabled-password --gecos '' appuser \
     && chown -R appuser:appuser /app
 USER appuser
 
+# app/main.py's local imports (core.database, services.*) are unqualified,
+# so it must run with app/ itself as the working directory / sys.path root.
+WORKDIR /app/app
+
 # Expose port
 EXPOSE 8000
 
@@ -41,17 +45,17 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 # ===========================================
 # ANGA UNIFIED API CONFIGURATION
 # ===========================================
-# This Dockerfile runs the UNIFIED API (main_api.py) which includes:
-# ✅ Weather predictions and live data
-# ✅ AI farming assistant
-# ✅ User management and authentication
-# ✅ Database operations
+# This Dockerfile runs the UNIFIED API (app/main.py) which includes:
+# ✅ Weather predictions and live data (Open-Meteo + Prophet ML)
+# ✅ AI farming assistant (Groq)
+# ✅ User management and authentication (SQLAlchemy)
+# ✅ Early-warning alerts and livestock tracking
 # ✅ Health checks and monitoring
 #
-# LEGACY APIs (DO NOT USE):
-# ❌ assistant_api.py (AI assistant only)
-# ❌ weather_api.py (Weather only)
+# NOT USED (debug stub, kept for local Groq-key troubleshooting only):
+# ❌ simple_main.py
 # ===========================================
 
-# Run the ANGA API with real Groq AI assistant
-CMD ["uvicorn", "simple_main:app", "--host", "0.0.0.0", "--port", "8000"]
+# python -m ensures the working directory is added to sys.path so the
+# unqualified local imports above resolve.
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
