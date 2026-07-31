@@ -14,8 +14,7 @@ from typing import Optional
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# NEW 🧠 Import for assistant
-import sys
+# 🧠 Import for assistant
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -25,16 +24,12 @@ load_dotenv(dotenv_path=env_path)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-# Dynamically find absolute path to assistant_core.py
-assistant_path = Path(__file__).resolve().parents[1] / "models" / "AI-Farming-Assistant-App"
-sys.path.append(str(assistant_path))
-
 # Import AI assistant functions
 try:
-    from assistant_core import generate_response, get_available_use_cases, test_connectivity
-    logger.info(f"✅ AI Assistant imported successfully from {assistant_path}")
+    from services.ai_service import generate_response, get_available_use_cases, test_connectivity
+    logger.info("✅ AI Assistant imported successfully from services.ai_service")
 except ImportError as e:
-    logger.error(f"❌ Could not import AI Assistant from {assistant_path}: {e}")
+    logger.error(f"❌ Could not import AI Assistant from services.ai_service: {e}")
     generate_response = None
     get_available_use_cases = None
     test_connectivity = None
