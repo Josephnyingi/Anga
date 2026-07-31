@@ -60,6 +60,9 @@ class ApiConfig {
 
   /// Livestock tracking endpoint
   static String get livestockUrl => "$baseUrl/livestock/";
+
+  /// Location search endpoint (any IGAD-country place name -> coordinates)
+  static String get geocodeUrl => "$baseUrl/geocode/";
   
   /// Health check endpoint
   static String get healthCheckUrl => "$baseUrl/health";

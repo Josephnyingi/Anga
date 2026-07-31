@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../widgets/responsive_layout.dart';
 import '../widgets/web_card.dart';
 import '../widgets/web_animations.dart';
@@ -10,10 +11,11 @@ import '../services/live_weather_service.dart';
 import '../services/forecast_service.dart';
 import '../services/alerts_service.dart';
 import '../services/notification_service.dart';
+import '../services/geocode_service.dart';
 import '../utils/app_state.dart';
 
 /// 📊 **Enhanced Dashboard Screen for Web**
-/// 
+///
 /// Modern dashboard with web-specific optimizations and responsive design
 class EnhancedDashboardScreen extends StatefulWidget {
   const EnhancedDashboardScreen({super.key});
@@ -26,8 +28,8 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
     with TickerProviderStateMixin {
   bool _isLoading = false;
   bool _isRefreshing = false;
-  String _selectedLocation = 'Machakos';
-  final List<String> _locations = ['Machakos', 'Vhembe'];
+  String _selectedLocation = AppState.selectedLocation;
+  final TextEditingController _locationSearchController = TextEditingController();
 
   // Populated from the backend in _loadData(); empty/default until the
   // first fetch completes.
@@ -61,12 +63,14 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
     });
 
     final location = _selectedLocation.toLowerCase();
+    final lat = AppState.selectedLat;
+    final lon = AppState.selectedLon;
 
     try {
       final results = await Future.wait([
-        LiveWeatherService.getLiveWeather(location),
-        ForecastService.getForecast(location, days: 5),
-        AlertsService.getAlerts(location, phoneNumber: AppState.phoneNumber),
+        LiveWeatherService.getLiveWeather(location, lat: lat, lon: lon, label: _selectedLocation),
+        ForecastService.getForecast(location, days: 5, lat: lat, lon: lon, label: _selectedLocation),
+        AlertsService.getAlerts(location, phoneNumber: AppState.phoneNumber, lat: lat, lon: lon, label: _selectedLocation),
       ]);
 
       final live = results[0] as Map<String, dynamic>;
@@ -217,6 +221,41 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
     );
   }
 
+  void _onLocationSelected(LocationResult result) {
+    setState(() {
+      _selectedLocation = result.displayName;
+      AppState.selectedLocation = result.displayName;
+      AppState.selectedLat = result.lat;
+      AppState.selectedLon = result.lon;
+      _locationSearchController.text = result.displayName;
+    });
+    _loadData();
+  }
+
+  void _selectQuickLocation(String name) {
+    setState(() {
+      _selectedLocation = name;
+      AppState.selectedLocation = name;
+      // Clear lat/lon so the backend uses its machakos/vhembe whitelist path.
+      AppState.selectedLat = null;
+      AppState.selectedLon = null;
+      _locationSearchController.clear();
+    });
+    _loadData();
+  }
+
+  Widget _quickLocationChip(String name) {
+    final selected = _selectedLocation == name;
+    return ChoiceChip(
+      label: Text(name),
+      selected: selected,
+      onSelected: (_) => _selectQuickLocation(name),
+      selectedColor: Colors.white,
+      backgroundColor: Colors.white.withOpacity(0.15),
+      labelStyle: TextStyle(color: selected ? WebTheme.webPrimary : Colors.white),
+    );
+  }
+
   Widget _buildHeaderSection() {
     return Container(
       padding: ResponsiveUtils.getResponsivePadding(context),
@@ -230,40 +269,41 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Location Selector
+          // Location Selector - search any IGAD-country location, or quick-pick
+          // the two original towns.
+          TypeAheadField<LocationResult>(
+            controller: _locationSearchController,
+            suggestionsCallback: (search) => GeocodeService.search(search),
+            itemBuilder: (context, result) => ListTile(
+              leading: const Icon(Icons.location_on, color: WebTheme.webPrimary),
+              title: Text(result.displayName),
+              subtitle: result.admin1 != null ? Text(result.admin1!) : null,
+            ),
+            onSelected: (result) => _onLocationSelected(result),
+            builder: (context, controller, focusNode) => TextField(
+              controller: controller,
+              focusNode: focusNode,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Search any location in Kenya, Uganda, Ethiopia...',
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                prefixIcon: const Icon(Icons.search, color: Colors.white),
+                filled: true,
+                fillColor: Colors.white.withOpacity(0.15),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(
-                child: WebSearchField(
-                  hint: 'Search location...',
-                  onChanged: (value) {
-                    // Handle search
-                  },
-                ),
-              ),
-              const SizedBox(width: 16),
-              DropdownButton<String>(
-                value: _selectedLocation,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedLocation = value!;
-                  });
-                  _loadData();
-                },
-                items: _locations.map((location) {
-                  return DropdownMenuItem(
-                    value: location,
-                    child: Text(location),
-                  );
-                }).toList(),
-                dropdownColor: Colors.white,
-                style: const TextStyle(color: Colors.white),
-                underline: Container(),
-                icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-              ),
+              _quickLocationChip('Machakos'),
+              const SizedBox(width: 8),
+              _quickLocationChip('Vhembe'),
             ],
           ),
-          
+
           const SizedBox(height: 24),
           
           // Welcome Message
