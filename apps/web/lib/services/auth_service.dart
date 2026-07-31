@@ -81,6 +81,7 @@ class AuthService {
             'Accept': 'application/json',
           },
           body: jsonEncode({
+            'name': 'User',
             'phone_number': phone,
             'password': password,
           }),

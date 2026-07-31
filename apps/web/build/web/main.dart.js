@@ -27984,7 +27984,7 @@ m=new A.ty(h)
 p=7
 h=t.N
 s=10
-return A.N(m.mA("POST",A.ee(A.ht()+"/users/"),A.ah(["Content-Type","application/json","Accept","application/json"],h,h),B.aH.vc(A.ah(["phone_number",a,"password",b],h,h),null),null).k0(0,B.oI),$async$a2k)
+return A.N(m.mA("POST",A.ee(A.ht()+"/users/"),A.ah(["Content-Type","application/json","Accept","application/json"],h,h),B.aH.vc(A.ah(["name","User","phone_number",a,"password",b],h,h),null),null).k0(0,B.oI),$async$a2k)
 case 10:l=a0
 A.cp("AuthService: Registration response status: "+l.b)
 g=l
