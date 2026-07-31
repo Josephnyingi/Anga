@@ -9,7 +9,7 @@
 
 **Built for IGAD Hackathon 2026 — "Smarter Early Warning, Stronger Communities."**
 
-ANGA turns real-time weather data into early-warning alerts (heat, frost, flood, drought, and livestock heat stress) for smallholder farmers across East and Southern Africa — delivered over USSD so reaching a community never depends on owning a smartphone or having data. That combination is the theme in practice: **smarter early warning** (threshold-based alerts computed from live weather data, not generic forecasts) reaching **stronger communities** (farmers, cooperatives, and extension services who are otherwise the least connected and most exposed).
+ANGA turns real-time weather data into early-warning alerts (heat, frost, flood, drought, and livestock heat stress) for smallholder farmers across the IGAD region — delivered over USSD so reaching a community never depends on owning a smartphone or having data. That combination is the theme in practice: **smarter early warning** (threshold-based alerts computed from live weather data, not generic forecasts) reaching **stronger communities** (farmers, cooperatives, and extension services who are otherwise the least connected and most exposed).
 
 A comprehensive weather forecasting application with AI-powered farming assistance, built with Flutter and Python. ANGA provides real-time weather data, intelligent agricultural recommendations, and USSD integration for areas with limited internet access. Available as web and Android now, with a containerized (Docker) backend; USSD is complete and tested but not yet deployed to a live shortcode (see Project Status below).
 
@@ -17,7 +17,7 @@ A comprehensive weather forecasting application with AI-powered farming assistan
 
 **[View the ANGA Investor Demo Card →](https://anga-weather-101.netlify.app/showcase)**
 
-A quick pitch overview: the problem, market opportunity, technical differentiators (NVIDIA Earth-2, Groq LLaMA-3, USSD), MVP status, active pilots in Kenya and Uganda, and contact details.
+A quick pitch overview: the problem, market opportunity, technical differentiators (NVIDIA Earth-2, Groq LLaMA-3, USSD), MVP status, active pilots in Kenya and Uganda, and contact details. Also includes two things you can actually click, not just read: an interactive USSD phone simulator (dial through the real menu tree - forecasts, livestock, weather alerts with lead-time and AI-assistant tie-ins), and a live location search box that calls the real `/geocode/` backend endpoint for any town in an IGAD member state.
 
 **[Try the live web app →](https://anga-weather-101.netlify.app)** · **[Download the Android APK →](https://github.com/Josephnyingi/Anga/releases/download/v1.0.0/app-release.apk)**
 
@@ -44,6 +44,9 @@ The APK is a sideloaded release build, not signed with a Play Store key — Andr
 - Added a "Weather Alerts" menu to USSD - it previously only exposed raw forecast numbers and livestock registration, never the actual early-warning alerts, which is backwards for the one channel that reaches farmers without smartphones. Each alert now comes with a concrete action, not just a warning
 - Fixed a real bug in mobile's `WeatherProvider.clearError()`, which never actually cleared anything (caught by the test suite once CI could run it)
 - Made GitHub Actions pass for the first time all session - 3 of 4 workflows had been failing on every push (pre-restructure paths, a fictional test/integration/performance pipeline that never matched reality, a dead Azure deploy job, a misplaced Codemagic config, a Flutter version mismatch)
+- Added an interactive USSD phone simulator to the investor showcase page - dial through the real menu tree (forecast, livestock, weather alerts), with lead-time badges, THI scores, and an "ask the AI Assistant" tie-in per alert, all mirroring real backend behavior rather than invented UI
+- Added a live location search box to the showcase page, separate from the USSD simulator, that calls the real `/geocode/` endpoint - not a mock. Framed explicitly as a web/mobile app feature so it doesn't misrepresent what USSD itself can do today
+- Removed an old, unused duplicate of the showcase page (`docs/showcase/qr-card.html`) that still referenced Vhembe
 
 ## 🚀 Features
 
