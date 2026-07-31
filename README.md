@@ -19,6 +19,8 @@ A quick pitch overview: the problem, market opportunity, technical differentiato
 
 The APK is a sideloaded release build, not signed with a Play Store key — Android will show an "install from unknown sources" warning, which is expected.
 
+**Demo login** (web and mobile, pre-filled on the web login screen): phone `0700000000`, password `demo1234`.
+
 ## 🔄 Recent Updates (2026-07-31)
 
 - Migrated the backend from a dead Azure Container Instance (subscription got disabled) to Render
@@ -28,6 +30,11 @@ The APK is a sideloaded release build, not signed with a Play Store key — Andr
 - Added optional Postgres support (`DATABASE_URL` env var), falls back to local SQLite automatically
 - Removed dead Azure and Fly.io deploy configs
 - Published a working Android APK release (replaced a stale March build that pointed at the dead backend)
+- Fixed web registration silently failing on every attempt — the form never sent the `name` field the backend requires
+- Fixed the dashboard going blank when Open-Meteo rate-limits Render's shared IP: added response caching plus a graceful fallback to last-known-good data instead of an empty screen
+- Closed real feature gaps between the web and mobile apps: mobile's dashboard now uses the same forecast/alerts/notification pipeline as web (was still on a legacy per-day ML endpoint); both apps' Settings screens now share units, forecast-period, reset-to-defaults, and debug-access options; both apps' Alerts screens now have a working severity filter, share, and notifications toggle (mobile's versions of these were `Coming soon...` stubs — implemented for real rather than copied across)
+- Added a pre-filled demo login (see above) so reviewers can log in with one tap, no registration needed
+- Added location search on both apps: any location in an IGAD member state now works (Djibouti, Eritrea, Ethiopia, Kenya, Somalia, South Sudan, Sudan, Uganda), via a new `/geocode/` endpoint — not just the original Machakos/Vhembe, which still work exactly as before for USSD
 
 ## 🚀 Features
 
