@@ -1,10 +1,10 @@
 [build]
   publish = "build/web"
 
-# Proxy /api/* → Azure backend (must come BEFORE the catch-all below)
+# Proxy /api/* → Render backend (must come BEFORE the catch-all below)
 [[redirects]]
   from   = "/api/*"
-  to     = "http://anga-weather.japaneast.azurecontainer.io:8000/:splat"
+  to     = "https://anga-weather-api.onrender.com/:splat"
   status = 200
   force  = true
 
