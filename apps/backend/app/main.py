@@ -419,29 +419,83 @@ def _fallback_forecast(loc: str, days: int):
     return {"location": loc.title(), "forecast": forecast, "estimated": True}
 
 
-@app.get("/live_weather/")
-def get_live_weather(location: str = "machakos"):
+# IGAD member states - used to keep free-text location search on-region.
+IGAD_COUNTRIES = {"Djibouti", "Eritrea", "Ethiopia", "Kenya", "Somalia", "South Sudan", "Sudan", "Uganda"}
+
+
+@app.get("/geocode/")
+def geocode_location(query: str):
+    """Resolve a free-text place name to coordinates, restricted to IGAD
+    member states, so the app isn't limited to the original two hardcoded
+    towns. Backed by Open-Meteo's free geocoding API (no key required)."""
+    query = query.strip()
+    if len(query) < 2:
+        return {"results": []}
+
+    try:
+        res = requests.get(
+            "https://geocoding-api.open-meteo.com/v1/search",
+            params={"name": query, "count": 10, "language": "en", "format": "json"},
+            timeout=10,
+        )
+        res.raise_for_status()
+        data = res.json()
+    except Exception as e:
+        logger.error(f"❌ Geocoding failed for '{query}': {e}")
+        return {"results": []}
+
+    results = [
+        {
+            "name": r.get("name"),
+            "admin1": r.get("admin1"),
+            "country": r.get("country"),
+            "lat": r.get("latitude"),
+            "lon": r.get("longitude"),
+        }
+        for r in data.get("results", [])
+        if r.get("country") in IGAD_COUNTRIES
+    ]
+    return {"results": results}
+
+
+def _resolve_coords(location: str, lat: Optional[float], lon: Optional[float], label: Optional[str]):
+    """Shared by live_weather/forecast/alerts: use explicit lat/lon if given
+    (any IGAD location, via /geocode/), otherwise fall back to the original
+    machakos/vhembe whitelist for backward compatibility (USSD callers)."""
+    if lat is not None and lon is not None:
+        return lat, lon, (label or f"{lat:.2f}, {lon:.2f}")
     loc = location.lower()
     if loc not in SUPPORTED_LOCATIONS:
-        return {"error": "Only 'machakos' and 'vhembe' are supported."}
-
-    return _cached_or_fetch(("live_weather", loc), lambda: _fetch_live_weather(loc), lambda: _fallback_live_weather(loc))
-
-
-def _fetch_live_weather(loc: str):
+        return None
     coords = SUPPORTED_LOCATIONS[loc]
+    return coords["lat"], coords["lon"], loc.title()
+
+
+@app.get("/live_weather/")
+def get_live_weather(location: str = "machakos", lat: Optional[float] = None, lon: Optional[float] = None, label: Optional[str] = None):
+    resolved = _resolve_coords(location, lat, lon, label)
+    if resolved is None:
+        return {"error": "Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'vhembe'."}
+    rlat, rlon, rlabel = resolved
+
+    cache_key = ("live_weather", round(rlat, 2), round(rlon, 2))
+    fallback = (lambda: _fallback_live_weather(location.lower())) if location.lower() in SUPPORTED_LOCATIONS else None
+    return _cached_or_fetch(cache_key, lambda: _fetch_live_weather(rlat, rlon, rlabel), fallback)
+
+
+def _fetch_live_weather(lat: float, lon: float, label: str):
     today = datetime.now().strftime('%Y-%m-%d')
     current_hour = datetime.now().hour
 
     url = (
         f"https://api.open-meteo.com/v1/forecast?"
-        f"latitude={coords['lat']}&longitude={coords['lon']}"
+        f"latitude={lat}&longitude={lon}"
         f"&current=temperature_2m,relative_humidity_2m,apparent_temperature,"
         f"precipitation,weather_code,surface_pressure,wind_speed_10m,is_day"
         f"&hourly=uv_index"
         f"&daily=temperature_2m_max,precipitation_sum"
         f"&start_date={today}&end_date={today}"
-        "&timezone=Africa%2FNairobi"
+        "&timezone=auto"
     )
 
     try:
@@ -454,7 +508,7 @@ def _fetch_live_weather(loc: str):
         weather_code = current.get("weather_code")
 
         return {
-            "location": loc.title(),
+            "location": label,
             "date": data["daily"]["time"][0],
             "temperature_max": data["daily"]["temperature_2m_max"][0],
             "rain_sum": data["daily"]["precipitation_sum"][0],
@@ -474,25 +528,26 @@ def _fetch_live_weather(loc: str):
 
 
 @app.get("/forecast/")
-def get_forecast(location: str = "machakos", days: int = 5):
+def get_forecast(location: str = "machakos", days: int = 5, lat: Optional[float] = None, lon: Optional[float] = None, label: Optional[str] = None):
     """Multi-day daily forecast (Open-Meteo passthrough, one call for N days)."""
-    loc = location.lower()
-    if loc not in SUPPORTED_LOCATIONS:
-        return {"error": "Only 'machakos' and 'vhembe' are supported."}
+    resolved = _resolve_coords(location, lat, lon, label)
+    if resolved is None:
+        return {"error": "Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'vhembe'."}
+    rlat, rlon, rlabel = resolved
 
     days = max(1, min(days, 16))
-    return _cached_or_fetch(("forecast", loc, days), lambda: _fetch_forecast(loc, days), lambda: _fallback_forecast(loc, days))
+    cache_key = ("forecast", round(rlat, 2), round(rlon, 2), days)
+    fallback = (lambda: _fallback_forecast(location.lower(), days)) if location.lower() in SUPPORTED_LOCATIONS else None
+    return _cached_or_fetch(cache_key, lambda: _fetch_forecast(rlat, rlon, rlabel, days), fallback)
 
 
-def _fetch_forecast(loc: str, days: int):
-    coords = SUPPORTED_LOCATIONS[loc]
-
+def _fetch_forecast(lat: float, lon: float, label: str, days: int):
     url = (
         f"https://api.open-meteo.com/v1/forecast?"
-        f"latitude={coords['lat']}&longitude={coords['lon']}"
+        f"latitude={lat}&longitude={lon}"
         f"&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code"
         f"&forecast_days={days}"
-        "&timezone=Africa%2FNairobi"
+        "&timezone=auto"
     )
 
     try:
@@ -520,7 +575,7 @@ def _fetch_forecast(loc: str, days: int):
             "description": describe_weather_code(code),
         })
 
-    return {"location": loc.title(), "forecast": forecast}
+    return {"location": label, "forecast": forecast}
 
 # 🌍 Earth-2 status endpoint
 @app.get("/earth2/status")
@@ -531,19 +586,20 @@ def get_earth2_service_status():
 
 # ⚠️ Early-warning alerts endpoint
 @app.get("/alerts/")
-def get_alerts(location: str = "machakos", phone_number: Optional[str] = None, db: Session = Depends(get_db)):
+def get_alerts(location: str = "machakos", lat: Optional[float] = None, lon: Optional[float] = None,
+                label: Optional[str] = None, phone_number: Optional[str] = None, db: Session = Depends(get_db)):
     """Threshold-based early warnings (heat, frost, flood, drought) over a 7-day forecast.
 
     If phone_number is given and the farmer has registered livestock, the
     livestock_heat_stress alert message is personalized with their actual
     animals instead of generic wording.
     """
-    loc = location.lower()
-    if loc not in SUPPORTED_LOCATIONS:
-        return {"error": "Only 'machakos' and 'vhembe' are supported."}
+    resolved = _resolve_coords(location, lat, lon, label)
+    if resolved is None:
+        return {"error": "Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'vhembe'."}
+    rlat, rlon, rlabel = resolved
 
-    coords = SUPPORTED_LOCATIONS[loc]
-    alerts = get_weather_alerts(coords["lat"], coords["lon"], loc.title())
+    alerts = get_weather_alerts(rlat, rlon, rlabel)
 
     if phone_number:
         records = livestock_service.get_livestock(db, phone_number)
