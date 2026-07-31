@@ -14,12 +14,31 @@ ALLOWED_LOCATIONS = ["machakos", "vhembe"]
 
 # Defaults to the deployed backend so this works when reached by Africa's
 # Talking's servers, not just against a locally-running FastAPI instance.
-ANGA_API_BASE = os.getenv("ANGA_API_BASE", "http://anga-weather.japaneast.azurecontainer.io:8000")
+ANGA_API_BASE = os.getenv("ANGA_API_BASE", "https://anga-weather-api.onrender.com")
 FASTAPI_PREDICT_URL = f"{ANGA_API_BASE}/predict/"
 FASTAPI_LIVE_URL = f"{ANGA_API_BASE}/live_weather/"
 FASTAPI_LIVESTOCK_URL = f"{ANGA_API_BASE}/livestock/"
+FASTAPI_ALERTS_URL = f"{ANGA_API_BASE}/alerts/"
 
 ANIMAL_TYPES = ["cattle", "goat", "sheep", "poultry", "pig"]
+
+# Short, concrete next-step per alert type - the whole point of an early
+# warning is turning it into action, not just naming the risk.
+ALERT_TIPS = {
+    "heat": "Give animals shade & extra water; avoid grazing 11am-4pm.",
+    "frost": "Cover sensitive crops tonight; delay any new planting.",
+    "flood": "Move livestock to higher ground; clear drainage paths now.",
+    "drought": "Prioritise water for livestock; delay non-essential irrigation.",
+    "livestock_heat_stress": "Move animals to shade now & check water troughs.",
+}
+
+ALERT_ICONS = {
+    "heat": "🔥",
+    "frost": "❄️",
+    "flood": "🌊",
+    "drought": "☀️",
+    "livestock_heat_stress": "🐄",
+}
 
 @app.route("/ussd", methods=["POST"])
 def ussd_callback():
@@ -33,7 +52,7 @@ def ussd_callback():
 
     if len(inputs) == 0:
         return Response(
-            "CON Welcome to ANGA Weather 🌦️\n1. Get Forecast\n2. My Livestock",
+            "CON Welcome to ANGA Weather 🌦️\n1. Get Forecast\n2. My Livestock\n3. Weather Alerts",
             mimetype="text/plain",
         )
 
@@ -42,6 +61,9 @@ def ussd_callback():
 
     if inputs[0] == "2":
         return handle_livestock_flow(inputs, phone_number)
+
+    if inputs[0] == "3":
+        return handle_alerts_flow(inputs, phone_number)
 
     return Response("END ❌ Invalid input. Please try again.", mimetype="text/plain")
 
@@ -179,6 +201,84 @@ def handle_livestock_flow(inputs, phone_number):
         response = "END ❌ Invalid input. Please try again."
 
     return Response(response, mimetype="text/plain")
+
+
+def handle_alerts_flow(inputs, phone_number):
+    """inputs[0] == '3'. Flow: location -> list of active alerts (or one
+    alert's full message + action tip if only one is active)."""
+    if len(inputs) == 1:
+        location_menu = "\n".join([f"{i+1}. {loc.title()}" for i, loc in enumerate(ALLOWED_LOCATIONS)])
+        return Response(f"CON Choose location:\n{location_menu}", mimetype="text/plain")
+
+    try:
+        location = ALLOWED_LOCATIONS[int(inputs[1]) - 1]
+    except (ValueError, IndexError):
+        return Response("END ❌ Invalid location selection.", mimetype="text/plain")
+
+    alerts = fetch_alerts(location, phone_number)
+    if alerts is None:
+        return Response("END ⚠️ Could not fetch alerts right now. Try again shortly.", mimetype="text/plain")
+
+    if len(inputs) == 2:
+        if not alerts:
+            return Response(
+                f"END ✅ No active weather alerts for {location.title()} right now.",
+                mimetype="text/plain",
+            )
+        if len(alerts) == 1:
+            return Response(format_alert_detail(alerts[0]), mimetype="text/plain")
+
+        menu = "\n".join(
+            f"{i+1}. {ALERT_ICONS.get(a['type'], '⚠️')} {alert_title(a['type'])}"
+            for i, a in enumerate(alerts)
+        )
+        return Response(f"CON {len(alerts)} alerts for {location.title()}:\n{menu}", mimetype="text/plain")
+
+    if len(inputs) == 3:
+        try:
+            alert = alerts[int(inputs[2]) - 1]
+        except (ValueError, IndexError):
+            return Response("END ❌ Invalid selection.", mimetype="text/plain")
+        return Response(format_alert_detail(alert), mimetype="text/plain")
+
+    return Response("END ❌ Invalid input. Please try again.", mimetype="text/plain")
+
+
+def fetch_alerts(location, phone_number):
+    """Returns the alerts list, or None on failure. Re-fetched fresh at each
+    USSD step rather than cached in the session - alerts are deterministic
+    from current weather, so this stays consistent across a short session."""
+    try:
+        params = {"location": location}
+        if phone_number:
+            params["phone_number"] = phone_number
+        res = requests.get(FASTAPI_ALERTS_URL, params=params, timeout=25)
+        if res.status_code != 200:
+            return None
+        return res.json().get("alerts", [])
+    except Exception as e:
+        print("⚠️ Alerts fetch error:", e)
+        return None
+
+
+def alert_title(alert_type):
+    return {
+        "heat": "Extreme Heat Warning",
+        "frost": "Frost Warning",
+        "flood": "Heavy Rain / Flood Risk",
+        "drought": "Drought Risk",
+        "livestock_heat_stress": "Livestock Heat Stress",
+    }.get(alert_type, "Weather Alert")
+
+
+def format_alert_detail(alert):
+    icon = ALERT_ICONS.get(alert["type"], "⚠️")
+    tip = ALERT_TIPS.get(alert["type"], "Take precautions and monitor conditions.")
+    return (
+        f"END {icon} {alert_title(alert['type'])}\n"
+        f"{alert['message']}\n"
+        f"👉 {tip}"
+    )
 
 
 def is_valid_date(date_str):
