@@ -16,8 +16,10 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
+  // Pre-filled with a working demo account so judges/reviewers can log in
+  // immediately without registering first.
+  final _phoneController = TextEditingController(text: '0700000000');
+  final _passwordController = TextEditingController(text: 'demo1234');
   bool _isLoading = false;
   bool _isRegistering = false;
   bool _rememberMe = false;
@@ -124,7 +126,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Demo account pre-filled — just tap Login',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 16),
 
                       // Remember me + forgot password
                       Row(
