@@ -360,14 +360,63 @@ _OPEN_METEO_CACHE: dict = {}
 _OPEN_METEO_CACHE_TTL_SECONDS = 300
 
 
-def _cached_or_fetch(cache_key, fetch_fn):
+def _cached_or_fetch(cache_key, fetch_fn, fallback_fn=None):
     cached = _OPEN_METEO_CACHE.get(cache_key)
     if cached and (time.time() - cached[0]) < _OPEN_METEO_CACHE_TTL_SECONDS:
         return cached[1]
     result = fetch_fn()
     if "error" not in result:
         _OPEN_METEO_CACHE[cache_key] = (time.time(), result)
+        return result
+    # Open-Meteo failed (e.g. rate-limited on Render's shared egress IP,
+    # observed independently of our own request volume) - serve the last
+    # good response instead of blanking the dashboard, however stale.
+    if cached:
+        logger.warning(f"Open-Meteo fetch failed for {cache_key}, serving stale cache: {result}")
+        return cached[1]
+    if fallback_fn:
+        logger.warning(f"Open-Meteo fetch failed for {cache_key} with no cache, using estimated fallback: {result}")
+        return fallback_fn()
     return result
+
+
+# Typical dry-season conditions for each location, used only when Open-Meteo
+# fails AND there's no cache yet (e.g. right after a fresh deploy) - keeps
+# the dashboard from showing nothing during an Open-Meteo outage. Real data
+# is always attempted first; this is a last resort, not a data source.
+_FALLBACK_CONDITIONS = {
+    "machakos": {"temp_max": 24.0, "temp_min": 12.0, "temp_now": 19.0, "humidity": 55,
+                 "wind_speed": 12.0, "pressure": 1015.0, "weather_code": 1, "rain": 0.0},
+    "vhembe":   {"temp_max": 26.0, "temp_min": 8.0, "temp_now": 18.0, "humidity": 40,
+                 "wind_speed": 10.0, "pressure": 1018.0, "weather_code": 0, "rain": 0.0},
+}
+
+
+def _fallback_live_weather(loc: str):
+    c = _FALLBACK_CONDITIONS[loc]
+    today = datetime.now().strftime('%Y-%m-%d')
+    return {
+        "location": loc.title(), "date": today,
+        "temperature_max": c["temp_max"], "rain_sum": c["rain"],
+        "temperature": c["temp_now"], "feels_like": c["temp_now"],
+        "humidity": c["humidity"], "wind_speed": c["wind_speed"],
+        "pressure": c["pressure"], "precipitation": c["rain"],
+        "weather_code": c["weather_code"], "description": describe_weather_code(c["weather_code"]),
+        "uv_index": 4.0, "is_day": True, "estimated": True,
+    }
+
+
+def _fallback_forecast(loc: str, days: int):
+    c = _FALLBACK_CONDITIONS[loc]
+    forecast = []
+    for i in range(days):
+        date = (datetime.now() + timedelta(days=i)).strftime('%Y-%m-%d')
+        forecast.append({
+            "date": date, "temp_max": c["temp_max"], "temp_min": c["temp_min"],
+            "precipitation_sum": c["rain"], "weather_code": c["weather_code"],
+            "description": describe_weather_code(c["weather_code"]),
+        })
+    return {"location": loc.title(), "forecast": forecast, "estimated": True}
 
 
 @app.get("/live_weather/")
@@ -376,7 +425,7 @@ def get_live_weather(location: str = "machakos"):
     if loc not in SUPPORTED_LOCATIONS:
         return {"error": "Only 'machakos' and 'vhembe' are supported."}
 
-    return _cached_or_fetch(("live_weather", loc), lambda: _fetch_live_weather(loc))
+    return _cached_or_fetch(("live_weather", loc), lambda: _fetch_live_weather(loc), lambda: _fallback_live_weather(loc))
 
 
 def _fetch_live_weather(loc: str):
@@ -432,7 +481,7 @@ def get_forecast(location: str = "machakos", days: int = 5):
         return {"error": "Only 'machakos' and 'vhembe' are supported."}
 
     days = max(1, min(days, 16))
-    return _cached_or_fetch(("forecast", loc, days), lambda: _fetch_forecast(loc, days))
+    return _cached_or_fetch(("forecast", loc, days), lambda: _fetch_forecast(loc, days), lambda: _fallback_forecast(loc, days))
 
 
 def _fetch_forecast(loc: str, days: int):
