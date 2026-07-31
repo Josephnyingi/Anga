@@ -7,7 +7,7 @@
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Linting: Flake8](https://img.shields.io/badge/linting-flake8-yellowgreen.svg)](https://flake8.pycqa.org/)
 
-A comprehensive weather forecasting application with AI-powered farming assistance, built with Flutter and Python. ANGA provides real-time weather data, intelligent agricultural recommendations, and USSD integration for areas with limited internet access. Available as both mobile and web applications with full Docker support.
+A comprehensive weather forecasting application with AI-powered farming assistance, built with Flutter and Python. ANGA provides real-time weather data, intelligent agricultural recommendations, and USSD integration for areas with limited internet access. Available as web, Android, and USSD, with a containerized (Docker) backend.
 
 ## 🎤 Investor / Judge Showcase
 
@@ -50,23 +50,24 @@ The APK is a sideloaded release build, not signed with a Play Store key — Andr
 
 ## 🏗️ Architecture
 
-```
+```text
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Flutter Apps  │    │   FastAPI       │    │   PostgreSQL    │
-│   Mobile + Web  │◄──►│   Backend       │◄──►│   + Redis       │
+│   Flutter Apps  │    │   FastAPI       │    │  SQLite (default│
+│   Mobile + Web  │◄──►│   Backend       │◄──►│  or Postgres)   │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                       │                       │
          │                       │                       │
          ▼                       ▼                       ▼
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   USSD Service  │    │   AI/ML Models  │    │   External APIs │
-│   (Offline)     │    │   (Groq/Prophet)│    │   (Open-Meteo)  │
+│   (Africa's     │    │   (Groq/Prophet)│    │   (Open-Meteo)  │
+│    Talking)     │    │                 │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │
          ▼
 ┌─────────────────┐
 │   Docker        │
-│   (Containerized)│
+│   (on Render)   │
 └─────────────────┘
 ```
 
@@ -150,19 +151,24 @@ Anga/
 
 3. **Install dependencies:**
    ```bash
-   pip install -r requirements/dev.txt
+   pip install -r requirements.txt
    ```
 
 4. **Set up environment:**
    ```bash
    cp env.example .env
-   # Edit .env with your configuration
+   # Edit .env with your configuration - only GROQ_API_KEY is required;
+   # DATABASE_URL is optional (falls back to local SQLite if unset)
    ```
 
 5. **Run the backend:**
    ```bash
-   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   cd app && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
    ```
+   Must run from `apps/backend/app/`, not `apps/backend/` - `main.py`'s local
+   imports (`core.database`, `services.*`) are unqualified and only resolve
+   with `app/` as the working directory (this is also how the Dockerfile
+   runs it in production).
 
 ### Mobile App Setup
 
@@ -204,7 +210,7 @@ Anga/
    ```
    Then open http://localhost:4000 in your browser
 
-### Docker Setup (Recommended)
+### Docker Setup (local development only - production runs on Render, see Deployment below)
 
 1. **Run with Docker Compose:**
    ```bash
@@ -227,100 +233,13 @@ Anga/
    docker-compose down
    ```
 
-### Automated Setup
+### Clone + Automated Setup (alternative to the steps above)
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Josephnyingi/Anga.git
-   cd Anga
-   ```
-
-2. **Run the setup script:**
-   ```bash
-   python scripts/setup_dev.py
-   ```
-
-3. **Follow the on-screen instructions**
-
-### Manual Setup
-
-#### Backend Setup
-
-1. **Navigate to backend directory:**
-   ```bash
-   cd backend
-   ```
-
-2. **Create virtual environment:**
-   ```bash
-   python -m venv venv
-   ```
-
-3. **Activate virtual environment:**
-   ```bash
-   # Windows
-   venv\Scripts\activate
-   
-   # macOS/Linux
-   source venv/bin/activate
-   ```
-
-4. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-5. **Start the backend server:**
-   ```bash
-   uvicorn main_api:app --reload --host 0.0.0.0 --port 8000
-   ```
-
-#### Flutter App Setup
-
-1. **Navigate to mobile directory:**
-   ```bash
-   cd mobile
-   ```
-
-2. **Install Flutter dependencies:**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Run the app:**
-   ```bash
-   # For Android emulator
-   flutter run
-   
-   # For specific device
-   flutter run -d <device-id>
-   
-   # For web
-   flutter run -d chrome
-   ```
-
-#### Web App Setup
-
-1. **Navigate to web directory:**
-   ```bash
-   cd apps/web
-   ```
-
-2. **Install Flutter dependencies:**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Build the web app:**
-   ```bash
-   flutter build web --release
-   ```
-
-4. **Run locally:**
-   ```bash
-   python serve.py
-   ```
-   Then open http://localhost:4000 in your browser
+```bash
+git clone https://github.com/Josephnyingi/Anga.git
+cd Anga
+python scripts/setup/setup_dev.py
+```
 
 ## 🔧 Configuration
 
@@ -332,74 +251,42 @@ Create a `.env` file in the backend directory:
 # === Core API Settings ===
 API_HOST=0.0.0.0
 API_PORT=8000
-API_DEBUG=true
 
-# === Database ===
-DATABASE_URL=postgresql://anga_user:anga_password@localhost:5432/anga_weather
-
-# === Security ===
-SECRET_KEY=your_super_secret_key_here
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-
-# === AI Assistant ===
+# === AI Assistant (required) ===
 GROQ_API_KEY=your_groq_api_key_here
 
-# === Weather API ===
-WEATHER_API_KEY=dev_key
-OPEN_METEO_BASE_URL=https://api.open-meteo.com/v1/forecast
+# === Database (optional - falls back to local SQLite if unset) ===
+DATABASE_URL=postgresql://user:password@host/dbname
+
+# === Weather (roadmap feature, optional) ===
+HF_TOKEN=your_huggingface_token_here
 ```
+
+There's no token-based auth yet, so no `SECRET_KEY`/`ACCESS_TOKEN_EXPIRE_MINUTES` to configure - login is a direct phone/password check against the database.
 
 ### API Configuration
 
-The app automatically detects the environment and configures API endpoints:
-
 - **Development**: `http://localhost:8000`
-- **Staging**: `https://staging-api.anga.com`
-- **Production**: `https://api.anga.com`
+- **Production**: `https://anga-weather-api.onrender.com`
 
 ## 🧪 Testing
 
-### Backend Tests
+### Backend
+
+No automated test suite yet (no `tests/` directory). CI currently only runs a fast syntax lint:
 
 ```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=backend --cov-report=html
-
-# Run specific test categories
-pytest -m unit          # Unit tests
-pytest -m integration   # Integration tests
-pytest -m performance   # Performance tests
+cd apps/backend
+flake8 . --select=E9,F63,F7,F82
 ```
 
 ### Flutter Tests
 
-```bash
-cd mobile
+Mobile has two test files; web doesn't have any yet.
 
-# Run all tests
+```bash
+cd apps/mobile
 flutter test
-
-# Run with coverage
-flutter test --coverage
-```
-
-### Code Quality
-
-```bash
-# Format code
-black .
-isort .
-
-# Lint code
-flake8
-mypy .
-
-# Security scan
-bandit -r backend/
-safety check
 ```
 
 ## 🚀 Deployment
@@ -480,23 +367,21 @@ The ANGA web application provides full feature parity with the mobile app:
 - **User Authentication**: Phone number and password-based login/registration
 - **Dashboard**: Weather overview with charts and predictions
 - **Settings**: Theme switching and user preferences
-- **API Integration**: Seamless communication with FastAPI backend
-- **No CORS Issues**: Same-origin proxy eliminates cross-origin problems
+- **API Integration**: Calls the Render backend directly (cross-origin, CORS `allow_origins=["*"]`) - not via a same-origin proxy, which used to route through Netlify but was removed after it silently broke on Render's SNI/host-based routing
 
 ### Web App URLs
 
-- **Application**: http://localhost:4000
-- **API Proxy**: http://localhost:4000/api/*
-- **Backend Direct**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
+- **Live**: https://anga-weather-101.netlify.app
+- **API**: https://anga-weather-api.onrender.com (docs at `/docs`)
+- **Local dev**: http://localhost:4000 (web, via `python serve.py`), http://localhost:8000 (backend)
 
 ## 📊 Project Status
 
 - **Version**: 1.0.0
-- **Status**: Production Ready
-- **Platforms**: Mobile (iOS/Android) + Web (All Browsers)
+- **Status**: Hackathon MVP, actively developed - not yet hardened for production scale (no token auth, no automated backend test suite, manual web deploys)
+- **Platforms**: Web (all browsers) + Android (sideloaded APK, no Play Store listing) + USSD
 - **Last Updated**: July 2026
-- **Maintainers**: ANGA Development Team
+- **Maintainer**: Joseph Nyingi
 
 ---
 
