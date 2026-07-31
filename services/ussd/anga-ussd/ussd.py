@@ -10,7 +10,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Supported locations
-ALLOWED_LOCATIONS = ["machakos", "vhembe"]
+ALLOWED_LOCATIONS = ["machakos", "gulu"]
 
 # Defaults to the deployed backend so this works when reached by Africa's
 # Talking's servers, not just against a locally-running FastAPI instance.

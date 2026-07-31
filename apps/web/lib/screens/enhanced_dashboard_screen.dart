@@ -236,7 +236,7 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
     setState(() {
       _selectedLocation = name;
       AppState.selectedLocation = name;
-      // Clear lat/lon so the backend uses its machakos/vhembe whitelist path.
+      // Clear lat/lon so the backend uses its machakos/gulu whitelist path.
       AppState.selectedLat = null;
       AppState.selectedLon = null;
       _locationSearchController.clear();
@@ -300,7 +300,7 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
             children: [
               _quickLocationChip('Machakos'),
               const SizedBox(width: 8),
-              _quickLocationChip('Vhembe'),
+              _quickLocationChip('Gulu'),
             ],
           ),
 

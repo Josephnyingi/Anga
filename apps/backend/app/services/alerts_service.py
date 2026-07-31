@@ -15,8 +15,9 @@ logger = logging.getLogger(__name__)
 
 FORECAST_DAYS = 7
 
-# Tunable thresholds. Machakos/Vhembe are both semi-arid; these are
-# conservative defaults, not agronomy-reviewed figures.
+# Tunable thresholds - generic conservative defaults, not agronomy-reviewed
+# or climate-specific (Machakos is semi-arid, Gulu is tropical wet-dry, so
+# e.g. the frost threshold is far more relevant to one than the other).
 HEAT_MAX_C = 35.0
 FROST_MIN_C = 5.0
 HEAVY_RAIN_MM = 40.0

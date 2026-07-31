@@ -32,7 +32,7 @@ class WeatherService {
 
   /// Get supported locations
   static List<String> getSupportedLocations() {
-    return ['machakos', 'vhembe'];
+    return ['machakos', 'gulu'];
   }
 
   /// Validate location

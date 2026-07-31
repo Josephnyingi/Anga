@@ -188,7 +188,7 @@ def get_ai_status():
 # ✅ Supported locations
 SUPPORTED_LOCATIONS = {
     "machakos": {"lat": -1.5167, "lon": 37.2667},
-    "vhembe": {"lat": -22.9781, "lon": 30.4516}
+    "gulu": {"lat": 2.7746, "lon": 32.2989}
 }
 
 # WMO weather codes (Open-Meteo's `weather_code`), condensed to the ranges
@@ -387,8 +387,8 @@ def _cached_or_fetch(cache_key, fetch_fn, fallback_fn=None):
 _FALLBACK_CONDITIONS = {
     "machakos": {"temp_max": 24.0, "temp_min": 12.0, "temp_now": 19.0, "humidity": 55,
                  "wind_speed": 12.0, "pressure": 1015.0, "weather_code": 1, "rain": 0.0},
-    "vhembe":   {"temp_max": 26.0, "temp_min": 8.0, "temp_now": 18.0, "humidity": 40,
-                 "wind_speed": 10.0, "pressure": 1018.0, "weather_code": 0, "rain": 0.0},
+    "gulu":     {"temp_max": 31.0, "temp_min": 19.0, "temp_now": 27.0, "humidity": 58,
+                 "wind_speed": 9.0, "pressure": 1011.0, "weather_code": 1, "rain": 0.0},
 }
 
 
@@ -461,7 +461,7 @@ def geocode_location(query: str):
 def _resolve_coords(location: str, lat: Optional[float], lon: Optional[float], label: Optional[str]):
     """Shared by live_weather/forecast/alerts: use explicit lat/lon if given
     (any IGAD location, via /geocode/), otherwise fall back to the original
-    machakos/vhembe whitelist for backward compatibility (USSD callers)."""
+    machakos/gulu whitelist for backward compatibility (USSD callers)."""
     if lat is not None and lon is not None:
         return lat, lon, (label or f"{lat:.2f}, {lon:.2f}")
     loc = location.lower()
@@ -475,7 +475,7 @@ def _resolve_coords(location: str, lat: Optional[float], lon: Optional[float], l
 def get_live_weather(location: str = "machakos", lat: Optional[float] = None, lon: Optional[float] = None, label: Optional[str] = None):
     resolved = _resolve_coords(location, lat, lon, label)
     if resolved is None:
-        return {"error": "Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'vhembe'."}
+        return {"error": "Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'gulu'."}
     rlat, rlon, rlabel = resolved
 
     cache_key = ("live_weather", round(rlat, 2), round(rlon, 2))
@@ -533,7 +533,7 @@ def get_forecast(location: str = "machakos", days: int = 5, lat: Optional[float]
     """Multi-day daily forecast (Open-Meteo passthrough, one call for N days)."""
     resolved = _resolve_coords(location, lat, lon, label)
     if resolved is None:
-        return {"error": "Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'vhembe'."}
+        return {"error": "Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'gulu'."}
     rlat, rlon, rlabel = resolved
 
     days = max(1, min(days, 16))
@@ -598,7 +598,7 @@ def get_alerts(location: str = "machakos", lat: Optional[float] = None, lon: Opt
     """
     resolved = _resolve_coords(location, lat, lon, label)
     if resolved is None:
-        return {"error": "Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'vhembe'."}
+        return {"error": "Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'gulu'."}
     rlat, rlon, rlabel = resolved
 
     alerts = get_weather_alerts(rlat, rlon, rlabel)

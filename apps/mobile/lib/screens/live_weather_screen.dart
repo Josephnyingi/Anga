@@ -40,7 +40,7 @@ class _LiveWeatherScreenState extends State<LiveWeatherScreen> {
     final prefs = await SharedPreferences.getInstance();
     final selectedLocation = prefs.getString('location')?.toLowerCase() ?? 'machakos';
 
-    if (!['machakos', 'vhembe'].contains(selectedLocation)) {
+    if (!['machakos', 'gulu'].contains(selectedLocation)) {
       setState(() {
         isLoading = false;
         error = "Live weather not available for '$selectedLocation'.";
@@ -369,7 +369,7 @@ class _LiveWeatherScreenState extends State<LiveWeatherScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Change Location'),
         content: const Text(
-          'Live weather is currently available for Machakos and Vhembe. You can change your preferred location in Settings.',
+          'Live weather is currently available for Machakos and Gulu. You can change your preferred location in Settings.',
         ),
         actions: [
           TextButton(

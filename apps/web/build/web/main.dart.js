@@ -46935,7 +46935,7 @@ a8M(){var s,r=this,q=null,p=r.c
 p.toString
 p=A.wp(p)
 s=t.p
-return A.cZ(q,A.bC(A.b([new A.G_(new A.atB(),r.r,q,q,new A.atC(r),B.ba,q,q,!1,144,!0,!0,!0,!0,q,q,B.G,new A.atD(),!0,!1,!1,!1,!1,A.b53(),A.b52(),A.b51(),A.b_S(new A.atE(),t.vu),q,A.b_U(q),q,B.bW,q,t.ay),B.eN,A.c1(A.b([r.Tx("Machakos"),B.cl,r.Tx("Vhembe")],s),B.w,B.m,B.o,0,q),B.hk,A.aNI(A.bC(A.b([A.ay("Good "+r.acz()+"!",q,q,q,B.Y_,q,q,q),B.bA,A.ay("Here's your weather overview for "+r.f,q,q,q,A.dm(q,q,A.a5(B.d.aG(229.5),B.f.q()>>>16&255,B.f.q()>>>8&255,B.f.q()&255),q,q,q,q,q,q,q,q,16,q,q,q,q,q,!0,q,q,q,q,q,q,q,q),q,q,q)],s),B.R,B.m,B.o))],s),B.R,B.m,B.o),B.r,q,q,new A.ck(q,q,q,B.Dt,q,B.Lz,B.ag),q,q,q,p,q,q,q)},
+return A.cZ(q,A.bC(A.b([new A.G_(new A.atB(),r.r,q,q,new A.atC(r),B.ba,q,q,!1,144,!0,!0,!0,!0,q,q,B.G,new A.atD(),!0,!1,!1,!1,!1,A.b53(),A.b52(),A.b51(),A.b_S(new A.atE(),t.vu),q,A.b_U(q),q,B.bW,q,t.ay),B.eN,A.c1(A.b([r.Tx("Machakos"),B.cl,r.Tx("Gulu")],s),B.w,B.m,B.o,0,q),B.hk,A.aNI(A.bC(A.b([A.ay("Good "+r.acz()+"!",q,q,q,B.Y_,q,q,q),B.bA,A.ay("Here's your weather overview for "+r.f,q,q,q,A.dm(q,q,A.a5(B.d.aG(229.5),B.f.q()>>>16&255,B.f.q()>>>8&255,B.f.q()&255),q,q,q,q,q,q,q,q,16,q,q,q,q,q,!0,q,q,q,q,q,q,q,q),q,q,q)],s),B.R,B.m,B.o))],s),B.R,B.m,B.o),B.r,q,q,new A.ck(q,q,q,B.Dt,q,B.Lz,B.ag),q,q,q,p,q,q,q)},
 a8F(){var s,r,q,p=this,o=null
 if(p.y.length===0)return B.al
 s=p.c
@@ -47499,7 +47499,7 @@ $1(a){this.a.N(new A.azL(a))},
 $S:106}
 A.azL.prototype={
 $0(){var s=$.jm=this.a
-if(s==="Machakos"||s==="Vhembe")$.a4O=$.a4N=null},
+if(s==="Machakos"||s==="Gulu")$.a4O=$.a4N=null},
 $S:0}
 A.azN.prototype={
 $1(a){return this.a.N(new A.azK(a))},
@@ -103359,7 +103359,7 @@ B.a2P=new A.mT(6,0.11)
 B.a2N=new A.mT(8,0.12)
 B.a2M=new A.mT(12,0.14)
 B.qF=s([B.a2L,B.a2Q,B.a2O,B.a2P,B.a2N,B.a2M],A.aB("D<mT>"))
-B.lH=s(["Machakos","Vhembe"],t.s)
+B.lH=s(["Machakos","Gulu"],t.s)
 B.qG=s([0,21,51,121,151,191,271,321,360],t.n)
 B.MX=s(["Q1","Q2","Q3","Q4"],t.s)
 B.Ds=new A.Mw(2,"outer")

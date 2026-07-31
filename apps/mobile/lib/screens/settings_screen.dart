@@ -18,7 +18,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // If the farmer searched a location beyond the original two towns, include
   // it here too so the dropdown's value always matches one of its items.
   List<String> get locations {
-    const base = ["Machakos", "Vhembe"];
+    const base = ["Machakos", "Gulu"];
     return base.contains(AppState.selectedLocation) ? base : [...base, AppState.selectedLocation];
   }
 
@@ -113,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   (newValue) {
                     setState(() {
                       AppState.selectedLocation = newValue!;
-                      if (newValue == 'Machakos' || newValue == 'Vhembe') {
+                      if (newValue == 'Machakos' || newValue == 'Gulu') {
                         // Switching back to a default town: clear any
                         // searched coordinates so the backend uses its
                         // whitelist path.

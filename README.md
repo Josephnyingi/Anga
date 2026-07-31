@@ -17,7 +17,7 @@ A comprehensive weather forecasting application with AI-powered farming assistan
 
 **[View the ANGA Investor Demo Card →](https://anga-weather-101.netlify.app/showcase)**
 
-A quick pitch overview: the problem, market opportunity, technical differentiators (NVIDIA Earth-2, Groq LLaMA-3, USSD), MVP status, active pilots in Kenya and South Africa, and contact details.
+A quick pitch overview: the problem, market opportunity, technical differentiators (NVIDIA Earth-2, Groq LLaMA-3, USSD), MVP status, active pilots in Kenya and Uganda, and contact details.
 
 **[Try the live web app →](https://anga-weather-101.netlify.app)** · **[Download the Android APK →](https://github.com/Josephnyingi/Anga/releases/download/v1.0.0/app-release.apk)**
 
@@ -38,7 +38,8 @@ The APK is a sideloaded release build, not signed with a Play Store key — Andr
 - Fixed the dashboard going blank when Open-Meteo rate-limits Render's shared IP: added response caching plus a graceful fallback to last-known-good data instead of an empty screen
 - Closed real feature gaps between the web and mobile apps: mobile's dashboard now uses the same forecast/alerts/notification pipeline as web (was still on a legacy per-day ML endpoint); both apps' Settings screens now share units, forecast-period, reset-to-defaults, and debug-access options; both apps' Alerts screens now have a working severity filter, share, and notifications toggle (mobile's versions of these were `Coming soon...` stubs — implemented for real rather than copied across)
 - Added a pre-filled demo login (see above) so reviewers can log in with one tap, no registration needed
-- Added location search on both apps: any location in an IGAD member state now works (Djibouti, Eritrea, Ethiopia, Kenya, Somalia, South Sudan, Sudan, Uganda), via a new `/geocode/` endpoint. Machakos (Kenya) and Vhembe (South Africa - not an IGAD member, but one of the two existing pilot markets) remain as quick-pick shortcuts and still work exactly as before for USSD
+- Added location search on both apps: any location in an IGAD member state now works (Djibouti, Eritrea, Ethiopia, Kenya, Somalia, South Sudan, Sudan, Uganda), via a new `/geocode/` endpoint. Machakos (Kenya) and Gulu (Uganda) remain as quick-pick shortcuts and still work exactly as before for USSD
+- Replaced Vhembe (South Africa) with Gulu, Uganda as the second pilot-market quick-pick — Vhembe isn't in an IGAD member state, which was inconsistent with a solution built for IGAD. Also swapped the frost-alert demo for a flood alert, since frost doesn't realistically occur in tropical Uganda
 - Fixed `/alerts/` returning 500 for every request since the location-search refactor - caught by CI's flake8 check, not manual testing; alerts had been silently absent from every dashboard for a while with no visible error
 - Added a "Weather Alerts" menu to USSD - it previously only exposed raw forecast numbers and livestock registration, never the actual early-warning alerts, which is backwards for the one channel that reaches farmers without smartphones. Each alert now comes with a concrete action, not just a warning
 - Fixed a real bug in mobile's `WeatherProvider.clearError()`, which never actually cleared anything (caught by the test suite once CI could run it)

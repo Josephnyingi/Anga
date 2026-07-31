@@ -229,7 +229,7 @@ class DashboardScreenState extends State<DashboardScreen> {
   void _selectQuickLocation(String name) {
     setState(() {
       AppState.selectedLocation = name;
-      // Clear lat/lon so the backend uses its machakos/vhembe whitelist path.
+      // Clear lat/lon so the backend uses its machakos/gulu whitelist path.
       AppState.selectedLat = null;
       AppState.selectedLon = null;
       _locationSearchController.clear();
@@ -288,7 +288,7 @@ class DashboardScreenState extends State<DashboardScreen> {
           children: [
             _quickLocationChip('Machakos', isDarkMode),
             const SizedBox(width: 8),
-            _quickLocationChip('Vhembe', isDarkMode),
+            _quickLocationChip('Gulu', isDarkMode),
           ],
         ),
       ],

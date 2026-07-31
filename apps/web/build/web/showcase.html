@@ -725,18 +725,18 @@
             <span class="market-size">4.4M farmers</span>
           </div>
           <div class="market-item">
-            <span class="market-flag">🇿🇦</span>
+            <span class="market-flag">🇺🇬</span>
             <div class="market-info">
-              <div class="market-name">Vhembe District, South Africa</div>
-              <div class="market-desc">Subtropical mixed &amp; subsistence agriculture</div>
+              <div class="market-name">Gulu District, Uganda</div>
+              <div class="market-desc">Tropical wet-dry smallholder millet, sorghum &amp; groundnut farms</div>
             </div>
-            <span class="market-size">1.2M farmers</span>
+            <span class="market-size">1.5M farmers</span>
           </div>
           <div class="market-item">
             <span class="market-flag">🌍</span>
             <div class="market-info">
-              <div class="market-name">Expansion ready: 54 countries</div>
-              <div class="market-desc">Same stack, any GPS coordinate in Africa</div>
+              <div class="market-name">Expansion ready: 8 IGAD countries</div>
+              <div class="market-desc">Same stack, any location in Djibouti, Eritrea, Ethiopia, Kenya, Somalia, South Sudan, Sudan &amp; Uganda</div>
             </div>
             <span class="market-size">$18B TAM</span>
           </div>
@@ -872,11 +872,11 @@
   // calls the actual FastAPI backend for real numbers.
   const ussdLcd = document.getElementById("ussdLcd");
   const ussdOptions = document.getElementById("ussdOptions");
-  const LOCATIONS = ["Machakos", "Vhembe"];
+  const LOCATIONS = ["Machakos", "Gulu"];
   const ANIMALS = ["Cattle", "Goat", "Sheep", "Poultry", "Pig"];
   const SAMPLE = {
     Machakos: { temp: 24, rain: 0.0, daily: [[24,0],[23,0.4],[25,0],[22,1.2],[24,0]] },
-    Vhembe:   { temp: 27, rain: 0.0, daily: [[27,0],[28,0],[26,0.8],[27,0],[29,0]] },
+    Gulu:     { temp: 30, rain: 0.0, daily: [[30,0],[29,2.1],[31,0],[28,5.4],[30,0]] },
   };
 
   function render(lcdText, optionEls) {
@@ -918,7 +918,7 @@
   }
 
   function showForecastLocation() {
-    render("CON Choose location:\n1. Machakos\n2. Vhembe", LOCATIONS.map((loc, i) =>
+    render("CON Choose location:\n1. Machakos\n2. Gulu", LOCATIONS.map((loc, i) =>
       optBtn(`${i + 1}. ${loc}`, () => showForecastRange(loc))
     ));
   }
@@ -955,7 +955,7 @@
   }
 
   function showLivestockLocation() {
-    render("CON Choose location:\n1. Machakos\n2. Vhembe", LOCATIONS.map((loc, i) =>
+    render("CON Choose location:\n1. Machakos\n2. Gulu", LOCATIONS.map((loc, i) =>
       optBtn(`${i + 1}. ${loc}`, () => showLivestockMenu(loc))
     ));
   }
@@ -1010,6 +1010,7 @@
   const ALERT_META = {
     drought:               { icon: "☀️", title: "Drought Risk",           tip: "Prioritise water for livestock; delay non-essential irrigation." },
     frost:                 { icon: "❄️", title: "Frost Warning",          tip: "Cover sensitive crops tonight; delay any new planting." },
+    flood:                 { icon: "🌊", title: "Heavy Rain / Flood Risk", tip: "Move livestock to higher ground; clear drainage paths now." },
     heat:                   { icon: "🔥", title: "Extreme Heat Warning",   tip: "Give animals shade & extra water; avoid grazing 11am-4pm." },
     livestock_heat_stress: { icon: "🐄", title: "Livestock Heat Stress",  tip: "Move animals to shade now & check water troughs." },
   };
@@ -1049,17 +1050,17 @@ A THI of 81 for your 5 Cattle is in the severe range — dairy yield and fertili
 
 Your registered herd is what let me give these specific numbers instead of generic advice.` },
     ],
-    Vhembe: [
-      { type: "frost", leadDays: 1, livestock: "12 Goat",
-        message: () => `Frost risk: 4°C forecast for ${dateFor(1)}.`,
-        ai: `❄️ **Frost Advisory for Vhembe**
+    Gulu: [
+      { type: "flood", leadDays: 2, livestock: "12 Goat",
+        message: () => `Heavy rain risk: 48mm forecast for ${dateFor(2)}.`,
+        ai: `🌊 **Flood Advisory for Gulu**
 
-Frost tonight puts young crops at risk before your 12 Goats are affected directly — goats handle cold better than crops do. Priorities:
+Heavy rain in 2 days is a real risk here given how flood-prone the Acholi sub-region gets in the wet season — before your 12 Goats are affected, your crops and land are:
 
-• Cover seedlings and young plants before sundown
-• Delay any new planting until the frost risk clears
-• Goats are fine into single digits, but ensure windbreak shelter overnight
-• Check water troughs haven't frozen by morning` },
+• Clear drainage channels and field edges now, before the rain arrives
+• Move goats to higher, drier ground - they don't tolerate standing water well
+• Delay any harvesting of low-lying plots until after the rain passes
+• Check stored grain is off the ground and covered` },
       { type: "livestock_heat_stress", leadDays: 3, thi: 74, livestock: "12 Goat",
         message: () => `Moderate livestock heat stress risk (THI 74) forecast for ${dateFor(3)}. Watch milk yield and water intake.`,
         ai: `🐐 **Heat Stress Watch**
@@ -1074,7 +1075,7 @@ THI 74 for your 12 Goats is moderate, not severe yet — this is where early act
   };
 
   function showAlertsLocation() {
-    render("CON Choose location:\n1. Machakos\n2. Vhembe", LOCATIONS.map((loc, i) =>
+    render("CON Choose location:\n1. Machakos\n2. Gulu", LOCATIONS.map((loc, i) =>
       optBtn(`${i + 1}. ${loc}`, () => showAlertsList(loc))
     ));
   }
