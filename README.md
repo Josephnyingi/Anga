@@ -44,9 +44,9 @@ The APK is a sideloaded release build, not signed with a Play Store key — Andr
 - **Cross-platform**: Flutter mobile app for iOS and Android
 - **Web Application**: Flutter web app with responsive design and full feature parity
 - **Backend API**: FastAPI-powered backend with machine learning models
-- **Database**: PostgreSQL with Redis caching
-- **Docker Support**: Complete containerized deployment with Docker Compose
-- **Security**: JWT authentication, CORS protection, and input validation
+- **Database**: SQLite by default, optional PostgreSQL via `DATABASE_URL`
+- **Docker Support**: Containerized backend, deployed on Render
+- **Security**: CORS protection and input validation. No token-based auth yet — login is a direct phone/password check
 
 ## 🏗️ Architecture
 
@@ -404,33 +404,13 @@ safety check
 
 ## 🚀 Deployment
 
-### Docker Deployment
+**Backend**: containerized (`apps/backend/Dockerfile`) and deployed on [Render](https://render.com), defined as code in [`render.yaml`](render.yaml). Pushing to `main` auto-deploys per that Blueprint.
 
-```bash
-# Navigate to docker directory
-cd infrastructure/docker
+**Web app**: not built by a CI pipeline — the compiled Flutter output (`apps/web/build/web/`) is committed directly to the repo, and Netlify serves those static files as-is (`netlify.toml`, `command = ""`). The Netlify site isn't yet linked to GitHub for auto-deploy, so shipping a change currently means: rebuild locally (`flutter build web --release`), commit the build output, then run `netlify deploy --prod --dir=apps/web/build/web`.
 
-# Build and start services
-docker-compose up -d
+**Mobile**: `flutter build apk --release`, published as a GitHub Release asset (see the download link at the top of this file) — no Play Store listing yet.
 
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-
-# Rebuild specific service
-docker-compose build web
-docker-compose up -d web
-```
-
-### Web App Deployment
-
-The web app is automatically built and served via Docker with nginx. The web container:
-- Serves the Flutter web build at port 4000
-- Proxies `/api/*` requests to the backend
-- Includes CORS headers and security configurations
-- Supports both development and production builds
+`infrastructure/docker/docker-compose.yml` exists for local development only; it isn't how production actually runs.
 
 ## 📚 Documentation
 
