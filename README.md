@@ -9,6 +9,12 @@
 
 A comprehensive weather forecasting application with AI-powered farming assistance, built with Flutter and Python. ANGA provides real-time weather data, intelligent agricultural recommendations, and USSD integration for areas with limited internet access. Available as both mobile and web applications with full Docker support.
 
+## 🎤 Investor / Judge Showcase
+
+**[View the ANGA Investor Demo Card →](https://anga-weather-101.netlify.app/showcase)**
+
+A quick pitch overview: the problem, market opportunity, technical differentiators (NVIDIA Earth-2, Groq LLaMA-3, USSD), MVP status, active pilots in Kenya and South Africa, and contact details.
+
 ## 🚀 Features
 
 - **Real-time Weather Data**: Live weather information from Open-Meteo API
