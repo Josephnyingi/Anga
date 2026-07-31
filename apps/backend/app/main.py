@@ -479,7 +479,8 @@ def get_live_weather(location: str = "machakos", lat: Optional[float] = None, lo
     rlat, rlon, rlabel = resolved
 
     cache_key = ("live_weather", round(rlat, 2), round(rlon, 2))
-    fallback = (lambda: _fallback_live_weather(location.lower())) if location.lower() in SUPPORTED_LOCATIONS else None
+    using_whitelist = lat is None and lon is None and location.lower() in SUPPORTED_LOCATIONS
+    fallback = (lambda: _fallback_live_weather(location.lower())) if using_whitelist else None
     return _cached_or_fetch(cache_key, lambda: _fetch_live_weather(rlat, rlon, rlabel), fallback)
 
 
@@ -537,7 +538,8 @@ def get_forecast(location: str = "machakos", days: int = 5, lat: Optional[float]
 
     days = max(1, min(days, 16))
     cache_key = ("forecast", round(rlat, 2), round(rlon, 2), days)
-    fallback = (lambda: _fallback_forecast(location.lower(), days)) if location.lower() in SUPPORTED_LOCATIONS else None
+    using_whitelist = lat is None and lon is None and location.lower() in SUPPORTED_LOCATIONS
+    fallback = (lambda: _fallback_forecast(location.lower(), days)) if using_whitelist else None
     return _cached_or_fetch(cache_key, lambda: _fetch_forecast(rlat, rlon, rlabel, days), fallback)
 
 
