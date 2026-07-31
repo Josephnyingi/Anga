@@ -99,7 +99,21 @@ async def startup_event():
             logger.info("✅ Database: Connected and ready")
     except Exception as e:
         logger.error(f"❌ Database connection failed: {e}")
-    
+
+    # Ensure the demo account (pre-filled on the web/mobile login screen)
+    # exists. SQLite on Render is on an ephemeral filesystem, so this
+    # re-seeds it after every redeploy instead of relying on it persisting.
+    try:
+        with SessionLocal() as db:
+            if not db.query(User).filter(User.phone_number == "0700000000").first():
+                db.add(User(name="Demo Farmer", phone_number="0700000000", password="demo1234"))
+                db.commit()
+                logger.info("🌱 Seeded demo user (0700000000)")
+            else:
+                logger.info("✅ Demo user already present")
+    except Exception as e:
+        logger.error(f"❌ Failed to seed demo user: {e}")
+
     logger.info("✅ Unified API is ready!")
 
 # 🌐 Enable CORS (important for mobile/Flutter access)
@@ -475,13 +489,20 @@ def _resolve_coords(location: str, lat: Optional[float], lon: Optional[float], l
 def get_live_weather(location: str = "machakos", lat: Optional[float] = None, lon: Optional[float] = None, label: Optional[str] = None):
     resolved = _resolve_coords(location, lat, lon, label)
     if resolved is None:
-        return {"error": "Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'gulu'."}
+        raise HTTPException(status_code=400, detail="Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'gulu'.")
     rlat, rlon, rlabel = resolved
 
     cache_key = ("live_weather", round(rlat, 2), round(rlon, 2))
     using_whitelist = lat is None and lon is None and location.lower() in SUPPORTED_LOCATIONS
     fallback = (lambda: _fallback_live_weather(location.lower())) if using_whitelist else None
-    return _cached_or_fetch(cache_key, lambda: _fetch_live_weather(rlat, rlon, rlabel), fallback)
+    result = _cached_or_fetch(cache_key, lambda: _fetch_live_weather(rlat, rlon, rlabel), fallback)
+    if "error" in result:
+        # Open-Meteo failed and there was neither a cache nor a whitelist
+        # fallback to fall back to (e.g. a freshly-searched location) -
+        # surface this as a real error instead of a 200 with an error body,
+        # so clients can show a retry state instead of crashing on missing fields.
+        raise HTTPException(status_code=503, detail=result.get("details", result["error"]))
+    return result
 
 
 def _fetch_live_weather(lat: float, lon: float, label: str):
@@ -533,14 +554,17 @@ def get_forecast(location: str = "machakos", days: int = 5, lat: Optional[float]
     """Multi-day daily forecast (Open-Meteo passthrough, one call for N days)."""
     resolved = _resolve_coords(location, lat, lon, label)
     if resolved is None:
-        return {"error": "Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'gulu'."}
+        raise HTTPException(status_code=400, detail="Unknown location. Pass lat/lon (see /geocode/) or use 'machakos'/'gulu'.")
     rlat, rlon, rlabel = resolved
 
     days = max(1, min(days, 16))
     cache_key = ("forecast", round(rlat, 2), round(rlon, 2), days)
     using_whitelist = lat is None and lon is None and location.lower() in SUPPORTED_LOCATIONS
     fallback = (lambda: _fallback_forecast(location.lower(), days)) if using_whitelist else None
-    return _cached_or_fetch(cache_key, lambda: _fetch_forecast(rlat, rlon, rlabel, days), fallback)
+    result = _cached_or_fetch(cache_key, lambda: _fetch_forecast(rlat, rlon, rlabel, days), fallback)
+    if "error" in result:
+        raise HTTPException(status_code=503, detail=result.get("details", result["error"]))
+    return result
 
 
 def _fetch_forecast(lat: float, lon: float, label: str, days: int):

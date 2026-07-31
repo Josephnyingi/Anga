@@ -42,6 +42,7 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
     'description': '—',
     'feelsLike': null,
     'rain': null,
+    'estimated': false,
   };
 
   List<Map<String, dynamic>> _forecast = [];
@@ -88,6 +89,7 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
             'description': live['description'] ?? '—',
             'feelsLike': live['feels_like'],
             'rain': live['precipitation'],
+            'estimated': live['estimated'] ?? false,
           };
           _forecast = forecast
               .map((d) => {
@@ -112,6 +114,14 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
       await _notifyNewAlerts(alerts);
     } catch (e) {
       debugPrint("❌ Dashboard load error: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Couldn't load weather for $_selectedLocation. Showing last known data."),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -251,7 +261,11 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
       selected: selected,
       onSelected: (_) => _selectQuickLocation(name),
       selectedColor: Colors.white,
-      backgroundColor: Colors.white.withOpacity(0.15),
+      // Unselected background must stay clearly dark-tinted (not near-white)
+      // so the white label text keeps contrast - a light/white unselected
+      // background made the label unreadable.
+      backgroundColor: Colors.black.withOpacity(0.2),
+      side: BorderSide(color: Colors.white.withOpacity(0.4)),
       labelStyle: TextStyle(color: selected ? WebTheme.webPrimary : Colors.white),
     );
   }
@@ -428,8 +442,8 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
                       temperature: _weatherData['temperature'],
                     ),
                     WebIndicators.connectionStatus(
-                      isConnected: true,
-                      message: 'Live Data',
+                      isConnected: _weatherData['estimated'] != true,
+                      message: _weatherData['estimated'] == true ? 'Estimated' : 'Live Data',
                     ),
                   ],
                 ),
