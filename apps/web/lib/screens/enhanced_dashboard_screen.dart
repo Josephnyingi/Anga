@@ -6,6 +6,10 @@ import '../widgets/web_loading_states.dart';
 import '../widgets/web_indicators.dart';
 import '../widgets/web_forms.dart';
 import '../theme/web_theme.dart';
+import '../services/live_weather_service.dart';
+import '../services/forecast_service.dart';
+import '../services/alerts_service.dart';
+import '../services/notification_service.dart';
 
 /// 📊 **Enhanced Dashboard Screen for Web**
 /// 
@@ -22,42 +26,27 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
   bool _isLoading = false;
   bool _isRefreshing = false;
   String _selectedLocation = 'Machakos';
-  final List<String> _locations = ['Machakos', 'Vhembe', 'Nairobi', 'Kisumu'];
+  final List<String> _locations = ['Machakos', 'Vhembe'];
 
-  // Mock data
-  final Map<String, dynamic> _weatherData = {
-    'temperature': 25.0,
-    'humidity': 60,
-    'windSpeed': 12.0,
-    'pressure': 1013,
-    'uvIndex': 6,
-    'description': 'Partly Cloudy',
-    'feelsLike': 27.0,
-    'visibility': 10.0,
+  // Populated from the backend in _loadData(); empty/default until the
+  // first fetch completes.
+  Map<String, dynamic> _weatherData = {
+    'temperature': null,
+    'humidity': null,
+    'windSpeed': null,
+    'pressure': null,
+    'uvIndex': null,
+    'description': '—',
+    'feelsLike': null,
+    'rain': null,
   };
 
-  final List<Map<String, dynamic>> _forecast = [
-    {'day': 'Today', 'high': 28, 'low': 18, 'condition': 'sunny', 'precip': 0},
-    {'day': 'Tomorrow', 'high': 26, 'low': 16, 'condition': 'cloudy', 'precip': 20},
-    {'day': 'Wed', 'high': 24, 'low': 14, 'condition': 'rainy', 'precip': 80},
-    {'day': 'Thu', 'high': 27, 'low': 17, 'condition': 'sunny', 'precip': 10},
-    {'day': 'Fri', 'high': 29, 'low': 19, 'condition': 'sunny', 'precip': 0},
-  ];
+  List<Map<String, dynamic>> _forecast = [];
+  List<Map<String, dynamic>> _alerts = [];
 
-  final List<Map<String, dynamic>> _alerts = [
-    {
-      'title': 'High Temperature Warning',
-      'message': 'Temperatures expected to reach 35°C today',
-      'type': 'warning',
-      'time': '2 hours ago',
-    },
-    {
-      'title': 'Rain Forecast',
-      'message': 'Light rain expected tomorrow morning',
-      'type': 'info',
-      'time': '5 hours ago',
-    },
-  ];
+  // Alert ids already surfaced as a notification this session, so refreshing
+  // the dashboard doesn't re-fire the same warning repeatedly.
+  final Set<String> _notifiedAlertIds = {};
 
   @override
   void initState() {
@@ -70,13 +59,104 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
       _isLoading = true;
     });
 
+    final location = _selectedLocation.toLowerCase();
+
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      final results = await Future.wait([
+        LiveWeatherService.getLiveWeather(location),
+        ForecastService.getForecast(location, days: 5),
+        AlertsService.getAlerts(location),
+      ]);
+
+      final live = results[0] as Map<String, dynamic>;
+      final forecast = results[1] as List<ForecastDay>;
+      final alerts = results[2] as List<WeatherAlert>;
+
+      if (mounted) {
+        setState(() {
+          _weatherData = {
+            'temperature': live['temperature'],
+            'humidity': live['humidity'],
+            'windSpeed': live['wind_speed'],
+            'pressure': live['pressure'],
+            'uvIndex': live['uv_index'],
+            'description': live['description'] ?? '—',
+            'feelsLike': live['feels_like'],
+            'rain': live['precipitation'],
+          };
+          _forecast = forecast
+              .map((d) => {
+                    'day': _formatDayLabel(d.date),
+                    'high': d.tempMax,
+                    'low': d.tempMin,
+                    'condition': d.description,
+                    'precip': d.precipitationSum,
+                  })
+              .toList();
+          _alerts = alerts
+              .map((a) => {
+                    'title': _alertTitle(a.type),
+                    'message': a.message,
+                    'type': a.severity == 'high' ? 'warning' : 'info',
+                    'time': a.date,
+                  })
+              .toList();
+        });
+      }
+
+      await _notifyNewAlerts(alerts);
+    } catch (e) {
+      debugPrint("❌ Dashboard load error: $e");
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _notifyNewAlerts(List<WeatherAlert> alerts) async {
+    for (final alert in alerts) {
+      if (_notifiedAlertIds.contains(alert.id)) continue;
+      _notifiedAlertIds.add(alert.id);
+      await NotificationService().showWeatherAlert(
+        title: '⚠️ Weather Alert — ${alert.location}',
+        body: alert.message,
+      );
+    }
+  }
+
+  String _alertTitle(String type) {
+    switch (type) {
+      case 'heat':
+        return 'Extreme Heat Warning';
+      case 'frost':
+        return 'Frost Warning';
+      case 'flood':
+        return 'Heavy Rain / Flood Risk';
+      case 'drought':
+        return 'Drought Risk';
+      case 'livestock_heat_stress':
+        return 'Livestock Heat Stress Risk';
+      default:
+        return 'Weather Alert';
+    }
+  }
+
+  String _formatDayLabel(String isoDate) {
+    try {
+      final date = DateTime.parse(isoDate);
+      final today = DateTime.now();
+      final diff = DateTime(date.year, date.month, date.day)
+          .difference(DateTime(today.year, today.month, today.day))
+          .inDays;
+      if (diff == 0) return 'Today';
+      if (diff == 1) return 'Tomorrow';
+      const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      return weekdays[date.weekday - 1];
+    } catch (_) {
+      return isoDate;
     }
   }
 
@@ -86,12 +166,13 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
     });
 
     try {
-      // Simulate refresh
-      await Future.delayed(const Duration(seconds: 1));
+      await _loadData();
     } finally {
-      setState(() {
-        _isRefreshing = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isRefreshing = false;
+        });
+      }
     }
   }
 
@@ -166,6 +247,7 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
                   setState(() {
                     _selectedLocation = value!;
                   });
+                  _loadData();
                 },
                 items: _locations.map((location) {
                   return DropdownMenuItem(
@@ -223,8 +305,6 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
             unit: '°C',
             icon: Icons.thermostat,
             valueColor: WebTheme.webPrimary,
-            trend: '+2°C',
-            trendColor: Colors.green,
           ),
           MetricCard(
             label: 'Humidity',
@@ -323,7 +403,7 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
             content: Column(
               children: [
                 _buildDetailRow('Pressure', '${_weatherData['pressure']} hPa'),
-                _buildDetailRow('Visibility', '${_weatherData['visibility']} km'),
+                _buildDetailRow('Rain', '${_weatherData['rain']} mm'),
                 _buildDetailRow('UV Index', '${_weatherData['uvIndex']}'),
                 _buildDetailRow('Wind Speed', '${_weatherData['windSpeed']} km/h'),
               ],
