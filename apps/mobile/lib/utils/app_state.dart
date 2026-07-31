@@ -1,5 +1,6 @@
 class AppState {
   static String selectedLocation = "Machakos";
+  static String phoneNumber = "";
   static bool isCelsius = true;
   static bool isMillimeters = true;
   static bool enableNotifications = true;

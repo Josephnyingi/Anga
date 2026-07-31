@@ -33,11 +33,17 @@ class WeatherAlert {
 
 class AlertsService {
   /// Fetch the current threshold-based early-warning alerts for a location.
-  static Future<List<WeatherAlert>> getAlerts(String location) async {
+  /// If [phoneNumber] is given and the farmer has registered livestock, the
+  /// backend personalizes the livestock heat-stress message with their
+  /// actual animals.
+  static Future<List<WeatherAlert>> getAlerts(String location, {String? phoneNumber}) async {
     try {
+      final phoneParam = (phoneNumber != null && phoneNumber.isNotEmpty)
+          ? '&phone_number=${Uri.encodeComponent(phoneNumber)}'
+          : '';
       final response = await http
           .get(
-            Uri.parse('${ApiConfig.alertsUrl}?location=$location'),
+            Uri.parse('${ApiConfig.alertsUrl}?location=$location$phoneParam'),
             headers: ApiConfig.defaultHeaders,
           )
           .timeout(Duration(seconds: ApiConfig.timeoutSeconds));

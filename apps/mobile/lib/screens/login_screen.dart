@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import '../services/auth_service.dart';
+import '../utils/app_state.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function(bool)? setTheme;
@@ -40,6 +41,7 @@ class LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
 
     if (result['success']) {
+      AppState.phoneNumber = phone;
       Navigator.pushReplacementNamed(context, '/dashboard');
     } else {
       _showMessage("Error", result['message'], Colors.red);

@@ -30,7 +30,7 @@ class AlertsScreenState extends State<AlertsScreen> {
 
     try {
       final location = AppState.selectedLocation.toLowerCase();
-      final raw = await AlertsService.getAlerts(location);
+      final raw = await AlertsService.getAlerts(location, phoneNumber: AppState.phoneNumber);
 
       if (mounted) {
         setState(() {

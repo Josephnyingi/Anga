@@ -167,7 +167,10 @@ class ApiConfig {
 
   /// Early-warning alerts endpoint
   static String get alertsUrl => "$baseUrl/alerts/";
-  
+
+  /// Livestock tracking endpoint
+  static String get livestockUrl => "$baseUrl/livestock/";
+
   /// Health check endpoint
   static String get healthCheckUrl => "$baseUrl/health";
   

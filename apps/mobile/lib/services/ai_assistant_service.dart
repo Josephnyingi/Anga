@@ -1,15 +1,17 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../utils/api_config.dart';
+import '../utils/app_state.dart';
 
 class AIAssistantService {
-  /// Ask the AI assistant a question
+  /// Ask the AI assistant a question. Personalized with the farmer's
+  /// registered livestock when AppState.phoneNumber is set.
   static Future<String> askAssistant({
     required String prompt,
     String useCase = "Smart Farming Advice",
   }) async {
     final url = Uri.parse(ApiConfig.aiAssistantUrl);
-    
+
     ApiConfig.debugPrint("Sending AI assistant request to: $url");
 
     try {
@@ -19,6 +21,7 @@ class AIAssistantService {
         body: jsonEncode({
           "query": prompt,
           "use_case": useCase,
+          if (AppState.phoneNumber.isNotEmpty) "phone_number": AppState.phoneNumber,
         }),
       ).timeout(Duration(seconds: ApiConfig.timeoutSeconds));
 
