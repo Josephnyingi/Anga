@@ -615,7 +615,7 @@ def get_alerts(location: str = "machakos", lat: Optional[float] = None, lon: Opt
                     if summary not in alert["message"]:
                         alert["message"] += f" You have {summary} registered."
 
-    return {"location": loc.title(), "alerts": alerts}
+    return {"location": rlabel, "alerts": alerts}
 
 
 # ---------------------------------------------------------------------------
