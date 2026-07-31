@@ -573,6 +573,34 @@
       white-space: pre-wrap;
     }
 
+    /* ── Live geocode search ── */
+    .geocode-block { margin-top: 12px; }
+    .geo-input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 13px;
+      padding: 10px 14px;
+      margin-top: 4px;
+    }
+    .geo-input:focus { outline: none; border-color: var(--green); }
+    .geo-results { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+    .geo-result-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+    .geo-result-name { font-size: 12.5px; font-weight: 700; color: #fff; }
+    .geo-result-meta { font-size: 10.5px; color: var(--muted); }
+    .geo-result-coords { margin-left: auto; font-size: 10px; color: var(--green); font-family: 'Courier New', monospace; }
+    .geo-status { font-size: 11px; color: var(--muted); padding: 4px 0; }
+
     /* ── Print ── */
     @media print {
       body { background: white; padding: 0; }
@@ -736,6 +764,14 @@
           <div id="aiPanel" class="ai-panel" style="display:none"></div>
         </div>
       </div>
+    </div>
+
+    <!-- Live geocode search - web/mobile app feature, NOT part of USSD -->
+    <div class="section-block geocode-block">
+      <p class="block-title">Search any IGAD location — this is the web &amp; mobile app, live</p>
+      <p class="ussd-hint">Not a mock: this calls the real <code>/geocode/</code> endpoint on the live backend, the same one the web and mobile dashboards use. Try any town in Djibouti, Eritrea, Ethiopia, Kenya, Somalia, South Sudan, Sudan, or Uganda — locations outside IGAD are correctly excluded.</p>
+      <input id="geoInput" class="geo-input" type="text" placeholder="Try: Nairobi, Kampala, Addis Ababa, Hargeisa…" autocomplete="off" />
+      <div id="geoResults" class="geo-results"></div>
     </div>
 
     <!-- Bottom: Tech + Links + CTA -->
@@ -1077,6 +1113,65 @@ THI 74 for your 12 Goats is moderate, not severe yet — this is where early act
   }
 
   showDial();
+
+  // ── Live geocode search (web/mobile app feature, not USSD) ──────
+  const GEOCODE_URL = "https://anga-weather-api.onrender.com/geocode/";
+  const geoInput = document.getElementById("geoInput");
+  const geoResults = document.getElementById("geoResults");
+  let geoDebounce = null;
+  let geoRequestId = 0;
+
+  geoInput.addEventListener("input", () => {
+    const query = geoInput.value.trim();
+    clearTimeout(geoDebounce);
+
+    if (query.length < 2) {
+      geoResults.innerHTML = "";
+      return;
+    }
+
+    geoResults.innerHTML = '<p class="geo-status">Searching live backend… (first search may take ~30s if it needs to wake up)</p>';
+    geoDebounce = setTimeout(() => runGeoSearch(query), 400);
+  });
+
+  async function runGeoSearch(query) {
+    const thisRequest = ++geoRequestId;
+    try {
+      const res = await fetch(`${GEOCODE_URL}?query=${encodeURIComponent(query)}`);
+      if (thisRequest !== geoRequestId) return; // a newer keystroke superseded this request
+      if (!res.ok) {
+        geoResults.innerHTML = '<p class="geo-status">⚠️ Backend error - try again.</p>';
+        return;
+      }
+      const data = await res.json();
+      if (thisRequest !== geoRequestId) return;
+      renderGeoResults(data.results || []);
+    } catch (e) {
+      if (thisRequest !== geoRequestId) return;
+      geoResults.innerHTML = '<p class="geo-status">⚠️ Could not reach the live backend right now.</p>';
+    }
+  }
+
+  function renderGeoResults(results) {
+    if (results.length === 0) {
+      geoResults.innerHTML = '<p class="geo-status">No IGAD-country match - try a different spelling, or a location outside IGAD is correctly excluded.</p>';
+      return;
+    }
+    geoResults.innerHTML = "";
+    results.slice(0, 6).forEach(r => {
+      const row = document.createElement("div");
+      row.className = "geo-result-item";
+      row.innerHTML = `
+        <span>📍</span>
+        <span>
+          <div class="geo-result-name">${r.name}${r.admin1 ? ", " + r.admin1 : ""}</div>
+          <div class="geo-result-meta">${r.country}</div>
+        </span>
+        <span class="geo-result-coords">${r.lat.toFixed(2)}, ${r.lon.toFixed(2)}</span>
+      `;
+      geoResults.appendChild(row);
+    });
+  }
 </script>
 
 </body>
