@@ -19,6 +19,16 @@ A quick pitch overview: the problem, market opportunity, technical differentiato
 
 The APK is a sideloaded release build, not signed with a Play Store key — Android will show an "install from unknown sources" warning, which is expected.
 
+## 🔄 Recent Updates (2026-07-31)
+
+- Migrated the backend from a dead Azure Container Instance (subscription got disabled) to Render
+- Fixed a Dockerfile bug that had production silently running a stripped-down debug stub for months instead of the real app — alerts, livestock tracking, and forecast endpoints are live again as a result
+- Fixed the web app failing to reach the backend: Netlify's proxy redirect had a routing bug, so the app now calls Render directly instead
+- Site is currently deployed via manual `netlify deploy --prod`, not yet linked to GitHub for auto-deploy on push
+- Added optional Postgres support (`DATABASE_URL` env var), falls back to local SQLite automatically
+- Removed dead Azure and Fly.io deploy configs
+- Published a working Android APK release (replaced a stale March build that pointed at the dead backend)
+
 ## 🚀 Features
 
 - **Real-time Weather Data**: Live weather information from Open-Meteo API
@@ -498,7 +508,7 @@ The ANGA web application provides full feature parity with the mobile app:
 - **Version**: 1.0.0
 - **Status**: Production Ready
 - **Platforms**: Mobile (iOS/Android) + Web (All Browsers)
-- **Last Updated**: September 2025
+- **Last Updated**: July 2026
 - **Maintainers**: ANGA Development Team
 
 ---
