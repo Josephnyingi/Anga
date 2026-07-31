@@ -445,6 +445,86 @@
     .cta-btn.primary { background: linear-gradient(135deg,#0175C2,#00A86B); color: #fff; }
     .cta-btn.outline { border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); }
 
+    /* ── USSD simulator ── */
+    .ussd-block { margin-top: 12px; }
+    .ussd-wrap {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .ussd-phone {
+      flex-shrink: 0;
+      width: 148px;
+      background: linear-gradient(160deg, #2a2f3a, #14161c);
+      border-radius: 20px;
+      padding: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .ussd-earpiece { width: 36px; height: 4px; background: #000; border-radius: 3px; margin: 2px auto 8px; }
+    .ussd-lcd {
+      background: #9CB380;
+      border-radius: 4px;
+      padding: 10px 8px;
+      min-height: 108px;
+      font-family: 'Courier New', monospace;
+      font-size: 10.5px;
+      line-height: 1.45;
+      color: #10210f;
+      white-space: pre-wrap;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.35);
+    }
+    .ussd-keypad-row { display: flex; justify-content: space-between; margin-top: 10px; }
+    .ussd-softkey {
+      font-family: 'Courier New', monospace;
+      font-size: 9px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.5px;
+    }
+    .ussd-panel { flex: 1; min-width: 0; }
+    .ussd-hint { font-size: 10.5px; color: var(--muted); margin-bottom: 10px; }
+    .ussd-options { display: flex; flex-direction: column; gap: 6px; }
+    .ussd-opt-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .ussd-opt-btn:hover { background: rgba(0,168,107,0.15); border-color: var(--green); }
+    .ussd-input-row { display: flex; gap: 8px; }
+    .ussd-input-row input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      padding: 8px 10px;
+    }
+    .ussd-input-row button, .ussd-restart {
+      background: linear-gradient(135deg,#0175C2,#00A86B);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .ussd-restart { margin-top: 10px; background: rgba(255,255,255,0.08); }
+
     /* ── Print ── */
     @media print {
       body { background: white; padding: 0; }
@@ -589,6 +669,25 @@
 
     </div>
 
+    <!-- USSD simulator -->
+    <div class="section-block ussd-block">
+      <p class="block-title">Try it like a farmer with no smartphone would</p>
+      <div class="ussd-wrap">
+        <div class="ussd-phone">
+          <div class="ussd-earpiece"></div>
+          <div class="ussd-lcd" id="ussdLcd">Tap "Dial *483*77#" to start a real USSD session →</div>
+          <div class="ussd-keypad-row">
+            <span class="ussd-softkey">OK</span>
+            <span class="ussd-softkey">BACK</span>
+          </div>
+        </div>
+        <div class="ussd-panel">
+          <p class="ussd-hint">This is the exact menu tree the live USSD service runs — no internet, no app, no smartphone. Sample data only below; live version calls the real backend.</p>
+          <div id="ussdOptions" class="ussd-options"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Bottom: Tech + Links + CTA -->
     <div class="bottom-row">
 
@@ -680,6 +779,142 @@
   document.getElementById("demo-link").href             = ANGA_URL;
   document.getElementById("api-link").href              = BACKEND_URL;
   document.getElementById("apk-link").href              = APK_URL;
+
+  // ── USSD simulator ──────────────────────────────────────────────
+  // Mirrors services/ussd/anga-ussd/ussd.py's real CON/END menu tree
+  // and response wording exactly. Sample data only - the live service
+  // calls the actual FastAPI backend for real numbers.
+  const ussdLcd = document.getElementById("ussdLcd");
+  const ussdOptions = document.getElementById("ussdOptions");
+  const LOCATIONS = ["Machakos", "Vhembe"];
+  const ANIMALS = ["Cattle", "Goat", "Sheep", "Poultry", "Pig"];
+  const SAMPLE = {
+    Machakos: { temp: 24, rain: 0.0, daily: [[24,0],[23,0.4],[25,0],[22,1.2],[24,0]] },
+    Vhembe:   { temp: 27, rain: 0.0, daily: [[27,0],[28,0],[26,0.8],[27,0],[29,0]] },
+  };
+
+  function render(lcdText, optionEls) {
+    ussdLcd.textContent = lcdText;
+    ussdOptions.innerHTML = "";
+    optionEls.forEach(el => ussdOptions.appendChild(el));
+  }
+
+  function optBtn(label, onClick) {
+    const b = document.createElement("button");
+    b.className = "ussd-opt-btn";
+    b.textContent = label;
+    b.onclick = onClick;
+    return b;
+  }
+
+  function restartBtn() {
+    const b = document.createElement("button");
+    b.className = "ussd-restart";
+    b.textContent = "🔄 Dial again";
+    b.onclick = showDial;
+    return b;
+  }
+
+  function showDial() {
+    render('Tap "Dial *483*77#" to start a real USSD session →', [
+      optBtn("📞 Dial *483*77#", showWelcome),
+    ]);
+  }
+
+  function showWelcome() {
+    render("CON Welcome to ANGA Weather 🌦️\n1. Get Forecast\n2. My Livestock", [
+      optBtn("1. Get Forecast", showForecastLocation),
+      optBtn("2. My Livestock", showLivestockLocation),
+    ]);
+  }
+
+  function showForecastLocation() {
+    render("CON Choose location:\n1. Machakos\n2. Vhembe", LOCATIONS.map((loc, i) =>
+      optBtn(`${i + 1}. ${loc}`, () => showForecastRange(loc))
+    ));
+  }
+
+  function showForecastRange(loc) {
+    render("CON Forecast range:\n1. Today\n2. 1 day\n3. 2 days\n4. 3 days\n5. 7 days\n6. 14 days\n7. Enter date range", [
+      optBtn("1. Today", () => showForecastResult(loc, "today")),
+      optBtn("2. 1 day", () => showForecastResult(loc, 1)),
+      optBtn("3. 2 days", () => showForecastResult(loc, 2)),
+      optBtn("4. 3 days", () => showForecastResult(loc, 3)),
+      optBtn("5. 7 days", () => showForecastResult(loc, 5)),
+      optBtn("6. 14 days", () => showForecastResult(loc, 5)),
+      optBtn("7. Enter date range", showCustomRangeNote),
+    ]);
+  }
+
+  function showForecastResult(loc, days) {
+    const s = SAMPLE[loc];
+    let text;
+    if (days === "today") {
+      text = `END ✅ Today's Weather in ${loc}:\n2026-07-31\nTemp: ${s.temp}°C\nRain: ${s.rain}mm`;
+    } else {
+      const lines = s.daily.slice(0, days).map((d, i) => {
+        const day = String(i + 1).padStart(2, "0");
+        return `${day}/08: ${d[0]}°C, ${d[1]}mm`;
+      });
+      text = `END ✅ Forecast for ${loc}:\n` + lines.join("\n");
+    }
+    render(text, [restartBtn()]);
+  }
+
+  function showCustomRangeNote() {
+    render("END 📅 Enter a start and end date (YYYY-MM-DD) - full custom range entry works in the live USSD service.", [restartBtn()]);
+  }
+
+  function showLivestockLocation() {
+    render("CON Choose location:\n1. Machakos\n2. Vhembe", LOCATIONS.map((loc, i) =>
+      optBtn(`${i + 1}. ${loc}`, () => showLivestockMenu(loc))
+    ));
+  }
+
+  function showLivestockMenu(loc) {
+    render("CON My Livestock:\n1. View my livestock\n2. Register/update livestock", [
+      optBtn("1. View my livestock", () => showLivestockView(loc)),
+      optBtn("2. Register/update livestock", () => showAnimalMenu(loc)),
+    ]);
+  }
+
+  function showLivestockView(loc) {
+    render("END 🐄 Your Livestock:\n5 Cattle\n12 Goat", [restartBtn()]);
+  }
+
+  function showAnimalMenu(loc) {
+    const menu = ANIMALS.map((a, i) => `${i + 1}. ${a}`).join("\n");
+    render(`CON Select animal type:\n${menu}`, ANIMALS.map((a, i) =>
+      optBtn(`${i + 1}. ${a}`, () => showCountEntry(loc, a))
+    ));
+  }
+
+  function showCountEntry(loc, animal) {
+    ussdLcd.textContent = `CON Enter number of ${animal}:`;
+    ussdOptions.innerHTML = "";
+    const row = document.createElement("div");
+    row.className = "ussd-input-row";
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = "0";
+    input.placeholder = "e.g. 8";
+    const btn = document.createElement("button");
+    btn.textContent = "OK";
+    btn.onclick = () => {
+      const count = parseInt(input.value, 10);
+      if (isNaN(count) || count < 0) { input.focus(); return; }
+      showRegisterResult(loc, animal, count);
+    };
+    row.appendChild(input);
+    row.appendChild(btn);
+    ussdOptions.appendChild(row);
+  }
+
+  function showRegisterResult(loc, animal, count) {
+    render(`END ✅ Saved: ${count} ${animal} registered for ${loc}.`, [restartBtn()]);
+  }
+
+  showDial();
 </script>
 
 </body>
