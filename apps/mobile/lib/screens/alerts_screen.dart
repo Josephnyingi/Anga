@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../utils/constants.dart';   // For colors and alert types
 import '../utils/app_state.dart';   // ✅ In-memory state
 import '../services/alerts_service.dart';
 import '../services/notification_service.dart';
+
+class AlertSeverityFilter {
+  static const all = 'all';
+  static const high = 'high';
+  static const medium = 'medium';
+}
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
@@ -14,6 +21,12 @@ class AlertsScreen extends StatefulWidget {
 class AlertsScreenState extends State<AlertsScreen> {
   List<Map<String, dynamic>> alerts = [];
   bool _isLoading = true;
+  String _severityFilter = AlertSeverityFilter.all;
+
+  List<Map<String, dynamic>> get _filteredAlerts {
+    if (_severityFilter == AlertSeverityFilter.all) return alerts;
+    return alerts.where((a) => a["priority"] == _severityFilter).toList();
+  }
 
   // Alert ids already surfaced as a notification this session, so refreshing
   // doesn't re-fire the same warning repeatedly.
@@ -69,6 +82,7 @@ class AlertsScreenState extends State<AlertsScreen> {
         {'title': 'Weather Alert', 'severity': a.type, 'icon': Icons.warning};
 
     return {
+      "id": a.id,
       "type": meta['title'],
       "location": a.location,
       "severity": meta['severity'],
@@ -234,27 +248,18 @@ class AlertsScreenState extends State<AlertsScreen> {
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : alerts.isNotEmpty
+                : _filteredAlerts.isNotEmpty
                     ? ListView.builder(
                         padding: const EdgeInsets.all(16),
-                        itemCount: alerts.length,
+                        itemCount: _filteredAlerts.length,
                         itemBuilder: (context, index) {
-                          final alert = alerts[index];
+                          final alert = _filteredAlerts[index];
                           return _buildAlertCard(alert, isDarkMode);
                         },
                       )
                     : _buildEmptyState(isDarkMode),
           ),
         ],
-      ),
-      // Add floating action button for adding custom alerts
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          _showAddAlertDialog();
-        },
-        backgroundColor: primaryColor,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Add Alert', style: TextStyle(color: Colors.white)),
       ),
     );
   }
@@ -526,70 +531,47 @@ class AlertsScreenState extends State<AlertsScreen> {
     }
   }
 
-  /// Share alert
+  /// Copy alert details to the clipboard as a lightweight "share".
   void _shareAlert(Map<String, dynamic> alert) {
-    // TODO: Implement share functionality
+    final text = '${alert["type"]} — ${alert["description"]} (${alert["location"]}, ${alert["date"]})';
+    Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Sharing alert: ${alert["type"]}'),
-        duration: const Duration(seconds: 2),
-      ),
+      const SnackBar(content: Text('Alert copied to clipboard'), duration: Duration(seconds: 2)),
     );
   }
 
-  /// Dismiss alert
+  /// Remove the alert from the visible list.
   void _dismissAlert(Map<String, dynamic> alert) {
-    // TODO: Implement dismiss functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Alert dismissed: ${alert["type"]}'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  /// Show add alert dialog
-  void _showAddAlertDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Custom Alert'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('This feature allows you to set custom weather alerts for specific conditions.'),
-            SizedBox(height: 16),
-            Text('Coming soon...', style: TextStyle(fontStyle: FontStyle.italic)),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
+    setState(() {
+      alerts.removeWhere((a) => a["id"] == alert["id"]);
+    });
   }
 
   void _showFilterDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Filter Alerts'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Filter alerts by severity, location, or date range.'),
-            SizedBox(height: 16),
-            Text('Coming soon...', style: TextStyle(fontStyle: FontStyle.italic)),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
+      builder: (context) => SimpleDialog(
+        title: const Text('Filter by Severity'),
+        children: [
+          _filterOption('All Alerts', AlertSeverityFilter.all),
+          _filterOption('High Priority', AlertSeverityFilter.high),
+          _filterOption('Medium Priority', AlertSeverityFilter.medium),
+        ],
+      ),
+    );
+  }
+
+  Widget _filterOption(String label, String value) {
+    return SimpleDialogOption(
+      onPressed: () {
+        setState(() => _severityFilter = value);
+        Navigator.pop(context);
+      },
+      child: Row(
+        children: [
+          if (_severityFilter == value) const Icon(Icons.check, size: 18, color: primaryColor),
+          if (_severityFilter == value) const SizedBox(width: 8),
+          Text(label),
         ],
       ),
     );

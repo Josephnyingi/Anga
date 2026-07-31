@@ -7,7 +7,7 @@ headers = []
 [functions."*"]
 
 [build]
-publish = "/Users/joseph/Projects/Anga/build/web"
+publish = "/Users/joseph/Projects/Anga/apps/web/build/web"
 publishOrigin = "config"
 base = "/Users/joseph/Projects/Anga/apps/web"
 

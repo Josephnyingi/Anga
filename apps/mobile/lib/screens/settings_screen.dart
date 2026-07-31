@@ -156,6 +156,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             const SizedBox(height: 16),
 
+            // Notifications Settings
+            _buildSettingsCard(
+              title: "Notifications",
+              icon: Icons.notifications,
+              children: [
+                _buildSwitchTile(
+                  "Enable Notifications",
+                  AppState.enableNotifications,
+                  Icons.notifications_active,
+                  (value) {
+                    setState(() => AppState.enableNotifications = value);
+                  },
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
             // Theme Settings
             _buildSettingsCard(
               title: "Appearance",
@@ -175,10 +193,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
 
+            const SizedBox(height: 16),
+
+            // Language
+            _buildSettingsCard(
+              title: "Language",
+              icon: Icons.language,
+              children: [
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text("Language"),
+                  subtitle: Text(_selectedLanguage),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: _showLanguagePicker,
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // About
+            _buildSettingsCard(
+              title: "About",
+              icon: Icons.info_outline,
+              children: [
+                const ListTile(contentPadding: EdgeInsets.zero, title: Text("App Version"), subtitle: Text("1.0.0")),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text("Privacy Policy"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => _showComingSoon("Privacy Policy"),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text("Terms of Service"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => _showComingSoon("Terms of Service"),
+                ),
+              ],
+            ),
+
             const SizedBox(height: 24),
 
             // Action Buttons
             _buildActionButtons(),
+
+            const SizedBox(height: 16),
+
+            // Logout
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _showLogoutDialog,
+                icon: const Icon(Icons.logout),
+                label: const Text("Logout"),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: const BorderSide(color: Colors.red),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ),
 
             const SizedBox(height: 24),
 
@@ -188,6 +264,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  String _selectedLanguage = 'English';
+
+  void _showLanguagePicker() {
+    showDialog(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Select Language'),
+        children: [
+          SimpleDialogOption(
+            onPressed: () {
+              setState(() => _selectedLanguage = 'English');
+              Navigator.pop(context);
+            },
+            child: const Text('English'),
+          ),
+          SimpleDialogOption(
+            onPressed: () {
+              setState(() => _selectedLanguage = 'Swahili');
+              Navigator.pop(context);
+            },
+            child: const Text('Swahili'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showComingSoon(String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$feature coming soon!')));
+  }
+
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            child: const Text('Logout'),
+          ),
+        ],
       ),
     );
   }
@@ -636,9 +764,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       AppState.endDate = DateTime.now().add(const Duration(days: 7));
       AppState.isCelsius = true;
       AppState.isMillimeters = true;
+      AppState.enableNotifications = true;
+      AppState.enableExtremeAlerts = true;
       AppState.isDarkMode = false;
     });
-    
+
     widget.setTheme(false);
     
     ScaffoldMessenger.of(context).showSnackBar(
