@@ -17,7 +17,11 @@ A comprehensive weather forecasting application with AI-powered farming assistan
 
 **[View the ANGA Investor Demo Card →](https://anga-weather-101.netlify.app/showcase)**
 
-A quick pitch overview: the problem, market opportunity, technical differentiators (NVIDIA Earth-2, Groq LLaMA-3, USSD), MVP status, active pilots in Kenya and Uganda, and contact details. Also includes two things you can actually click, not just read: an interactive USSD phone simulator (dial through the real menu tree - forecasts, livestock, weather alerts with lead-time and AI-assistant tie-ins), and a live location search box that calls the real `/geocode/` backend endpoint for any town in an IGAD member state.
+A quick pitch overview: the problem, market opportunity, technical differentiators (NVIDIA Earth-2, Groq LLaMA-3, USSD), MVP status, active pilots in Kenya and Uganda, and contact details.
+
+> 🧪 **For judges — two things on that page you can actually experiment with, not just read:**
+> - **An interactive USSD phone simulator** — dial through the real menu tree (forecasts, livestock, weather alerts with lead-time badges and AI-assistant tie-ins)
+> - **A live location search box** — calls the real `/geocode/` backend endpoint for any town in an IGAD member state, not a mock
 
 **[Try the live web app →](https://anga-weather-101.netlify.app)** · **[Download the Android APK →](https://github.com/Josephnyingi/Anga/releases/download/v1.0.0/app-release.apk)**
 
