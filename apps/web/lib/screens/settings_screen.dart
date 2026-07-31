@@ -17,7 +17,12 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final List<String> _locations = ['Machakos', 'Vhembe'];
+  // If the farmer searched a location beyond the original two towns, include
+  // it here too so the dropdown's value always matches one of its items.
+  List<String> get _locations {
+    const base = ['Machakos', 'Vhembe'];
+    return base.contains(AppState.selectedLocation) ? base : [...base, AppState.selectedLocation];
+  }
   String _selectedLanguage = 'English';
 
   Future<void> _selectDateRange() async {
@@ -52,7 +57,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: Icons.location_on,
               children: [
                 _buildDropdownRow('Preferred Location', AppState.selectedLocation, _locations, (value) {
-                  setState(() => AppState.selectedLocation = value!);
+                  setState(() {
+                    AppState.selectedLocation = value!;
+                    if (value == 'Machakos' || value == 'Vhembe') {
+                      // Switching back to a default town: clear any searched
+                      // coordinates so the backend uses its whitelist path.
+                      AppState.selectedLat = null;
+                      AppState.selectedLon = null;
+                    }
+                  });
                 }),
               ],
             ),

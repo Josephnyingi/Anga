@@ -29,11 +29,14 @@ class ForecastDay {
 }
 
 class ForecastService {
-  static Future<List<ForecastDay>> getForecast(String location, {int days = 5}) async {
+  static Future<List<ForecastDay>> getForecast(String location, {int days = 5, double? lat, double? lon, String? label}) async {
     try {
+      final coordsParam = (lat != null && lon != null)
+          ? '&lat=$lat&lon=$lon&label=${Uri.encodeComponent(label ?? location)}'
+          : '';
       final response = await http
           .get(
-            Uri.parse('${ApiConfig.forecastUrl}?location=$location&days=$days'),
+            Uri.parse('${ApiConfig.forecastUrl}?location=$location&days=$days$coordsParam'),
             headers: ApiConfig.defaultHeaders,
           )
           .timeout(Duration(seconds: ApiConfig.timeoutSeconds));

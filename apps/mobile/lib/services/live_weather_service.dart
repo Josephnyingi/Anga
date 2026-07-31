@@ -17,12 +17,15 @@ class LiveWeatherService {
   static const int _maxRetries = 3;
   static const Duration _retryDelay = Duration(seconds: 2);
 
-  static Future<Map<String, dynamic>> getLiveWeather(String location) async {
+  static Future<Map<String, dynamic>> getLiveWeather(String location, {double? lat, double? lon, String? label}) async {
     if (location.trim().isEmpty) {
       throw WeatherException('Location cannot be empty');
     }
 
-    final url = Uri.parse('${ApiConfig.liveWeatherUrl}?location=${Uri.encodeComponent(location)}');
+    final coordsParam = (lat != null && lon != null)
+        ? '&lat=$lat&lon=$lon&label=${Uri.encodeComponent(label ?? location)}'
+        : '';
+    final url = Uri.parse('${ApiConfig.liveWeatherUrl}?location=${Uri.encodeComponent(location)}$coordsParam');
     
     ApiConfig.debugPrint("Fetching live weather from: $url");
     

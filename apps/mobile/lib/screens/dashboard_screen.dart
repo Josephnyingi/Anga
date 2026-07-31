@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../utils/constants.dart';
 import '../utils/app_state.dart';
 import '../services/live_weather_service.dart';
 import '../services/forecast_service.dart';
 import '../services/alerts_service.dart';
 import '../services/notification_service.dart';
+import '../services/geocode_service.dart';
 
 /// Dashboard: live weather, a 5-day forecast, and active alerts for the
 /// farmer's selected location. Same data sources and alert-notification
@@ -20,6 +22,7 @@ class DashboardScreen extends StatefulWidget {
 
 class DashboardScreenState extends State<DashboardScreen> {
   bool _isLoading = true;
+  final TextEditingController _locationSearchController = TextEditingController();
 
   Map<String, dynamic> _weatherData = {
     'temperature': null,
@@ -50,12 +53,14 @@ class DashboardScreenState extends State<DashboardScreen> {
     setState(() => _isLoading = true);
 
     final location = AppState.selectedLocation.toLowerCase();
+    final lat = AppState.selectedLat;
+    final lon = AppState.selectedLon;
 
     try {
       final results = await Future.wait([
-        LiveWeatherService.getLiveWeather(location),
-        ForecastService.getForecast(location, days: 5),
-        AlertsService.getAlerts(location, phoneNumber: AppState.phoneNumber),
+        LiveWeatherService.getLiveWeather(location, lat: lat, lon: lon, label: AppState.selectedLocation),
+        ForecastService.getForecast(location, days: 5, lat: lat, lon: lon, label: AppState.selectedLocation),
+        AlertsService.getAlerts(location, phoneNumber: AppState.phoneNumber, lat: lat, lon: lon, label: AppState.selectedLocation),
       ]);
 
       final live = results[0] as Map<String, dynamic>;
@@ -211,31 +216,80 @@ class DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  void _onLocationSelected(LocationResult result) {
+    setState(() {
+      AppState.selectedLocation = result.displayName;
+      AppState.selectedLat = result.lat;
+      AppState.selectedLon = result.lon;
+      _locationSearchController.text = result.displayName;
+    });
+    fetchWeather();
+  }
+
+  void _selectQuickLocation(String name) {
+    setState(() {
+      AppState.selectedLocation = name;
+      // Clear lat/lon so the backend uses its machakos/vhembe whitelist path.
+      AppState.selectedLat = null;
+      AppState.selectedLon = null;
+      _locationSearchController.clear();
+    });
+    fetchWeather();
+  }
+
+  Widget _quickLocationChip(String name, bool isDarkMode) {
+    final selected = AppState.selectedLocation == name;
+    return ChoiceChip(
+      label: Text(name),
+      selected: selected,
+      onSelected: (_) => _selectQuickLocation(name),
+      selectedColor: primaryColor,
+      labelStyle: TextStyle(color: selected ? Colors.white : (isDarkMode ? Colors.white : Colors.black87)),
+    );
+  }
+
   Widget _buildLocationHeader(bool isDarkMode) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Text(
-            'Weather overview for ${AppState.selectedLocation}',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: isDarkMode ? Colors.white : Colors.black87,
+        Text(
+          'Weather overview for ${AppState.selectedLocation}',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: isDarkMode ? Colors.white : Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 12),
+        TypeAheadField<LocationResult>(
+          controller: _locationSearchController,
+          suggestionsCallback: (search) => GeocodeService.search(search),
+          itemBuilder: (context, result) => ListTile(
+            leading: Icon(Icons.location_on, color: primaryColor),
+            title: Text(result.displayName),
+            subtitle: result.admin1 != null ? Text(result.admin1!) : null,
+          ),
+          onSelected: (result) => _onLocationSelected(result),
+          builder: (context, controller, focusNode) => TextField(
+            controller: controller,
+            focusNode: focusNode,
+            decoration: InputDecoration(
+              hintText: 'Search any location in Kenya, Uganda, Ethiopia...',
+              prefixIcon: const Icon(Icons.search),
+              filled: true,
+              fillColor: isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
         ),
-        DropdownButton<String>(
-          value: AppState.selectedLocation,
-          underline: const SizedBox(),
-          items: const [
-            DropdownMenuItem(value: 'Machakos', child: Text('Machakos')),
-            DropdownMenuItem(value: 'Vhembe', child: Text('Vhembe')),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            _quickLocationChip('Machakos', isDarkMode),
+            const SizedBox(width: 8),
+            _quickLocationChip('Vhembe', isDarkMode),
           ],
-          onChanged: (value) {
-            setState(() => AppState.selectedLocation = value!);
-            fetchWeather();
-          },
         ),
       ],
     );

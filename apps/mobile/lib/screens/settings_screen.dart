@@ -15,10 +15,12 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
 
-  final List<String> locations = [
-    "Machakos",
-    "Vhembe",
-  ];
+  // If the farmer searched a location beyond the original two towns, include
+  // it here too so the dropdown's value always matches one of its items.
+  List<String> get locations {
+    const base = ["Machakos", "Vhembe"];
+    return base.contains(AppState.selectedLocation) ? base : [...base, AppState.selectedLocation];
+  }
 
   @override
   void initState() {
@@ -111,6 +113,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   (newValue) {
                     setState(() {
                       AppState.selectedLocation = newValue!;
+                      if (newValue == 'Machakos' || newValue == 'Vhembe') {
+                        // Switching back to a default town: clear any
+                        // searched coordinates so the backend uses its
+                        // whitelist path.
+                        AppState.selectedLat = null;
+                        AppState.selectedLon = null;
+                      }
                     });
                   },
                 ),

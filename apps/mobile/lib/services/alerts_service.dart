@@ -36,14 +36,17 @@ class AlertsService {
   /// If [phoneNumber] is given and the farmer has registered livestock, the
   /// backend personalizes the livestock heat-stress message with their
   /// actual animals.
-  static Future<List<WeatherAlert>> getAlerts(String location, {String? phoneNumber}) async {
+  static Future<List<WeatherAlert>> getAlerts(String location, {String? phoneNumber, double? lat, double? lon, String? label}) async {
     try {
       final phoneParam = (phoneNumber != null && phoneNumber.isNotEmpty)
           ? '&phone_number=${Uri.encodeComponent(phoneNumber)}'
           : '';
+      final coordsParam = (lat != null && lon != null)
+          ? '&lat=$lat&lon=$lon&label=${Uri.encodeComponent(label ?? location)}'
+          : '';
       final response = await http
           .get(
-            Uri.parse('${ApiConfig.alertsUrl}?location=$location$phoneParam'),
+            Uri.parse('${ApiConfig.alertsUrl}?location=$location$coordsParam$phoneParam'),
             headers: ApiConfig.defaultHeaders,
           )
           .timeout(Duration(seconds: ApiConfig.timeoutSeconds));
