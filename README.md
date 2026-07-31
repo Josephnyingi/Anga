@@ -7,6 +7,10 @@
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Linting: Flake8](https://img.shields.io/badge/linting-flake8-yellowgreen.svg)](https://flake8.pycqa.org/)
 
+**Built for IGAD Hackathon 2026 — "Smarter Early Warning, Stronger Communities."**
+
+ANGA turns real-time weather data into early-warning alerts (heat, frost, flood, drought, and livestock heat stress) for smallholder farmers across East and Southern Africa — delivered over USSD so reaching a community never depends on owning a smartphone or having data. That combination is the theme in practice: **smarter early warning** (threshold-based alerts computed from live weather data, not generic forecasts) reaching **stronger communities** (farmers, cooperatives, and extension services who are otherwise the least connected and most exposed).
+
 A comprehensive weather forecasting application with AI-powered farming assistance, built with Flutter and Python. ANGA provides real-time weather data, intelligent agricultural recommendations, and USSD integration for areas with limited internet access. Available as web, Android, and USSD, with a containerized (Docker) backend.
 
 ## 🎤 Investor / Judge Showcase
