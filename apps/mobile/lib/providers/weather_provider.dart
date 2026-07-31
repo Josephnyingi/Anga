@@ -183,7 +183,8 @@ class WeatherProvider with ChangeNotifier {
   // Clear error
   void clearError() {
     if (_error != null) {
-      setState(error: null);
+      _error = null;
+      notifyListeners();
     }
   }
 
