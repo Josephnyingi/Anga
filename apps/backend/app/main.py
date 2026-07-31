@@ -37,6 +37,9 @@ except ImportError as e:
 # 🌍 Import NVIDIA Earth-2 service
 from services.earth2_service import get_earth2_forecast, get_earth2_status
 
+# ⚠️ Import early-warning alerts service
+from services.alerts_service import get_weather_alerts
+
 # ✅ Main ANGA app
 app = FastAPI(
     title="ANGA Unified API",
@@ -356,6 +359,19 @@ def get_live_weather(location: str = "machakos"):
 def get_earth2_service_status():
     """Get NVIDIA Earth-2 service configuration and availability."""
     return get_earth2_status()
+
+
+# ⚠️ Early-warning alerts endpoint
+@app.get("/alerts/")
+def get_alerts(location: str = "machakos"):
+    """Threshold-based early warnings (heat, frost, flood, drought) over a 7-day forecast."""
+    loc = location.lower()
+    if loc not in SUPPORTED_LOCATIONS:
+        return {"error": "Only 'machakos' and 'vhembe' are supported."}
+
+    coords = SUPPORTED_LOCATIONS[loc]
+    alerts = get_weather_alerts(coords["lat"], coords["lon"], loc.title())
+    return {"location": loc.title(), "alerts": alerts}
 
 
 # Health check endpoint
