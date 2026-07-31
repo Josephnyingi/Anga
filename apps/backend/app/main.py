@@ -6,6 +6,7 @@ import pandas as pd
 import pickle
 import os
 import requests
+import time
 from datetime import datetime, timedelta
 import logging
 from typing import Optional
@@ -351,12 +352,34 @@ def login_user(request: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid phone number or password")
     return {"message": "Login successful", "user_id": user.id}
 
+# Open-Meteo has a per-key rate limit and both endpoints below get hit on
+# every dashboard load; weather doesn't change meaningfully within a few
+# minutes, so a short in-memory cache avoids tripping that limit under
+# normal traffic. Single-process cache is fine at this scale.
+_OPEN_METEO_CACHE: dict = {}
+_OPEN_METEO_CACHE_TTL_SECONDS = 300
+
+
+def _cached_or_fetch(cache_key, fetch_fn):
+    cached = _OPEN_METEO_CACHE.get(cache_key)
+    if cached and (time.time() - cached[0]) < _OPEN_METEO_CACHE_TTL_SECONDS:
+        return cached[1]
+    result = fetch_fn()
+    if "error" not in result:
+        _OPEN_METEO_CACHE[cache_key] = (time.time(), result)
+    return result
+
+
 @app.get("/live_weather/")
 def get_live_weather(location: str = "machakos"):
     loc = location.lower()
     if loc not in SUPPORTED_LOCATIONS:
         return {"error": "Only 'machakos' and 'vhembe' are supported."}
 
+    return _cached_or_fetch(("live_weather", loc), lambda: _fetch_live_weather(loc))
+
+
+def _fetch_live_weather(loc: str):
     coords = SUPPORTED_LOCATIONS[loc]
     today = datetime.now().strftime('%Y-%m-%d')
     current_hour = datetime.now().hour
@@ -373,7 +396,7 @@ def get_live_weather(location: str = "machakos"):
     )
 
     try:
-        res = requests.get(url)
+        res = requests.get(url, timeout=15)
         res.raise_for_status()
         data = res.json()
         current = data.get("current", {})
@@ -408,8 +431,12 @@ def get_forecast(location: str = "machakos", days: int = 5):
     if loc not in SUPPORTED_LOCATIONS:
         return {"error": "Only 'machakos' and 'vhembe' are supported."}
 
-    coords = SUPPORTED_LOCATIONS[loc]
     days = max(1, min(days, 16))
+    return _cached_or_fetch(("forecast", loc, days), lambda: _fetch_forecast(loc, days))
+
+
+def _fetch_forecast(loc: str, days: int):
+    coords = SUPPORTED_LOCATIONS[loc]
 
     url = (
         f"https://api.open-meteo.com/v1/forecast?"
