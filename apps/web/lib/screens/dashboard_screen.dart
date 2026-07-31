@@ -5,6 +5,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../services/weather_services.dart';
 import '../services/live_weather_service.dart';
+import '../services/alerts_service.dart';
+import '../services/notification_service.dart';
 import '../utils/app_state.dart'; // ✅ new global state
 
 String formatApiDate(DateTime date) {
@@ -26,6 +28,10 @@ class DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic> currentWeather = {};
   Map<String, dynamic> liveWeather = {};
   bool isLoading = true;
+
+  // Alert ids already surfaced as a notification this session, so refreshing
+  // the dashboard doesn't re-fire the same warning repeatedly.
+  final Set<String> _notifiedAlertIds = {};
 
   // Track previous settings
   String _prevLocation = AppState.selectedLocation;
@@ -69,8 +75,26 @@ class DashboardScreenState extends State<DashboardScreen> {
     await _fetchLiveWeather();
     await _fetchCurrentWeather();
     await _fetchForecast();
+    await _checkAlerts();
 
     if (mounted) setState(() => isLoading = false);
+  }
+
+  Future<void> _checkAlerts() async {
+    try {
+      final alerts = await AlertsService.getAlerts(AppState.selectedLocation.toLowerCase());
+      for (final alert in alerts) {
+        if (_notifiedAlertIds.contains(alert.id)) continue;
+        _notifiedAlertIds.add(alert.id);
+        await NotificationService().showExtremeWeatherWarning(
+          location: alert.location,
+          condition: alert.type,
+          severity: alert.severity,
+        );
+      }
+    } catch (e) {
+      print("❌ Alerts fetch error: $e");
+    }
   }
 
   Future<void> _fetchLiveWeather() async {
