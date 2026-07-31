@@ -524,6 +524,54 @@
       cursor: pointer;
     }
     .ussd-restart { margin-top: 10px; background: rgba(255,255,255,0.08); }
+    .lead-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gold);
+      background: rgba(245,166,35,0.12);
+      border: 1px solid rgba(245,166,35,0.35);
+      border-radius: 6px;
+      padding: 3px 8px;
+      margin-bottom: 8px;
+    }
+    .ai-ask-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: rgba(0,168,107,0.12);
+      border: 1px solid rgba(0,168,107,0.4);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .ai-ask-btn:hover { background: rgba(0,168,107,0.22); }
+    .ai-panel {
+      margin-top: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .ai-panel-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .ai-panel-body {
+      font-size: 11.5px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.85);
+      white-space: pre-wrap;
+    }
 
     /* ── Print ── */
     @media print {
@@ -683,7 +731,9 @@
         </div>
         <div class="ussd-panel">
           <p class="ussd-hint">The exact menu tree the live USSD service runs — no internet, no app, no smartphone. Built for farmers who grow crops, keep livestock, or both. Sample data only below; live version calls the real backend.</p>
+          <div id="ussdBadge"></div>
           <div id="ussdOptions" class="ussd-options"></div>
+          <div id="aiPanel" class="ai-panel" style="display:none"></div>
         </div>
       </div>
     </div>
@@ -797,6 +847,8 @@
     ussdLcd.textContent = lcdText;
     ussdOptions.innerHTML = "";
     optionEls.forEach(el => ussdOptions.appendChild(el));
+    document.getElementById("ussdBadge").innerHTML = "";
+    document.getElementById("aiPanel").style.display = "none";
   }
 
   function optBtn(label, onClick) {
@@ -925,14 +977,63 @@
     heat:                   { icon: "🔥", title: "Extreme Heat Warning",   tip: "Give animals shade & extra water; avoid grazing 11am-4pm." },
     livestock_heat_stress: { icon: "🐄", title: "Livestock Heat Stress",  tip: "Move animals to shade now & check water troughs." },
   };
+  // leadDays + dateFor() mirror the real backend exactly: alerts_service.py
+  // scans a rolling 7-day forecast and stamps each alert with the actual
+  // date the risk applies to - not just "today's weather". Computed live
+  // here (not a hardcoded date) so the demo never goes stale.
+  function dateFor(leadDays) {
+    const d = new Date();
+    d.setDate(d.getDate() + leadDays);
+    return d.toISOString().slice(0, 10);
+  }
   const SAMPLE_ALERTS = {
     Machakos: [
-      { type: "drought", message: "Drought risk: 5 consecutive dry days forecast." },
-      { type: "livestock_heat_stress", message: "Heat stress risk for your registered cattle." },
+      { type: "drought", leadDays: 4, livestock: "5 Cattle",
+        message: () => `Drought risk: 5 consecutive dry days forecast, ending ${dateFor(4)}.`,
+        ai: `🌾 **Drought Advisory for Machakos**
+
+I can see you have 5 Cattle registered — with 5 dry days forecast, here's what to prioritise:
+
+• **Water first**: cattle need ~40L/day each in dry heat. Check your reserve now, before the dry spell peaks
+• **Delay planting**: hold off on new maize/bean sowing until rain returns
+• **Graze conservatively**: rotate paddocks to protect ground cover for when rain does come
+• **Consider moving weaker stock** to better grazing early, rather than waiting
+
+This is based on the same 7-day forecast that triggered your alert.` },
+      { type: "livestock_heat_stress", leadDays: 2, thi: 81, livestock: "5 Cattle",
+        message: () => `Severe livestock heat stress risk (THI 81) forecast for ${dateFor(2)}. Ensure shade, water and ventilation for cattle and dairy animals.`,
+        ai: `🐄 **Heat Stress Advisory**
+
+A THI of 81 for your 5 Cattle is in the severe range — dairy yield and fertility both drop sharply above THI 78-80. Right now:
+
+• Move animals to shade by mid-morning, not just midday
+• Increase water trough capacity — heat-stressed cattle can drink 2x normal volume
+• Reduce handling and movement during 11am-4pm
+• Watch for open-mouth breathing — that's a sign to act immediately, not wait
+
+Your registered herd is what let me give these specific numbers instead of generic advice.` },
     ],
     Vhembe: [
-      { type: "frost", message: "Frost risk overnight - protect young crops." },
-      { type: "livestock_heat_stress", message: "Heat stress risk for your registered goats." },
+      { type: "frost", leadDays: 1, livestock: "12 Goat",
+        message: () => `Frost risk: 4°C forecast for ${dateFor(1)}.`,
+        ai: `❄️ **Frost Advisory for Vhembe**
+
+Frost tonight puts young crops at risk before your 12 Goats are affected directly — goats handle cold better than crops do. Priorities:
+
+• Cover seedlings and young plants before sundown
+• Delay any new planting until the frost risk clears
+• Goats are fine into single digits, but ensure windbreak shelter overnight
+• Check water troughs haven't frozen by morning` },
+      { type: "livestock_heat_stress", leadDays: 3, thi: 74, livestock: "12 Goat",
+        message: () => `Moderate livestock heat stress risk (THI 74) forecast for ${dateFor(3)}. Watch milk yield and water intake.`,
+        ai: `🐐 **Heat Stress Watch**
+
+THI 74 for your 12 Goats is moderate, not severe yet — this is where early action prevents it becoming a real problem:
+
+• Ensure shade access is already available, don't wait for it to get worse
+• Watch milk yield over the next few days — a drop is often the first sign
+• Increase water access points if goats are spread across a large area
+• Re-check tomorrow's forecast — if THI trends toward 78+, treat it as urgent` },
     ],
   };
 
@@ -952,7 +1053,27 @@
 
   function showAlertDetail(alert) {
     const meta = ALERT_META[alert.type];
-    render(`END ${meta.icon} ${meta.title}\n${alert.message}\n👉 ${meta.tip}`, [restartBtn()]);
+    render(`END ${meta.icon} ${meta.title}\n${alert.message()}\n👉 ${meta.tip}`, [restartBtn()]);
+
+    const badge = document.getElementById("ussdBadge");
+    const leadLabel = alert.leadDays === 0 ? "Today" : `⏱ ${alert.leadDays}-day advance notice`;
+    const thiNote = alert.thi ? ` · THI ${alert.thi} (heat-humidity index)` : "";
+    badge.innerHTML = `<span class="lead-badge">${leadLabel}${thiNote}</span>`;
+
+    const aiBtn = document.createElement("button");
+    aiBtn.className = "ai-ask-btn";
+    aiBtn.textContent = "🤖 See how the AI Assistant responds (web & app)";
+    aiBtn.onclick = () => showAiResponse(alert);
+    ussdOptions.appendChild(aiBtn);
+  }
+
+  function showAiResponse(alert) {
+    const panel = document.getElementById("aiPanel");
+    panel.style.display = "block";
+    panel.innerHTML = `
+      <div class="ai-panel-label">🤖 Groq LLaMA-3 · not part of USSD, shown here to demonstrate the same alert + livestock context powering the web &amp; mobile AI Assistant</div>
+      <div class="ai-panel-body">${alert.ai}</div>
+    `;
   }
 
   showDial();
