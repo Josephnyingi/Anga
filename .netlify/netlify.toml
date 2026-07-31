@@ -7,9 +7,9 @@ headers = []
 [functions."*"]
 
 [build]
-publish = "/Users/joseph/Documents/Anga-main/apps/web/build/web"
+publish = "/Users/joseph/Projects/Anga/build/web"
 publishOrigin = "config"
-base = "/Users/joseph/Documents/Anga-main/apps/web"
+base = "/Users/joseph/Projects/Anga/apps/web"
 
 [build.environment]
 
@@ -27,7 +27,7 @@ base = "/Users/joseph/Documents/Anga-main/apps/web"
 
 [[redirects]]
 from = "/api/*"
-to = "http://anga-weather.japaneast.azurecontainer.io:8000/:splat"
+to = "https://anga-weather-api.onrender.com/:splat"
 status = 200.0
 force = true
 

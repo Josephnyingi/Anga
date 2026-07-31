@@ -15,6 +15,10 @@ A comprehensive weather forecasting application with AI-powered farming assistan
 
 A quick pitch overview: the problem, market opportunity, technical differentiators (NVIDIA Earth-2, Groq LLaMA-3, USSD), MVP status, active pilots in Kenya and South Africa, and contact details.
 
+**[Try the live web app →](https://anga-weather-101.netlify.app)** · **[Download the Android APK →](https://github.com/Josephnyingi/Anga/releases/download/v1.0.0/app-release.apk)**
+
+The APK is a sideloaded release build, not signed with a Play Store key — Android will show an "install from unknown sources" warning, which is expected.
+
 ## 🚀 Features
 
 - **Real-time Weather Data**: Live weather information from Open-Meteo API
