@@ -283,7 +283,7 @@ async def predict_weather(request: PredictionRequest):
         "date":                   str(target_date),
         "location":               location.title(),
         "temperature_prediction": round(temp_prediction, 2),
-        "rain_prediction":        round(rain_prediction, 2),
+        "rain_prediction":        round(max(0.0, rain_prediction), 2),
     }
 
 @app.post("/save_prediction/")
