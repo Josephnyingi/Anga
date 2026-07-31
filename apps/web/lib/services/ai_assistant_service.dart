@@ -1,27 +1,30 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../utils/api_config.dart';
+import '../utils/app_state.dart';
 
 /// 🤖 **AI Assistant Service**
-/// 
+///
 /// Handles AI assistant interactions for the web application
 class AIAssistantService {
   static const String _tag = 'AIAssistantService';
 
-  /// Ask the AI assistant a question
+  /// Ask the AI assistant a question. Personalized with the farmer's
+  /// registered livestock when AppState.phoneNumber is set.
   static Future<String> askAssistant({
     required String prompt,
     String useCase = 'Smart Farming Advice',
   }) async {
     try {
       print('$_tag: Asking AI assistant: $prompt');
-      
+
       final response = await http.post(
         Uri.parse(ApiConfig.aiAssistantUrl),
         headers: ApiConfig.defaultHeaders,
         body: jsonEncode({
           'query': prompt,
           'use_case': useCase,
+          if (AppState.phoneNumber.isNotEmpty) 'phone_number': AppState.phoneNumber,
         }),
       ).timeout(ApiConfig.timeout);
 

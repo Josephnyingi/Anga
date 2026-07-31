@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../utils/app_state.dart';
 
 /// 🔐 **Login Screen for Web**
 /// 
@@ -220,6 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
       
       if (mounted) {
         if (result['success'] == true) {
+          AppState.phoneNumber = phone;
           Navigator.pushReplacementNamed(context, '/dashboard');
         } else {
           _showMessage('Login Failed', result['message']?.toString() ?? 'Unknown error', Theme.of(context).colorScheme.error);

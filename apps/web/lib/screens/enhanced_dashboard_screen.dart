@@ -10,6 +10,7 @@ import '../services/live_weather_service.dart';
 import '../services/forecast_service.dart';
 import '../services/alerts_service.dart';
 import '../services/notification_service.dart';
+import '../utils/app_state.dart';
 
 /// 📊 **Enhanced Dashboard Screen for Web**
 /// 
@@ -65,7 +66,7 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
       final results = await Future.wait([
         LiveWeatherService.getLiveWeather(location),
         ForecastService.getForecast(location, days: 5),
-        AlertsService.getAlerts(location),
+        AlertsService.getAlerts(location, phoneNumber: AppState.phoneNumber),
       ]);
 
       final live = results[0] as Map<String, dynamic>;

@@ -3,6 +3,7 @@ import 'enhanced_dashboard_screen.dart';
 import 'alerts_screen.dart';
 import 'settings_screen.dart';
 import 'ai_assistant_screen.dart';
+import 'livestock_screen.dart';
 
 /// 🏠 **Main Screen for Web**
 /// 
@@ -27,6 +28,7 @@ class MainScreenState extends State<MainScreen> {
     _screens = [
       const EnhancedDashboardScreen(),
       const AlertsScreen(),
+      const LivestockScreen(),
       const AIAssistantScreen(),
       SettingsScreen(setTheme: widget.setTheme),
     ];
@@ -71,6 +73,7 @@ class MainScreenState extends State<MainScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: "Dashboard"),
           BottomNavigationBarItem(icon: Icon(Icons.warning), label: "Alerts"),
+          BottomNavigationBarItem(icon: Icon(Icons.pets), label: "Livestock"),
           BottomNavigationBarItem(icon: Icon(Icons.assistant), label: "AI Assistant"),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
         ],
