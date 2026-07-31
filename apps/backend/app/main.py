@@ -177,6 +177,21 @@ SUPPORTED_LOCATIONS = {
     "vhembe": {"lat": -22.9781, "lon": 30.4516}
 }
 
+# WMO weather codes (Open-Meteo's `weather_code`), condensed to the ranges
+# that actually occur in these locations' forecasts.
+WEATHER_CODE_DESCRIPTIONS = {
+    0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast",
+    45: "Fog", 48: "Depositing rime fog",
+    51: "Light drizzle", 53: "Moderate drizzle", 55: "Dense drizzle",
+    61: "Slight rain", 63: "Moderate rain", 65: "Heavy rain",
+    80: "Slight rain showers", 81: "Moderate rain showers", 82: "Violent rain showers",
+    95: "Thunderstorm", 96: "Thunderstorm with hail", 99: "Thunderstorm with heavy hail",
+}
+
+
+def describe_weather_code(code) -> str:
+    return WEATHER_CODE_DESCRIPTIONS.get(code, "Variable conditions")
+
 # 📦 Load ML models
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 try:
@@ -331,10 +346,14 @@ def get_live_weather(location: str = "machakos"):
 
     coords = SUPPORTED_LOCATIONS[loc]
     today = datetime.now().strftime('%Y-%m-%d')
+    current_hour = datetime.now().hour
 
     url = (
         f"https://api.open-meteo.com/v1/forecast?"
         f"latitude={coords['lat']}&longitude={coords['lon']}"
+        f"&current=temperature_2m,relative_humidity_2m,apparent_temperature,"
+        f"precipitation,weather_code,surface_pressure,wind_speed_10m,is_day"
+        f"&hourly=uv_index"
         f"&daily=temperature_2m_max,precipitation_sum"
         f"&start_date={today}&end_date={today}"
         "&timezone=Africa%2FNairobi"
@@ -344,15 +363,75 @@ def get_live_weather(location: str = "machakos"):
         res = requests.get(url)
         res.raise_for_status()
         data = res.json()
+        current = data.get("current", {})
+        hourly_uv = data.get("hourly", {}).get("uv_index", [])
+        uv_now = hourly_uv[current_hour] if current_hour < len(hourly_uv) else None
+        weather_code = current.get("weather_code")
 
         return {
             "location": loc.title(),
             "date": data["daily"]["time"][0],
             "temperature_max": data["daily"]["temperature_2m_max"][0],
-            "rain_sum": data["daily"]["precipitation_sum"][0]
+            "rain_sum": data["daily"]["precipitation_sum"][0],
+            "temperature": current.get("temperature_2m"),
+            "feels_like": current.get("apparent_temperature"),
+            "humidity": current.get("relative_humidity_2m"),
+            "wind_speed": current.get("wind_speed_10m"),
+            "pressure": current.get("surface_pressure"),
+            "precipitation": current.get("precipitation"),
+            "weather_code": weather_code,
+            "description": describe_weather_code(weather_code),
+            "uv_index": uv_now,
+            "is_day": bool(current.get("is_day", 1)),
         }
     except Exception as e:
         return {"error": "Failed to fetch live weather", "details": str(e)}
+
+
+@app.get("/forecast/")
+def get_forecast(location: str = "machakos", days: int = 5):
+    """Multi-day daily forecast (Open-Meteo passthrough, one call for N days)."""
+    loc = location.lower()
+    if loc not in SUPPORTED_LOCATIONS:
+        return {"error": "Only 'machakos' and 'vhembe' are supported."}
+
+    coords = SUPPORTED_LOCATIONS[loc]
+    days = max(1, min(days, 16))
+
+    url = (
+        f"https://api.open-meteo.com/v1/forecast?"
+        f"latitude={coords['lat']}&longitude={coords['lon']}"
+        f"&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code"
+        f"&forecast_days={days}"
+        "&timezone=Africa%2FNairobi"
+    )
+
+    try:
+        res = requests.get(url, timeout=15)
+        res.raise_for_status()
+        daily = res.json()["daily"]
+    except Exception as e:
+        return {"error": "Failed to fetch forecast", "details": str(e)}
+
+    dates = daily.get("time", [])
+    temp_max = daily.get("temperature_2m_max", [])
+    temp_min = daily.get("temperature_2m_min", [])
+    rain = daily.get("precipitation_sum", [])
+    codes = daily.get("weather_code", [])
+
+    forecast = []
+    for i, date in enumerate(dates):
+        code = codes[i] if i < len(codes) else None
+        forecast.append({
+            "date": date,
+            "temp_max": temp_max[i] if i < len(temp_max) else None,
+            "temp_min": temp_min[i] if i < len(temp_min) else None,
+            "precipitation_sum": rain[i] if i < len(rain) else None,
+            "weather_code": code,
+            "description": describe_weather_code(code),
+        })
+
+    return {"location": loc.title(), "forecast": forecast}
 
 # 🌍 Earth-2 status endpoint
 @app.get("/earth2/status")

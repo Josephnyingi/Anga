@@ -86,10 +86,9 @@ class DashboardScreenState extends State<DashboardScreen> {
       for (final alert in alerts) {
         if (_notifiedAlertIds.contains(alert.id)) continue;
         _notifiedAlertIds.add(alert.id);
-        await NotificationService().showExtremeWeatherWarning(
-          location: alert.location,
-          condition: alert.type,
-          severity: alert.severity,
+        await NotificationService().showWeatherAlert(
+          title: '⚠️ Weather Alert — ${alert.location}',
+          body: alert.message,
         );
       }
     } catch (e) {
