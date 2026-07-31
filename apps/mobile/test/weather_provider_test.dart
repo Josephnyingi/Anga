@@ -2,6 +2,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:anga/providers/weather_provider.dart';
 
 void main() {
+  // Helper functions for testing - must be declared before use since local
+  // functions in Dart aren't hoisted the way top-level functions are.
+  String formatApiDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  String formatDisplayDate(DateTime date) {
+    return '${date.day}/${date.month}';
+  }
+
   group('WeatherProvider Tests', () {
     late WeatherProvider weatherProvider;
 
@@ -139,13 +149,4 @@ void main() {
       expect(weatherProvider.isLoading, false);
     });
   });
-
-  // Helper functions for testing
-  String formatApiDate(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
-
-  String formatDisplayDate(DateTime date) {
-    return '${date.day}/${date.month}';
-  }
-} 
+}

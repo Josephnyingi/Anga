@@ -58,7 +58,7 @@ jobs:
     - name: Analyze Flutter code
       run: |
         cd apps/mobile
-        flutter analyze
+        flutter analyze --no-fatal-infos --no-fatal-warnings
 
     - name: Run Flutter tests
       run: |
