@@ -1,41 +1,44 @@
 #!/usr/bin/env python3
 """
-Create placeholder ML models for the ANGA backend
+Train the ANGA temperature and rainfall forecast models.
+
+Trains two Prophet models on real historical weather data (ml/data/raw/Dataset/Historical.csv)
+and pickles them to app/model/. main.py's /predict/ ml route calls
+model.predict(future_df).iloc[0]["yhat"], which is Prophet's API, so these
+must stay Prophet models (not sklearn) to match that call.
 """
 
-import pickle
-import pandas as pd
-from sklearn.linear_model import LinearRegression
 import os
+import pickle
 
-# Create model directory if it doesn't exist
-os.makedirs('app/model', exist_ok=True)
+import pandas as pd
+from prophet import Prophet
 
-# Create a simple linear regression model for temperature prediction
-temp_model = LinearRegression()
-# Train with dummy data
-dummy_data = pd.DataFrame({
-    'ds': pd.date_range('2020-01-01', periods=100, freq='D'),
-    'yhat': [20 + i * 0.1 + (i % 7) * 2 for i in range(100)]
-})
-temp_model.fit(dummy_data[['ds']].astype(int), dummy_data['yhat'])
+REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+HISTORICAL_CSV = os.path.join(REPO_ROOT, "..", "..", "ml", "data", "raw", "Dataset", "Historical.csv")
 
-# Create a simple linear regression model for rain prediction
-rain_model = LinearRegression()
-# Train with dummy data
-rain_data = pd.DataFrame({
-    'ds': pd.date_range('2020-01-01', periods=100, freq='D'),
-    'yhat': [0.1 + (i % 30) * 0.05 for i in range(100)]
-})
-rain_model.fit(rain_data[['ds']].astype(int), rain_data['yhat'])
+os.makedirs(os.path.join(REPO_ROOT, "app", "model"), exist_ok=True)
 
-# Save the models
-with open('app/model/temp_model.pkl', 'wb') as f:
+weather = pd.read_csv(HISTORICAL_CSV)
+weather = weather.rename(columns={"DATE": "ds"})
+
+temp = weather[["ds", "temperature"]].rename(columns={"temperature": "y"})
+rain = weather[["ds", "rain"]].rename(columns={"rain": "y"})
+
+temp_model = Prophet()
+temp_model.add_country_holidays(country_name="KE")
+temp_model.fit(temp)
+
+rain_model = Prophet()
+rain_model.add_country_holidays(country_name="KE")
+rain_model.fit(rain)
+
+with open(os.path.join(REPO_ROOT, "app", "model", "temp_model.pkl"), "wb") as f:
     pickle.dump(temp_model, f)
 
-with open('app/model/rain_model.pkl', 'wb') as f:
+with open(os.path.join(REPO_ROOT, "app", "model", "rain_model.pkl"), "wb") as f:
     pickle.dump(rain_model, f)
 
-print("✅ Created placeholder ML models")
-print("   - app/model/temp_model.pkl")
-print("   - app/model/rain_model.pkl")
+print("Trained models on", len(weather), "days of historical data:")
+print("  - app/model/temp_model.pkl")
+print("  - app/model/rain_model.pkl")
