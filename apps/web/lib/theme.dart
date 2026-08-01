@@ -23,12 +23,8 @@ class AppTheme {
   static const Color lightSurfaceColor = Color(0xFFFFFFFF);
   static const Color lightCardColor = Color(0xFFFFFFFF);
 
-  static ThemeData lightTheme = ThemeData(
+  static final ThemeData lightTheme = _withInter(ThemeData(
     useMaterial3: true, // Enable Material 3
-    // Matches the Inter font already loaded on the investor showcase page
-    // (build/web/showcase.html) - the app itself previously fell back to
-    // Flutter's bare default, so the two never looked like the same product.
-    fontFamily: GoogleFonts.inter().fontFamily,
     brightness: Brightness.light,
     primaryColor: primaryColor,
     scaffoldBackgroundColor: lightBackgroundColor,
@@ -262,12 +258,11 @@ class AppTheme {
       behavior: SnackBarBehavior.floating,
       elevation: 4,
     ),
-  );
+  ));
 
   // 🌙 Dark Theme
-  static ThemeData darkTheme = ThemeData(
+  static final ThemeData darkTheme = _withInter(ThemeData(
     useMaterial3: true,
-    fontFamily: GoogleFonts.inter().fontFamily,
     brightness: Brightness.dark,
     primaryColor: primaryColor,
     scaffoldBackgroundColor: darkPrimaryColor,
@@ -485,5 +480,17 @@ class AppTheme {
       behavior: SnackBarBehavior.floating,
       elevation: 4,
     ),
-  );
+  ));
+
+  // GoogleFonts.interTextTheme() is the documented way to apply a Google
+  // Font - it wires up the runtime-fetch hooks properly. Setting
+  // `fontFamily: GoogleFonts.inter().fontFamily` directly on ThemeData
+  // (an earlier attempt) silently fell back to Roboto because it never
+  // triggered the actual font loading.
+  static ThemeData _withInter(ThemeData base) {
+    return base.copyWith(
+      textTheme: GoogleFonts.interTextTheme(base.textTheme),
+      primaryTextTheme: GoogleFonts.interTextTheme(base.primaryTextTheme),
+    );
+  }
 }
