@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 // import 'web_theme.dart';
 
 class AppTheme {
@@ -24,6 +25,10 @@ class AppTheme {
 
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true, // Enable Material 3
+    // Matches the Inter font already loaded on the investor showcase page
+    // (build/web/showcase.html) - the app itself previously fell back to
+    // Flutter's bare default, so the two never looked like the same product.
+    fontFamily: GoogleFonts.inter().fontFamily,
     brightness: Brightness.light,
     primaryColor: primaryColor,
     scaffoldBackgroundColor: lightBackgroundColor,
@@ -262,6 +267,7 @@ class AppTheme {
   // 🌙 Dark Theme
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
+    fontFamily: GoogleFonts.inter().fontFamily,
     brightness: Brightness.dark,
     primaryColor: primaryColor,
     scaffoldBackgroundColor: darkPrimaryColor,

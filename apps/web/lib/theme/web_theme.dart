@@ -8,9 +8,12 @@ class WebTheme {
   static const Color webInfo      = Color(0xFF3B82F6);
   static const Color webSuccess   = Color(0xFF10B981);
 
+  // Starts at the actual primary color (was a different, uncoordinated
+  // blue - 0xFF1D4ED8 - so the dashboard header never quite matched the
+  // buttons/app bar elsewhere in the app).
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF1D4ED8), Color(0xFF0D9488)],
+    colors: [webPrimary, webSecondary],
   );
 }

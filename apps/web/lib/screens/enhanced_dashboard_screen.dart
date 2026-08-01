@@ -104,7 +104,14 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
               .map((a) => {
                     'title': _alertTitle(a.type),
                     'message': a.message,
-                    'type': a.severity == 'high' ? 'warning' : 'info',
+                    // Mirrors AlertsScreen._getAlertColor's severity mapping
+                    // (high/medium/other -> red/orange/blue) - this used to
+                    // collapse medium down to the same blue as "info", so
+                    // the same alert showed a different color depending on
+                    // whether you saw it here or on the Alerts tab.
+                    'type': a.severity == 'high'
+                        ? 'error'
+                        : (a.severity == 'medium' ? 'warning' : 'info'),
                     'time': a.date,
                   })
               .toList();

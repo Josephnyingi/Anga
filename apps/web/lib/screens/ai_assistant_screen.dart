@@ -174,7 +174,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.grey[300]!),
                     ),
                     child: TextField(
@@ -196,7 +196,9 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                   ),
                 ),
                 const SizedBox(width: 15),
-                // BIG SEND BUTTON
+                // Send button - radius matches the app's button theme
+                // (theme.dart uses 12px everywhere else; this used to be a
+                // 25px pill, the only button in the app shaped that way).
                 Container(
                   height: 50,
                   width: 120,
@@ -204,7 +206,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                     color: _messageController.text.trim().isNotEmpty && !_isLoading
                         ? Theme.of(context).primaryColor
                         : Colors.grey[400],
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
@@ -216,7 +218,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(12),
                       onTap: _isLoading || _messageController.text.trim().isEmpty 
                           ? null 
                           : _sendMessage,
@@ -240,7 +242,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    _isLoading ? 'Sending...' : 'SEND',
+                                    _isLoading ? 'Sending...' : 'Send',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,

@@ -204,9 +204,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(Icons.light_mode),
-                          Switch(
-                            value: Theme.of(context).brightness == Brightness.dark,
-                            onChanged: widget.setTheme,
+                          Semantics(
+                            label: 'Dark mode',
+                            child: Switch(
+                              value: Theme.of(context).brightness == Brightness.dark,
+                              onChanged: widget.setTheme,
+                            ),
                           ),
                           const Icon(Icons.dark_mode),
                         ],

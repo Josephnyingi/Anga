@@ -159,7 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Language'),
+                  title: const Text('App Language'),
                   subtitle: Text(_selectedLanguage),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: _showLanguagePicker,
@@ -475,8 +475,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SimpleDialogOption(
             onPressed: () {
-              setState(() => _selectedLanguage = 'Swahili');
+              // Only English is actually translated right now - changing
+              // the label without changing anything else in the app would
+              // silently pretend this works. Same honesty pattern as
+              // Privacy Policy / Terms of Service below.
               Navigator.pop(context);
+              _showComingSoon('Swahili translation');
             },
             child: const Text('Swahili'),
           ),
