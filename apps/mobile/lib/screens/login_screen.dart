@@ -17,8 +17,11 @@ class LoginScreen extends StatefulWidget {
 class LoginScreenState extends State<LoginScreen> {
   final AuthService _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  // Matches the web app's pre-filled demo login (0700000000 / demo1234) -
+  // mobile's fields were empty, requiring judges/reviewers to know and
+  // type the demo credentials themselves instead of just tapping Login.
+  final TextEditingController _phoneController = TextEditingController(text: '0700000000');
+  final TextEditingController _passwordController = TextEditingController(text: 'demo1234');
 
   bool _isLoading = false;
   bool _isRegistering = false;
@@ -171,6 +174,12 @@ class LoginScreenState extends State<LoginScreen> {
                       ),
                       obscureText: _obscurePassword,
                       validator: (value) => value!.trim().isEmpty ? 'Enter your password' : null,
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Demo account pre-filled — just tap Login',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     const SizedBox(height: 10),
 
