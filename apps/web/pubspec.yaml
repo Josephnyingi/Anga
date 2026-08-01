@@ -13,6 +13,7 @@ dependencies:
   # UI & Navigation
   cupertino_icons: ^1.0.8
   page_transition: ^2.2.1
+  flutter_markdown_plus: ^1.0.3
 
   # HTTP & API
   http: ^1.3.0

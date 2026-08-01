@@ -25,6 +25,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
   String _selectedLanguage = 'English';
 
+  @override
+  void initState() {
+    super.initState();
+    // This screen is kept alive by the bottom nav's IndexedStack, so it
+    // won't naturally rebuild when another tab changes the location -
+    // without this listener it keeps showing whichever location was
+    // selected the first time this tab was ever opened.
+    AppState.selectedLocationNotifier.addListener(_onLocationChanged);
+  }
+
+  @override
+  void dispose() {
+    AppState.selectedLocationNotifier.removeListener(_onLocationChanged);
+    super.dispose();
+  }
+
+  void _onLocationChanged() {
+    if (mounted) setState(() {});
+  }
+
   Future<void> _selectDateRange() async {
     final picked = await showDateRangePicker(
       context: context,

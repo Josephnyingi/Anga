@@ -53,6 +53,11 @@ class _LivestockScreenState extends State<LivestockScreen> {
   Future<void> _openAddDialog() async {
     String selectedType = kAnimalTypes.first;
     final countController = TextEditingController();
+    // Shown inline in the dialog rather than via ScaffoldMessenger - a
+    // SnackBar triggered while this AlertDialog is open renders underneath
+    // the dialog's modal barrier and is invisible to the user.
+    String? errorText;
+    bool isSaving = false;
 
     final saved = await showDialog<bool>(
       context: context,
@@ -73,7 +78,13 @@ class _LivestockScreenState extends State<LivestockScreen> {
               TextField(
                 controller: countController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'How many?'),
+                decoration: InputDecoration(
+                  labelText: 'How many?',
+                  errorText: errorText,
+                ),
+                onChanged: (_) {
+                  if (errorText != null) setDialogState(() => errorText = null);
+                },
               ),
             ],
           ),
@@ -83,30 +94,40 @@ class _LivestockScreenState extends State<LivestockScreen> {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () async {
-                final count = int.tryParse(countController.text);
-                if (count == null || count < 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Enter a valid count')),
-                  );
-                  return;
-                }
-                try {
-                  await LivestockService.upsertLivestock(
-                    phoneNumber: AppState.phoneNumber,
-                    location: AppState.selectedLocation.toLowerCase(),
-                    animalType: selectedType,
-                    count: count,
-                  );
-                  if (context.mounted) Navigator.pop(context, true);
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text('Could not save: $e')));
-                  }
-                }
-              },
-              child: const Text('Save'),
+              onPressed: isSaving
+                  ? null
+                  : () async {
+                      final count = int.tryParse(countController.text);
+                      if (count == null || count < 0) {
+                        setDialogState(() => errorText = 'Enter a valid count');
+                        return;
+                      }
+                      setDialogState(() {
+                        isSaving = true;
+                        errorText = null;
+                      });
+                      try {
+                        await LivestockService.upsertLivestock(
+                          phoneNumber: AppState.phoneNumber,
+                          location: AppState.selectedLocation.toLowerCase(),
+                          animalType: selectedType,
+                          count: count,
+                        );
+                        if (context.mounted) Navigator.pop(context, true);
+                      } catch (e) {
+                        setDialogState(() {
+                          isSaving = false;
+                          errorText = 'Could not save: $e';
+                        });
+                      }
+                    },
+              child: isSaving
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Save'),
             ),
           ],
         ),

@@ -30,6 +30,17 @@ class _AlertsScreenState extends State<AlertsScreen> {
   void initState() {
     super.initState();
     _loadAlerts();
+    // This screen is kept alive by the bottom nav's IndexedStack, so it
+    // won't naturally rebuild when another tab changes the location -
+    // without this listener it keeps showing whichever location was
+    // selected the first time this tab was ever opened.
+    AppState.selectedLocationNotifier.addListener(_loadAlerts);
+  }
+
+  @override
+  void dispose() {
+    AppState.selectedLocationNotifier.removeListener(_loadAlerts);
+    super.dispose();
   }
 
   Future<void> _loadAlerts() async {

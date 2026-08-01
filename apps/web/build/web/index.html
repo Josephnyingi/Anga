@@ -151,6 +151,14 @@
       }
     }
 
+    // runApp() resolving only means Flutter's main() started, not that the
+    // first frame has actually painted - fading the splash out right then
+    // caused it to visibly overlap/bleed into the still-painting app
+    // underneath, especially noticeable on mobile. Prefer the engine's own
+    // first-frame signal; keep the runApp() chain as a fallback in case that
+    // event isn't dispatched (removeSplash is idempotent either way).
+    window.addEventListener('flutter-first-frame', removeSplash);
+
     window.addEventListener('load', function() {
       // flutter_bootstrap.js (generated at build time) sets _flutter.buildConfig
       // and calls _flutter.loader.load(). We intercept here to add splash removal.
@@ -164,7 +172,9 @@
             opts.onEntrypointLoaded = function(engineInitializer) {
               engineInitializer.initializeEngine().then(function(appRunner) {
                 return appRunner.runApp();
-              }).then(removeSplash);
+              }).then(function() {
+                setTimeout(removeSplash, 300);
+              });
             };
           }
           return origLoad(opts);

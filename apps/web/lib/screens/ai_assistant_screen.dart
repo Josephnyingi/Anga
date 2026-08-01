@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import '../services/ai_assistant_service.dart';
 
 /// 🤖 **AI Assistant Screen for Web**
@@ -13,6 +14,7 @@ class AIAssistantScreen extends StatefulWidget {
 
 class _AIAssistantScreenState extends State<AIAssistantScreen> {
   final TextEditingController _messageController = TextEditingController();
+  final ScrollController _suggestionsScrollController = ScrollController();
   final List<Map<String, dynamic>> _messages = [];
   bool _isLoading = false;
   final List<String> _suggestions = const [
@@ -31,6 +33,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
   @override
   void dispose() {
     _messageController.dispose();
+    _suggestionsScrollController.dispose();
     super.dispose();
   }
 
@@ -47,28 +50,29 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
     return Scaffold(
       body: Column(
         children: [
-          // Suggestions (quick actions)
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.only(top: 8, left: 12, right: 12),
-            child: Row(
-              children: _suggestions
-                  .map((s) => Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: ActionChip(
-                          label: Text(s),
-                          onPressed: _isLoading
-                              ? null
-                              : () {
-                                  _messageController.text = s;
-                                  _sendMessage();
-                                },
-                          backgroundColor: Theme.of(context)
-                              .primaryColor
-                              .withOpacity(0.08),
-                        ),
-                      ))
-                  .toList(),
+          // Suggestions (quick actions). Scrollbar makes it visible that
+          // this row scrolls - it was previously hard-clipped at the
+          // viewport edge with no indication there was more to see.
+          Scrollbar(
+            controller: _suggestionsScrollController,
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              controller: _suggestionsScrollController,
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(top: 8, left: 12, right: 12, bottom: 4),
+              child: Row(
+                children: _suggestions.map((s) => Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: _SuggestionChip(
+                        label: s,
+                        enabled: !_isLoading,
+                        onTap: () {
+                          _messageController.text = s;
+                          _sendMessage();
+                        },
+                      ),
+                    )).toList(),
+              ),
             ),
           ),
           // Header
@@ -291,12 +295,21 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    text,
-                    style: TextStyle(
-                      color: isUser ? Colors.white : Colors.black87,
+                  // AI replies come back with **bold**/* bullet* markdown
+                  // from the model - render it properly instead of showing
+                  // the raw asterisks. User messages are plain text as typed.
+                  if (isUser)
+                    Text(text, style: const TextStyle(color: Colors.white))
+                  else
+                    MarkdownBody(
+                      data: text,
+                      shrinkWrap: true,
+                      styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                        p: const TextStyle(color: Colors.black87),
+                        listBullet: const TextStyle(color: Colors.black87),
+                        strong: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 4),
                   Text(
                     _formatTime(timestamp),
@@ -400,5 +413,41 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
         });
       }
     }
+  }
+}
+
+/// A tap-to-send suggestion pill. Deliberately not built on Flutter's Chip
+/// family (ActionChip/ChoiceChip etc. share a base implementation that
+/// exposes checkbox-like semantics to screen readers even for chips with no
+/// selection state) - Material + InkWell gives correct "button" semantics.
+class _SuggestionChip extends StatelessWidget {
+  final String label;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  const _SuggestionChip({
+    required this.label,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
+    return Material(
+      color: primaryColor.withOpacity(0.08),
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: enabled ? onTap : null,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Text(
+            label,
+            style: TextStyle(color: primaryColor, fontWeight: FontWeight.w500),
+          ),
+        ),
+      ),
+    );
   }
 }

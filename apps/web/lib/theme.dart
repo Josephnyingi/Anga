@@ -134,34 +134,38 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 2,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        // Padding alone doesn't guarantee a touch-friendly height - without
+        // this, several buttons across the app measured ~32px tall.
+        minimumSize: const Size(double.infinity, 48),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
         textStyle: const TextStyle(
-          fontSize: 16, 
+          fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
         ),
       ),
     ),
-    
+
     // 🔘 Outlined Button Theme
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: primaryColor,
         side: const BorderSide(color: primaryColor, width: 1.5),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        minimumSize: const Size(double.infinity, 48),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
         textStyle: const TextStyle(
-          fontSize: 16, 
+          fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
         ),
       ),
     ),
-    
+
     // 🔘 Text Button Theme
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
@@ -362,33 +366,35 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 2,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        minimumSize: const Size(double.infinity, 48),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
         textStyle: const TextStyle(
-          fontSize: 16, 
+          fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
         ),
       ),
     ),
-    
+
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: primaryColor,
         side: const BorderSide(color: primaryColor, width: 1.5),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        minimumSize: const Size(double.infinity, 48),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
         textStyle: const TextStyle(
-          fontSize: 16, 
+          fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
         ),
       ),
     ),
-    
+
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: primaryColor,

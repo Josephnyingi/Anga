@@ -217,6 +217,10 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
                     
                     // Forecast Section
                     _buildForecastSection(),
+
+                    // Reserves room so the floating refresh button doesn't
+                    // overlap the last card when content is short.
+                    const SizedBox(height: 88),
                   ],
                 ),
               ),

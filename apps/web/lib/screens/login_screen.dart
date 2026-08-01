@@ -96,6 +96,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your phone number';
                           }
+                          final digitCount = value.replaceAll(RegExp(r'[^0-9]'), '').length;
+                          if (digitCount < 7) {
+                            return 'Enter a valid phone number';
+                          }
                           return null;
                         },
                       ),
@@ -147,7 +151,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                           TextButton(
-                            onPressed: () => _showMessage('Forgot Password', 'Contact support to reset your password.', Colors.blue),
+                            onPressed: () => _showMessage(
+                              'Forgot Password',
+                              'Contact support to reset your password:\njosenyingi@gmail.com\n+254 708 171 889',
+                              Colors.blue,
+                            ),
                             child: const Text('Forgot Password?'),
                           )
                         ],
