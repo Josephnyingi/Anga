@@ -87,12 +87,20 @@ class MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _fetchWeatherUpdate,
-        backgroundColor: Colors.blueAccent,
-        tooltip: 'Refresh Weather Data',
-        child: const Icon(Icons.refresh, size: 28),
-      ),
+      // Only meaningful on the Dashboard tab (_fetchWeatherUpdate is a
+      // no-op on every other index) but it used to render unconditionally
+      // on every tab, sitting in the same corner as - and colliding with -
+      // each screen's own FAB (clipped "Add / Update" on Livestock,
+      // covering AI Assistant's response text, overlapping Settings'
+      // "Terms of Service" row).
+      floatingActionButton: _selectedIndex == 0
+          ? FloatingActionButton(
+              onPressed: _fetchWeatherUpdate,
+              backgroundColor: Colors.blueAccent,
+              tooltip: 'Refresh Weather Data',
+              child: const Icon(Icons.refresh, size: 28),
+            )
+          : null,
     );
   }
 } 

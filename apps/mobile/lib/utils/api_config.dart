@@ -57,13 +57,20 @@ class ApiConfig {
     }
     
     if (Platform.isAndroid) {
-      // Android emulator/device - use 10.0.2.2 for emulator, PC's IP for device
+      // Android emulator uses 10.0.2.2 to reach the host machine. A
+      // physical device can't reach a local dev backend without knowing
+      // the developer's actual LAN IP, so that case needs an explicit
+      // --dart-define=MANUAL_IP_OVERRIDE=<your-ip> (handled above) -
+      // falling back to a hardcoded personal IP address here (as this
+      // used to) is wrong for literally anyone except whoever's machine
+      // that IP belonged to, so fall back to production instead of
+      // guessing an address nobody else can reach.
       final isEmulator = _isAndroidEmulator();
       debugPrint("   Is Android Emulator: $isEmulator");
-      
-      return isEmulator 
-          ? "http://10.0.2.2:8000"  // Android emulator
-          : "http://192.168.151.4:8000"; // Android device - your PC's IP
+
+      return isEmulator
+          ? "http://10.0.2.2:8000" // Android emulator
+          : EnvironmentConfig.productionBaseUrl; // Physical device without a manual override
     } else if (Platform.isWindows) {
       debugPrint("   Using Windows localhost URL");
       return "http://localhost:8000"; // Windows desktop

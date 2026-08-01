@@ -170,11 +170,13 @@ class AlertsScreenState extends State<AlertsScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: _handleBackNavigation,
+          tooltip: 'Back',
         ),
         // Add actions for additional functionality
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh alerts',
             onPressed: () {
               _loadAlerts();
               ScaffoldMessenger.of(context).showSnackBar(
@@ -187,6 +189,7 @@ class AlertsScreenState extends State<AlertsScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.filter_list),
+            tooltip: 'Filter alerts',
             onPressed: () {
               _showFilterDialog();
             },
@@ -405,14 +408,17 @@ class AlertsScreenState extends State<AlertsScreen> {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.info_outline, color: Colors.white, size: 20),
+                          tooltip: 'Alert details',
                           onPressed: () => _showAlertDetails(alert),
                         ),
                         IconButton(
                           icon: const Icon(Icons.share, color: Colors.white, size: 20),
+                          tooltip: 'Share alert',
                           onPressed: () => _handleAlertAction('share', alert),
                         ),
                         IconButton(
                           icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                          tooltip: 'Dismiss alert',
                           onPressed: () => _handleAlertAction('dismiss', alert),
                         ),
                       ],

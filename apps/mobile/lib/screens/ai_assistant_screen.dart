@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import '../services/ai_assistant_service.dart';
 
 class AIAssistantScreen extends StatefulWidget {
@@ -69,13 +71,13 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
         builder: (context) => Scaffold(
           appBar: AppBar(
             title: const Text('AI Response'),
-            backgroundColor: Colors.purple,
+            backgroundColor: Colors.blueAccent,
             foregroundColor: Colors.white,
             actions: [
               IconButton(
                 icon: const Icon(Icons.copy),
                 onPressed: () {
-                  // TODO: Implement copy functionality
+                  Clipboard.setData(ClipboardData(text: _response!));
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Response copied to clipboard'),
@@ -90,11 +92,12 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
-              child: Text(
-                _response!,
-                style: const TextStyle(
-                  fontSize: 18,
-                  height: 1.7,
+              // AI replies come back with **bold**/* bullet* markdown from
+              // the model - render it instead of showing raw asterisks.
+              child: MarkdownBody(
+                data: _response!,
+                styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                  p: const TextStyle(fontSize: 18, height: 1.7),
                 ),
               ),
             ),
@@ -111,11 +114,12 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("AI Assistant", style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.blueAccent,
         // Add back button for proper navigation
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: _handleBackNavigation,
+          tooltip: 'Back',
         ),
         // Add actions for additional functionality
         actions: [
@@ -151,7 +155,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                       children: [
                         Icon(
                           Icons.assistant,
-                          color: Colors.purple,
+                          color: Colors.blueAccent,
                           size: 24,
                         ),
                         const SizedBox(width: 8),
@@ -194,7 +198,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                             : const Icon(Icons.send),
                         label: Text(_loading ? "Asking..." : "Ask AI Assistant"),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple,
+                          backgroundColor: Colors.blueAccent,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
@@ -222,7 +226,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                           children: [
                             Icon(
                               Icons.smart_toy,
-                              color: Colors.purple,
+                              color: Colors.blueAccent,
                               size: 24,
                             ),
                             const SizedBox(width: 8),
@@ -244,7 +248,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                             IconButton(
                               icon: const Icon(Icons.copy),
                               onPressed: () {
-                                // TODO: Implement copy functionality
+                                Clipboard.setData(ClipboardData(text: _response!));
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Response copied to clipboard'),
@@ -264,18 +268,20 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
                               color: isDarkMode ? Colors.grey[900] : Colors.grey[50],
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: Colors.purple.withOpacity(0.2),
+                                color: Colors.blueAccent.withOpacity(0.2),
                                 width: 1,
                               ),
                             ),
                             padding: const EdgeInsets.all(16),
                             child: SingleChildScrollView(
-                              child: Text(
-                                _response!,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  height: 1.6, // Increased line height for better readability
-                                  color: isDarkMode ? Colors.grey[300] : Colors.black87,
+                              child: MarkdownBody(
+                                data: _response!,
+                                styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                                  p: TextStyle(
+                                    fontSize: 16,
+                                    height: 1.6,
+                                    color: isDarkMode ? Colors.grey[300] : Colors.black87,
+                                  ),
                                 ),
                               ),
                             ),

@@ -43,7 +43,12 @@ class AuthService {
         body: jsonEncode({"name": name, "phone_number": phone, "password": password}),
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
+        // Backend's POST /users/ returns 200 (FastAPI's default for a
+        // route with no explicit status_code), not 201 - this checked for
+        // 201, so every successful registration was misreported as a
+        // failure (and then crashed trying to read a "detail" field that
+        // doesn't exist on a success response).
         return {"success": true, "message": "User registered successfully!"};
       } else {
         return {

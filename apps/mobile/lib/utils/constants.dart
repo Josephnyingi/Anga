@@ -1,27 +1,24 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'api_config.dart';
 
 /// 🌍 **API Configuration**
 ///
-/// Use the correct URL depending on where you're running your backend:
-///
-/// 📱 **Android Emulator** (accesses host machine):
-///   👉 http://10.0.2.2:8000
-///
-/// 💻 **Windows Desktop app** (use local host directly):
-///   👉 http://127.0.0.1:8000
-///
-/// 🌐 **Production Deployment** (e.g., live server):
-///   👉 Replace with your actual server IP/domain
+/// Delegates to ApiConfig (utils/api_config.dart) so auth uses the same
+/// environment-aware URL resolution as every other service, instead of a
+/// second, separate config system. This used to be a hardcoded
+/// "http://10.0.2.2:8000" (the Android-emulator-to-host address) baked
+/// into every build including release - real users' phones could never
+/// reach it.
 
-const String API_BASE_URL = "http://10.0.2.2:8000"; // ✅ Emulator access to FastAPI on Windows
+String get API_BASE_URL => ApiConfig.baseUrl;
 
 /// **🔗 API Endpoints**
-const String LOGIN_API = "$API_BASE_URL/login/";
-const String REGISTER_API = "$API_BASE_URL/users/";
-const String WEATHER_PREDICT_API = "$API_BASE_URL/predict/";
-const String SAVE_PREDICTION_API = "$API_BASE_URL/save_prediction/";
+String get LOGIN_API => ApiConfig.loginUrl;
+String get REGISTER_API => ApiConfig.registerUrl;
+String get WEATHER_PREDICT_API => ApiConfig.weatherPredictUrl;
+String get SAVE_PREDICTION_API => ApiConfig.savePredictionUrl;
 
 /// 🎨 **Theme Colors**
 const Color primaryColor = Color(0xFF007ACC);       // 🔹 Modern blue for branding

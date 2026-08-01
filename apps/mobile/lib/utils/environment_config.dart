@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kReleaseMode;
 
 enum Environment {
   development,
@@ -6,8 +7,15 @@ enum Environment {
 }
 
 class EnvironmentConfig {
-  static Environment _environment = Environment.development;
-  
+  // Defaults to production for release builds (what actually ships to
+  // users - the App Store/Play Store build and the distributed APK) and
+  // development otherwise. Previously this was hardcoded to `development`
+  // with nothing anywhere in the app ever calling setEnvironment(production),
+  // so every build - including the published release APK - pointed at
+  // localhost/emulator-only addresses that no real user's phone could reach.
+  static Environment _environment =
+      kReleaseMode ? Environment.production : Environment.development;
+
   static Environment get environment => _environment;
   
   static void setEnvironment(Environment env) {
@@ -22,9 +30,15 @@ class EnvironmentConfig {
       case Environment.staging:
         return 'https://staging-api.anga.com'; // Replace with your staging URL
       case Environment.production:
-        return 'https://anga-weather-api.onrender.com';
+        return productionBaseUrl;
     }
   }
+
+  /// The real backend, regardless of current environment - for fallback
+  /// paths that need a URL guaranteed to work (e.g. a physical device with
+  /// no local-dev IP override configured) rather than one that resolves
+  /// per the *current* (possibly development) environment.
+  static const String productionBaseUrl = 'https://anga-weather-api.onrender.com';
   
   static String get weatherApiKey {
     // In production, use secure storage or environment variables

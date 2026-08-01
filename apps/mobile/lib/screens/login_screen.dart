@@ -113,25 +113,29 @@ class LoginScreenState extends State<LoginScreen> {
             children: [
               FadeInDown(
                 duration: const Duration(milliseconds: 500),
-                child: Image.asset(
-                  'assets/images/farming.jpg',
-                  height: 200,
-                ),
+                // Was Image.asset('assets/images/farming.jpg') - an
+                // unlicensed iStock preview image with the watermark still
+                // visible. Replaced with the same icon-based header the web
+                // app uses rather than a photo of uncertain provenance.
+                child: const Text('🌤️', style: TextStyle(fontSize: 64)),
               ),
               const SizedBox(height: 15),
 
               FadeInUp(
                 duration: const Duration(milliseconds: 500),
-                child: Column(
-                  children: const [
+                child: const Column(
+                  children: [
                     Text(
-                      "🌍 Anga - AI-Powered Climate Forecasts",
+                      // Was "Anga - AI-Powered Climate Forecasts" - a
+                      // different name than the "ANGA Weather" title shown
+                      // on every other screen (dashboard app bar, web app).
+                      "ANGA Weather",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                     SizedBox(height: 5),
                     Text(
-                      "Accurate AI-driven weather forecasts to help African farmers make smarter decisions and increase yields.",
+                      "AI-Powered Weather & Farming Assistant",
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
@@ -183,7 +187,11 @@ class LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                         TextButton(
-                          onPressed: () => _showMessage("Forgot Password", "Contact support to reset your password.", Colors.blue),
+                          onPressed: () => _showMessage(
+                            "Forgot Password",
+                            "Contact support to reset your password:\njosenyingi@gmail.com\n+254 708 171 889",
+                            Colors.blue,
+                          ),
                           child: const Text("Forgot Password?", style: TextStyle(color: Colors.blueAccent)),
                         ),
                       ],

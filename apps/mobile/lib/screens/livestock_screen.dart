@@ -194,6 +194,7 @@ class _LivestockScreenState extends State<LivestockScreen> {
               ),
               trailing: IconButton(
                 icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                tooltip: 'Delete',
                 onPressed: () => _delete(r),
               ),
             ),

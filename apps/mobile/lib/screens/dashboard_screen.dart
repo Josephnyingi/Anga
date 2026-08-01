@@ -33,6 +33,7 @@ class DashboardScreenState extends State<DashboardScreen> {
     'description': '—',
     'feelsLike': null,
     'rain': null,
+    'estimated': false,
   };
 
   List<Map<String, dynamic>> _forecast = [];
@@ -78,6 +79,7 @@ class DashboardScreenState extends State<DashboardScreen> {
             'description': live['description'] ?? '—',
             'feelsLike': live['feels_like'],
             'rain': live['precipitation'],
+            'estimated': live['estimated'] ?? false,
           };
           _forecast = forecast
               .map((d) => {
@@ -323,6 +325,30 @@ class DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   'Feels like ${_weatherData['feelsLike'] ?? '--'}°C',
                   style: TextStyle(fontSize: 13, color: isDarkMode ? Colors.white54 : Colors.grey.shade600),
+                ),
+                const SizedBox(height: 4),
+                // Backend falls back to estimated typical conditions when
+                // Open-Meteo is unreachable/rate-limited - this used to be
+                // invisible to the user, who'd see normal-looking numbers
+                // with no signal they weren't live.
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.circle,
+                      size: 8,
+                      color: _weatherData['estimated'] == true ? Colors.red : Colors.green,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _weatherData['estimated'] == true ? 'Estimated' : 'Live Data',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: _weatherData['estimated'] == true ? Colors.red : Colors.green,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
