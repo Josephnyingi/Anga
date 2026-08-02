@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'AI-Powered Weather & Farming Assistant',
+                        'Weather forecasts and early-warning alerts for smallholder farmers — heat, frost, flood, drought & livestock heat stress.',
                         style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                       ),
@@ -137,11 +137,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Remember me + forgot password
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      // Remember me + forgot password - Wrap instead of Row
+                      // so "Forgot Password?" drops to its own line on
+                      // narrow screens instead of overflowing (this row had
+                      // no Expanded/Flexible, so it silently clipped by 37px
+                      // at mobile widths - invisible in release builds,
+                      // where Flutter's overflow warning doesn't render).
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Checkbox(
                                 value: _rememberMe,

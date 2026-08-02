@@ -134,13 +134,13 @@ class LoginScreenState extends State<LoginScreen> {
                       // on every other screen (dashboard app bar, web app).
                       "ANGA Weather",
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blueAccent),
                     ),
                     SizedBox(height: 5),
                     Text(
-                      "AI-Powered Weather & Farming Assistant",
+                      "Weather forecasts and early-warning alerts for smallholder farmers — heat, frost, flood, drought & livestock heat stress.",
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -183,10 +183,15 @@ class LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 10),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // Wrap instead of Row so "Forgot Password?" drops to
+                    // its own line on narrow screens instead of
+                    // overflowing - same fix as the web app.
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Checkbox(
                               value: _rememberMe,
