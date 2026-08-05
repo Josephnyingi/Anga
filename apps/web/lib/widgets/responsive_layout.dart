@@ -122,7 +122,10 @@ class ResponsiveGrid extends StatelessWidget {
         crossAxisCount: columns,
         crossAxisSpacing: spacing,
         mainAxisSpacing: spacing,
-        childAspectRatio: 1.8,
+        // At 1 column the card spans the full (wide) content width, so the
+        // same 1.8 ratio used for narrower multi-column cards left ~150px
+        // of empty space below each card's actual content.
+        childAspectRatio: columns == 1 ? 3.4 : 1.8,
       ),
       itemCount: children.length,
       itemBuilder: (context, index) => children[index],

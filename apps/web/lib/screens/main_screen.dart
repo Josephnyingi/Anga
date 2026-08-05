@@ -6,7 +6,7 @@ import 'ai_assistant_screen.dart';
 import 'livestock_screen.dart';
 
 /// 🏠 **Main Screen for Web**
-/// 
+///
 /// This is the main navigation screen for the web application.
 class MainScreen extends StatefulWidget {
   final void Function(bool)? setTheme;

@@ -57,7 +57,9 @@ class _DebugScreenState extends State<DebugScreen> {
     try {
       final response = await http
           .get(Uri.parse(ApiConfig.healthCheckUrl), headers: ApiConfig.defaultHeaders)
-          .timeout(const Duration(seconds: 10));
+          // Render's free tier cold start can take 60-90s - a short timeout
+          // here made a genuinely-up backend falsely report "Disconnected".
+          .timeout(const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -269,7 +271,9 @@ class _DebugScreenState extends State<DebugScreen> {
     try {
       final response = await http
           .get(Uri.parse(ApiConfig.healthCheckUrl), headers: ApiConfig.defaultHeaders)
-          .timeout(const Duration(seconds: 10));
+          // Render's free tier cold start can take 60-90s - a short timeout
+          // here made a genuinely-up backend falsely report "Disconnected".
+          .timeout(const Duration(seconds: 60));
       stopwatch.stop();
 
       if (mounted) {

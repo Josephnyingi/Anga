@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../theme.dart';
 import '../utils/app_state.dart';
+import '../widgets/app_toast.dart';
 import 'debug_screen.dart';
 
 /// Settings screen, backed by the shared AppState so changes here actually
@@ -64,8 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      body: SingleChildScrollView(
+    return SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,7 +207,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -417,9 +416,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _saveSettings() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Settings applied successfully'), behavior: SnackBarBehavior.floating),
-    );
+    showAppToast(context, 'Settings applied successfully');
   }
 
   void _showResetConfirmation() {
@@ -455,9 +452,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       AppState.isDarkMode = false;
     });
     widget.setTheme?.call(false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Settings reset to defaults'), behavior: SnackBarBehavior.floating),
-    );
+    showAppToast(context, 'Settings reset to defaults');
   }
 
   void _showLanguagePicker() {
@@ -490,7 +485,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showComingSoon(String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$feature coming soon!')));
+    showAppToast(context, '$feature coming soon!');
   }
 
   void _showLogoutDialog() {

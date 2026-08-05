@@ -13,6 +13,7 @@ import '../services/alerts_service.dart';
 import '../services/notification_service.dart';
 import '../services/geocode_service.dart';
 import '../utils/app_state.dart';
+import '../widgets/app_toast.dart';
 
 /// 📊 **Enhanced Dashboard Screen for Web**
 ///
@@ -122,12 +123,7 @@ class _EnhancedDashboardScreenState extends State<EnhancedDashboardScreen>
     } catch (e) {
       debugPrint("❌ Dashboard load error: $e");
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Couldn't load weather for $_selectedLocation. Showing last known data."),
-            duration: const Duration(seconds: 4),
-          ),
-        );
+        showAppToast(context, "Couldn't load weather for $_selectedLocation. Showing last known data.");
       }
     } finally {
       if (mounted) {

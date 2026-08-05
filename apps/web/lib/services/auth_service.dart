@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../utils/api_config.dart';
@@ -27,7 +28,11 @@ class AuthService {
             'phone_number': phone,
             'password': password,
           }),
-        ).timeout(const Duration(seconds: 30));
+        // Render's free tier spins the backend down after inactivity; waking
+        // it back up can take 60-90s, well past a typical request timeout -
+        // 30s was cutting that cold start off mid-wake and surfacing a raw
+        // TimeoutException to the user instead of just... waiting.
+        ).timeout(const Duration(seconds: 60));
 
         print('$_tag: Login response status: ${response.statusCode}');
         print('$_tag: Login response body: ${response.body}');
@@ -60,7 +65,9 @@ class AuthService {
       print('$_tag: Login error: $e');
       return {
         'success': false,
-        'message': 'Network error: $e',
+        'message': e is TimeoutException
+            ? 'The server is waking up from sleep - this can take a minute on the free tier. Please try again.'
+            : 'Network error: $e',
       };
     }
   }
@@ -85,7 +92,11 @@ class AuthService {
             'phone_number': phone,
             'password': password,
           }),
-        ).timeout(const Duration(seconds: 30));
+        // Render's free tier spins the backend down after inactivity; waking
+        // it back up can take 60-90s, well past a typical request timeout -
+        // 30s was cutting that cold start off mid-wake and surfacing a raw
+        // TimeoutException to the user instead of just... waiting.
+        ).timeout(const Duration(seconds: 60));
 
         print('$_tag: Registration response status: ${response.statusCode}');
         print('$_tag: Registration response body: ${response.body}');
@@ -118,7 +129,9 @@ class AuthService {
       print('$_tag: Registration error: $e');
       return {
         'success': false,
-        'message': 'Network error: $e',
+        'message': e is TimeoutException
+            ? 'The server is waking up from sleep - this can take a minute on the free tier. Please try again.'
+            : 'Network error: $e',
       };
     }
   }

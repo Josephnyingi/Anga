@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/livestock_service.dart';
 import '../utils/app_state.dart';
+import '../widgets/app_toast.dart';
 
 /// 🐄 **Livestock Screen for Web**
 ///
@@ -44,8 +45,7 @@ class _LivestockScreenState extends State<LivestockScreen> {
       await _load();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Could not delete: $e')));
+        showAppToast(context, 'Could not delete: $e');
       }
     }
   }

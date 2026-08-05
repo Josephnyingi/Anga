@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../services/alerts_service.dart';
 import '../utils/app_state.dart';
 import '../theme.dart';
+import '../widgets/app_toast.dart';
 
 /// Real threshold-based early-warning alerts (heat, frost, flood, drought,
 /// livestock heat stress) from the backend's /alerts/ endpoint, with
@@ -69,9 +70,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
   void _shareAlert(WeatherAlert alert) {
     final text = '${_alertTitle(alert.type)} — ${alert.message} (${alert.location}, ${alert.date})';
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Alert copied to clipboard'), behavior: SnackBarBehavior.floating),
-    );
+    showAppToast(context, 'Alert copied to clipboard');
   }
 
   List<WeatherAlert> get _filteredAlerts {

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import '../services/ai_assistant_service.dart';
+import '../widgets/app_toast.dart';
 
 /// 🤖 **AI Assistant Screen for Web**
-/// 
+///
 /// This screen provides AI-powered farming assistance.
 class AIAssistantScreen extends StatefulWidget {
   const AIAssistantScreen({super.key});
@@ -404,9 +405,7 @@ class _AIAssistantScreenState extends State<AIAssistantScreen> {
         });
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Colors.red),
-        );
+        showAppToast(context, 'Error: ${e.toString()}', backgroundColor: Colors.red);
       }
     } finally {
       if (mounted) {

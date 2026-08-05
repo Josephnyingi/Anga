@@ -14,8 +14,6 @@ import 'services/notification_service.dart';
 import 'services/performance_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'utils/port_config_test.dart';
-import 'utils/weather_service_test.dart';
 import 'utils/environment_config.dart';
 import 'utils/api_config.dart';
 import 'theme.dart'; // Import the enhanced theme
@@ -39,12 +37,6 @@ void main() async {
     await ConnectivityService().initialize();
     await NotificationService().initialize();
     PerformanceService().initialize();
-    
-    // 🧪 Run port configuration test on startup
-    PortConfigTest.runTest();
-    
-    // 🌤️ Run weather service test on startup
-    await WeatherServiceTest.runComprehensiveTest();
     
     ApiConfig.debugPrint("🚀 All services initialized successfully");
   } catch (e) {
