@@ -27,7 +27,16 @@ The APK is a sideloaded release build, not signed with a Play Store key — Andr
 
 **Demo login** (web and mobile, pre-filled on the web login screen): phone `0700000000`, password `demo1234`.
 
-## 🔄 Recent Updates (2026-07-31)
+## 🔄 Recent Updates (2026-08-05)
+
+- Fixed mobile app blocking its own startup for up to a minute on every launch: `main.dart` ran a full diagnostic suite (7+ live API calls, 15s timeouts each) before `runApp()`, unconditionally in debug and release. Removed the dead test utilities that caused it — login screen now appears in ~3s instead of ~60s
+- Redesigned both apps' login screens with an iOS liquid-glass look (frosted `BackdropFilter` card, translucent inputs, soft gradient blobs), scoped to login only — dashboard/alerts/data screens intentionally kept high-contrast for outdoor/low-connectivity readability
+- Fixed web login and the debug health-check timing out at 30s/10s against Render's free-tier cold start (which can take 60-90s), showing a raw exception instead of a friendly "server is waking up" message — both bumped to 60s
+- Fixed web toasts (Settings "coming soon", delete-error messages, etc.) never rendering: the 5 bottom-nav tabs each mount their own `Scaffold` simultaneously via `IndexedStack`, sharing one `ScaffoldMessenger`, which made `showSnackBar` unreliable — replaced with a dialog-based toast that renders consistently
+- Fixed the web dashboard's weather metric cards wasting ~150px of empty space each at mobile widths (hardcoded grid aspect ratio meant for desktop's multi-column layout)
+- Republished the downloadable Android APK release asset so it reflects the above fixes, rather than a July 31 build
+
+## 🔄 Previous Updates (2026-07-31)
 
 - Migrated the backend from a dead Azure Container Instance (subscription got disabled) to Render
 - Fixed a Dockerfile bug that had production silently running a stripped-down debug stub for months instead of the real app — alerts, livestock tracking, and forecast endpoints are live again as a result
@@ -55,7 +64,7 @@ The APK is a sideloaded release build, not signed with a Play Store key — Andr
 - **Real-time Weather Data**: Live weather information from Open-Meteo API
 - **AI Farming Assistant**: Intelligent recommendations for agricultural activities
 - **USSD Integration**: Forecasts, livestock registration, and weather alerts via USSD for areas with limited internet - code complete and tested, not yet deployed to a live shortcode
-- **Cross-platform**: Flutter mobile app for iOS and Android
+- **Cross-platform**: Flutter mobile app, currently shipping for Android (iOS scaffold exists but isn't built, tested, or released yet)
 - **Web Application**: Flutter web app with responsive design and full feature parity
 - **Backend API**: FastAPI-powered backend with machine learning models
 - **Database**: SQLite by default, optional PostgreSQL via `DATABASE_URL`
@@ -117,7 +126,6 @@ Anga/
 │       │   ├── schemas/              # Pydantic schemas
 │       │   ├── services/             # Business logic
 │       │   └── utils/                # Utility functions
-│       ├── tests/                    # Backend tests
 │       ├── migrations/               # Database migrations
 │       ├── requirements/             # Dependency management
 │       ├── Dockerfile
@@ -126,7 +134,6 @@ Anga/
 ├── 🤖 ml/                            # Machine Learning components
 │   ├── models/                       # Trained models
 │   ├── notebooks/                    # Jupyter notebooks
-│   ├── training/                     # Model training scripts
 │   └── data/                         # Training datasets
 │
 ├── 🌐 services/                      # External services
@@ -136,7 +143,6 @@ Anga/
 ├── 📚 docs/                          # Documentation
 ├── 🔧 scripts/                       # Development scripts
 ├── 🐳 infrastructure/                # Infrastructure as Code
-├── 🧪 tests/                         # Integration tests
 ├── 📋 .github/                       # GitHub workflows
 └── 📖 README.md                      # This file
 ```
@@ -357,7 +363,7 @@ This project is licensed under the MIT License - see the [LICENSE](docs/LICENSE)
 
 1. **Documentation**: Check our [documentation](docs/README.md)
 2. **Issues**: Search [existing issues](https://github.com/Josephnyingi/Anga/issues)
-3. **Contact**: Email [support@anga-weather.com](mailto:support@anga-weather.com)
+3. **Contact**: Email [josenyingi@gmail.com](mailto:josenyingi@gmail.com) (same contact the apps' own "Forgot Password" screens point to)
 
 ### Common Issues
 
@@ -394,7 +400,7 @@ The ANGA web application provides full feature parity with the mobile app:
 - **Version**: 1.0.0
 - **Status**: Hackathon MVP, actively developed - not yet hardened for production scale (no token auth, no automated backend test suite, manual web deploys)
 - **Platforms**: Web (all browsers) + Android (sideloaded APK, no Play Store listing). USSD is code-complete and tested but not yet deployed to a live shortcode/Africa's Talking account
-- **Last Updated**: July 2026
+- **Last Updated**: August 2026
 - **Maintainer**: Joseph Nyingi
 
 ---
